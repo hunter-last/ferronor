@@ -1,0 +1,56 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# NetBeans
+nbproject/private/
+nbproject/Makefile-*.mk
+nbproject/Package-*.bash
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# IntelliJ IDEA (por si alguien del equipo lo usa)
+.idea/
+*.iml
+*.iws
+out/
+
+# Eclipse (por si acaso)
+.classpath
+.project
+.settings/
+bin/
+
+# Compilados Java
+*.class
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+
+# Credenciales y configuración local — NUNCA subir
+src/main/resources/config.properties
+*.env
+.env
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Archivos temporales del editor
+*.swp
+*~
