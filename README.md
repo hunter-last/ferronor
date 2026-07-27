@@ -176,454 +176,164 @@ modulo/
 
 \## DETALLE DE LA ESTRUCTURA
 
-
-
-
-
 com.ferronor.sic
-
 │
-
 ├── Main.java
-
 │
-
 ├── config/
-
-│   ├── Configuracion.java          → lee config.properties, falla si falta una clave (sin defaults silenciosos)
-
-│   └── Constantes.java             → IGV (18%), escala moneda, redondeo
-
+│   ├── Configuracion.java          → lee config.properties externo; falla si falta una clave, sin defaults silenciosos
+│   └── Constantes.java             → IGV 18%, escala moneda, redondeo
 │
-
 ├── conexion/
-
-│   └── TransactionManager.java     → incluye TransactionContext (AutoCloseable, ThreadLocal<Connection>, rollback automático en close())
-
+│   └── TransactionManager.java     → TransactionManager.iniciar() devuelve TransactionContext (AutoCloseable, ThreadLocal<Connection>, rollback automático en close() si no hubo commit)
 │
-
 ├── shared/
-
-│   ├── AbstractDAO.java
-
-│   ├── IGeneralDAO.java            → contrato CRUD sin eliminar (filosofía anular/desactivar)
-
-│   ├── IHistoricoDAO.java          → para tablas solo-insertan (movimiento\_inventario, ajuste\_inventario)
-
-│   ├── SesionUsuario.java
-
+│   ├── dao/
+│   │   └── AbstractDAO.java
+│   ├── IGeneralDAO.java            → sin eliminar, filosofía anular/desactivar
+│   ├── IHistoricoDAO.java          → tablas solo-insertan (movimiento_inventario, ajuste_inventario)
+│   ├── ServiceFactory.java         → provee instancias de Service a las vistas, sin acceso directo a DAO desde vista
+│   ├── SesionUsuario.java          → tienePermiso(String) instancia + puedeAcceder(String) estático (renombrado por conflicto de sobrecarga)
 │   ├── RespuestaOperacion.java
-
 │   ├── ResultadoBusqueda.java
-
 │   └── Paginacion.java
-
 │
-
 ├── util/
-
 │   ├── Validaciones.java           → requerido() con y sin longitud máxima
-
 │   ├── CalculadoraImpuestos.java   → IGV centralizado (Regla 13)
-
 │   ├── CalculadoraCPP.java         → costo promedio ponderado centralizado (Regla 13)
-
 │   ├── Fechas.java
-
 │   ├── Numeros.java
-
 │   ├── Mensajes.java
-
 │   ├── ExportadorPDF.java
-
 │   ├── ExportadorExcel.java
-
 │   └── Utilidades.java
-
 │
-
 ├── exception/
-
 │   ├── DaoException.java
-
-│   └── ServiceException.java       (BusinessException fue descartada, no se usa)
-
+│   └── ServiceException.java       (BusinessException descartada, no se usa)
 │
-
-├── auditoria/                      ── CERRADO — módulo transversal, independiente de seguridad
-
-│   ├── modelo/
-
-│   │   └── Auditoria.java
-
-│   ├── dao/
-
-│   │   └── AuditoriaDAO.java
-
-│   └── logica/
-
-│       └── AuditoriaService.java
-
+├── auditoria/                      ── CERRADO — transversal, independiente de seguridad
+│   ├── modelo/Auditoria.java
+│   ├── dao/AuditoriaDAO.java
+│   └── logica/AuditoriaService.java
 │
-
 ├── seguridad/                      ── CERRADO
-
 │   ├── modelo/
-
 │   │   ├── Usuario.java
-
 │   │   ├── Rol.java
-
 │   │   ├── Permiso.java
-
-│   │   └── RolPermiso.java         → PK compuesta, verbos de dominio (no CRUD genérico)
-
+│   │   └── RolPermiso.java         → PK compuesta, verbos de dominio (asignar/revocar), sin RolPermisoService aparte
 │   ├── dao/
-
-│   │   ├── UsuarioDAO.java
-
+│   │   ├── UsuarioDAO.java         → actualizarPassword() dedicado
 │   │   ├── RolDAO.java
-
-│   │   ├── PermisoDAO.java
-
-│   │   └── RolPermisoDAO.java      → asignar()/revocar()
-
+│   │   ├── PermisoDAO.java         → listarPorRol() con JOIN, evita N+1
+│   │   └── RolPermisoDAO.java
 │   ├── logica/
-
-│   │   ├── LoginService.java       → BCrypt, mensaje de error genérico
-
-│   │   ├── UsuarioService.java     → registrar()/actualizar()/cambiarPassword() separados
-
+│   │   ├── LoginService.java       → BCrypt, error genérico, login normalizado a minúsculas
+│   │   ├── UsuarioService.java     → registrar()/actualizar()/cambiarPassword() separados; excepción de bootstrap: si no hay usuarios, registrar() omite validación de permiso ADMIN_USUARIOS
 │   │   └── RolService.java         → integra asignarPermiso/revocarPermiso/obtenerPermisos
-
 │   └── vista/
-
 │       ├── FrmLogin.java
-
 │       ├── FrmUsuarios.java
-
 │       ├── FrmRoles.java
-
 │       └── FrmPermisos.java
-
 │
-
 ├── maestros/                       ── CERRADO
-
 │   ├── modelo/
-
 │   │   ├── Cliente.java
-
 │   │   ├── Proveedor.java
-
 │   │   ├── Producto.java
-
 │   │   ├── Categoria.java
-
 │   │   ├── UnidadMedida.java
-
 │   │   ├── FormaPago.java
-
 │   │   ├── TipoComprobante.java
-
-│   │   └── PlanCuenta.java         → jerarquía autorreferenciada, valida PCGE completo
-
-│   ├── dao/
-
+│   │   └── PlanCuenta.java         → jerarquía autorreferenciada PCGE (nivel=nivel_padre+1, no auto-referencia)
+│   ├── dao/  (uno por entidad — RETURNING, UPPER() para duplicados insensibles a mayúsculas, cambiarEstado() interno)
 │   │   ├── ClienteDAO.java
-
 │   │   ├── ProveedorDAO.java
-
 │   │   ├── ProductoDAO.java
-
 │   │   ├── CategoriaDAO.java
-
 │   │   ├── UnidadMedidaDAO.java
-
 │   │   ├── FormaPagoDAO.java
-
 │   │   ├── TipoComprobanteDAO.java
-
 │   │   └── PlanCuentaDAO.java
-
-│   ├── logica/
-
+│   ├── logica/  (uno por entidad — validarComun, contrato registrar/actualizar/activar/desactivar/listar/listarActivos, buscarPorId/Nombre/Codigo)
 │   │   ├── ClienteService.java
-
 │   │   ├── ProveedorService.java
-
 │   │   ├── ProductoService.java
-
-│   │   ├── CategoriaService.java
-
+│   │   ├── CategoriaService.java   → buscarPorNombreParcial() (filtra en memoria hoy, migrará a ILIKE)
 │   │   ├── UnidadMedidaService.java
-
 │   │   ├── FormaPagoService.java
-
 │   │   ├── TipoComprobanteService.java
-
 │   │   └── PlanCuentaService.java
-
-│   └── vista/
-
+│   └── vista/  (FrmCategoria = plantilla oficial de formularios, ver sección abajo)
 │       ├── FrmClientes.java
-
 │       ├── FrmProveedores.java
-
 │       ├── FrmProductos.java
-
 │       ├── FrmCategorias.java
-
 │       ├── FrmUnidadMedida.java
-
 │       ├── FrmFormaPago.java
-
 │       ├── FrmTipoComprobante.java
-
 │       └── FrmPlanCuentas.java
-
 │
-
-├── inventario/                     ── CERRADO (módulo de referencia oficial)
-
+├── inventario/                     ── CERRADO (plantilla de referencia oficial, validado con smoke test real)
 │   ├── modelo/
-
 │   │   ├── Stock.java
-
-│   │   ├── MovimientoInventario.java
-
+│   │   ├── MovimientoInventario.java   → reconstruir() para reconstrucción desde BD sin recalcular derivados
 │   │   ├── AjusteInventario.java
-
-│   │   └── dto/
-
-│   │       └── KardexItem.java     → derivado, no tabla persistente
-
+│   │   └── dto/KardexItem.java     → derivado, no tabla persistente
 │   ├── dao/
-
 │   │   ├── StockDAO.java
-
-│   │   ├── MovimientoInventarioDAO.java   → incluye vincularDocumentoOrigen()
-
-│   │   └── AjusteInventarioDAO.java       (sin KardexDAO — KardexService usa MovimientoInventarioDAO.listarHastaFecha())
-
+│   │   ├── MovimientoInventarioDAO.java   → listarHastaFecha(), vincularDocumentoOrigen() (resuelve dependencia circular ajuste↔movimiento)
+│   │   └── AjusteInventarioDAO.java   (sin KardexDAO)
 │   ├── logica/
-
-│   │   ├── InventarioService.java
-
+│   │   ├── InventarioService.java  → registrarEntrada()/registrarSalida()
 │   │   ├── AjusteInventarioService.java
-
-│   │   └── KardexService.java
-
+│   │   └── KardexService.java      → obtenerKardex(), reconstruye saldo desde el inicio del historial completo
 │   └── vista/
-
 │       ├── FrmStock.java
-
 │       ├── FrmMovimientos.java
-
 │       ├── FrmKardex.java
-
 │       └── FrmAjusteInventario.java
-
 │
-
 ├── compras/                        ── PENDIENTE (Rafael)
-
-│   ├── modelo/
-
-│   │   ├── Compra.java
-
-│   │   ├── DetalleCompra.java
-
-│   │   ├── OrdenCompra.java
-
-│   │   ├── DetalleOrdenCompra.java
-
-│   │   ├── DevolucionCompra.java
-
-│   │   └── CuentaPagar.java
-
-│   ├── dao/
-
-│   │   ├── CompraDAO.java
-
-│   │   ├── DetalleCompraDAO.java
-
-│   │   ├── OrdenCompraDAO.java
-
-│   │   ├── DetalleOrdenCompraDAO.java
-
-│   │   ├── DevolucionCompraDAO.java
-
-│   │   └── CuentaPagarDAO.java
-
-│   ├── logica/
-
-│   │   └── CompraService.java
-
-│   └── vista/
-
-│       ├── FrmCompras.java
-
-│       ├── FrmOrdenCompra.java
-
-│       ├── FrmDevolucionCompra.java
-
-│       └── FrmCuentasPagar.java
-
+│   ├── modelo/ (Compra, DetalleCompra, OrdenCompra, DetalleOrdenCompra, DevolucionCompra, CuentaPagar)
+│   ├── dao/ (uno por entidad)
+│   ├── logica/CompraService.java
+│   └── vista/ (FrmCompras, FrmOrdenCompra, FrmDevolucionCompra, FrmCuentasPagar)
 │
-
 ├── ventas/                         ── PENDIENTE (Rafael)
-
-│   ├── modelo/
-
-│   │   ├── Venta.java
-
-│   │   ├── DetalleVenta.java
-
-│   │   ├── Comprobante.java
-
-│   │   ├── DevolucionVenta.java
-
-│   │   └── CuentaCobrar.java
-
-│   ├── dao/
-
-│   │   ├── VentaDAO.java
-
-│   │   ├── DetalleVentaDAO.java
-
-│   │   ├── ComprobanteDAO.java
-
-│   │   ├── DevolucionVentaDAO.java
-
-│   │   └── CuentaCobrarDAO.java
-
-│   ├── logica/
-
-│   │   └── VentaService.java
-
-│   └── vista/
-
-│       ├── FrmVentas.java
-
-│       ├── FrmComprobantes.java
-
-│       ├── FrmDevolucionVenta.java
-
-│       └── FrmCuentasCobrar.java
-
+│   ├── modelo/ (Venta, DetalleVenta, Comprobante, DevolucionVenta, CuentaCobrar)
+│   ├── dao/ (uno por entidad)
+│   ├── logica/VentaService.java
+│   └── vista/ (FrmVentas, FrmComprobantes, FrmDevolucionVenta, FrmCuentasCobrar)
 │
-
 ├── tesoreria/                      ── PENDIENTE (Rafael)
-
-│   ├── modelo/
-
-│   │   ├── Caja.java
-
-│   │   ├── MovimientoCaja.java
-
-│   │   ├── CuentaBancaria.java
-
-│   │   ├── MovimientoBanco.java
-
-│   │   └── CierreCaja.java
-
-│   ├── dao/
-
-│   │   ├── CajaDAO.java
-
-│   │   ├── MovimientoCajaDAO.java
-
-│   │   ├── CuentaBancariaDAO.java
-
-│   │   ├── MovimientoBancoDAO.java
-
-│   │   └── CierreCajaDAO.java
-
-│   ├── logica/
-
-│   │   └── TesoreriaService.java
-
-│   └── vista/
-
-│       ├── FrmCaja.java
-
-│       ├── FrmBanco.java
-
-│       ├── FrmMovimientoCaja.java
-
-│       └── FrmCierreCaja.java
-
+│   ├── modelo/ (Caja, MovimientoCaja, CuentaBancaria, MovimientoBanco, CierreCaja)
+│   ├── dao/ (uno por entidad)
+│   ├── logica/TesoreriaService.java
+│   └── vista/ (FrmCaja, FrmBanco, FrmMovimientoCaja, FrmCierreCaja)
 │
-
 ├── contabilidad/                   ── PENDIENTE (Jeferson)
-
-│   ├── modelo/
-
-│   │   ├── AsientoContable.java
-
-│   │   ├── DetalleAsiento.java
-
-│   │   └── dto/                    → todos derivados, no tablas
-
-│   │       ├── LibroDiarioItem.java
-
-│   │       ├── LibroMayorItem.java
-
-│   │       ├── BalanceComprobacionItem.java
-
-│   │       ├── BalanceGeneralItem.java
-
-│   │       └── EstadoResultadosItem.java
-
-│   ├── dao/
-
-│   │   ├── AsientoContableDAO.java
-
-│   │   └── DetalleAsientoDAO.java  (los reportes se derivan de estos dos, sin DAO propio)
-
+│   ├── modelo/ (AsientoContable, DetalleAsiento)
+│   │   └── dto/ (LibroDiarioItem, LibroMayorItem, BalanceComprobacionItem, BalanceGeneralItem, EstadoResultadosItem) → todos derivados
+│   ├── dao/ (AsientoContableDAO, DetalleAsientoDAO — los reportes se derivan de estos dos, sin DAO propio)
 │   ├── logica/
-
-│   │   ├── ContabilidadService.java        → fachada
-
-│   │   ├── AsientoService.java             → valida partida doble (Debe=Haber)
-
+│   │   ├── ContabilidadService.java   → fachada
+│   │   ├── AsientoService.java        → valida partida doble (Debe=Haber) antes de insertar
 │   │   ├── LibroDiarioService.java
-
 │   │   ├── LibroMayorService.java
-
 │   │   ├── BalanceComprobacionService.java
-
 │   │   ├── BalanceGeneralService.java
-
 │   │   └── EstadoResultadosService.java
-
-│   └── vista/
-
-│       ├── FrmAsientos.java
-
-│       ├── FrmLibroDiario.java
-
-│       ├── FrmLibroMayor.java
-
-│       ├── FrmBalanceComprobacion.java
-
-│       ├── FrmBalanceGeneral.java
-
-│       └── FrmEstadoResultados.java
-
+│   └── vista/ (FrmAsientos, FrmLibroDiario, FrmLibroMayor, FrmBalanceComprobacion, FrmBalanceGeneral, FrmEstadoResultados)
 │
-
 └── procesos/                       ── PENDIENTE (Jeferson)
-
-&#x20;   ├── ProcesoVenta.java            → Venta + Inventario + Tesorería + Contabilidad
-
-&#x20;   ├── ProcesoCobroCliente.java     → Tesorería + Venta + Contabilidad
-
-&#x20;   ├── ProcesoCompra.java           → Compra + Inventario + Tesorería + Contabilidad
-
-&#x20;   └── ProcesoPagoProveedor.java    → Tesorería + Compra + Contabilidad
-
+    ├── ProcesoVenta.java            → Venta + Inventario + Tesorería + Contabilidad
+    ├── ProcesoCobroCliente.java     → Tesorería + Venta + Contabilidad
+    ├── ProcesoCompra.java           → Compra + Inventario + Tesorería + Contabilidad
+    └── ProcesoPagoProveedor.java    → Tesorería + Compra + Contabilidad
 
 
 
@@ -801,6 +511,7 @@ las Vistas nunca necesiten llamar al DAO directamente).
 mensaje de negocio claro si la operación no tiene efecto (ej. "El producto ya
 
 se encuentra activo").
+
 
 
 
