@@ -4,6 +4,7 @@
  */
 package com.ferronor.sic.seguridad.logica;
 
+import com.ferronor.sic.auditoria.logica.AuditoriaService;
 import com.ferronor.sic.seguridad.dao.RolDAO;
 import com.ferronor.sic.seguridad.dao.UsuarioDAO;
 import com.ferronor.sic.seguridad.modelo.Usuario;
@@ -16,10 +17,13 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioDAO usuarioDAO;
     private final RolDAO rolDAO;
+    private final AuditoriaService auditoriaService;
 
-    public UsuarioServiceImpl(UsuarioDAO usuarioDAO, RolDAO rolDAO) {
+    public UsuarioServiceImpl(UsuarioDAO usuarioDAO, RolDAO rolDAO, AuditoriaService auditoriaService) {
         this.usuarioDAO = usuarioDAO;
         this.rolDAO = rolDAO;
+        this.auditoriaService = auditoriaService;
+        
     }
 
     @Override
@@ -114,6 +118,8 @@ public class UsuarioServiceImpl implements UsuarioService {
             return RespuestaOperacion.error("El usuario ya se encuentra activo");
         }
         usuarioDAO.activar(idUsuario);
+        auditoriaService.registrarCambioEstadoUsuario(SesionUsuario.actual().getIdUsuario(), idUsuario,  true );
+
         return RespuestaOperacion.ok();
     }
 
@@ -135,6 +141,7 @@ public class UsuarioServiceImpl implements UsuarioService {
             return RespuestaOperacion.error("El usuario ya se encuentra desactivado");
         }
         usuarioDAO.desactivar(idUsuario);
+        auditoriaService.registrarCambioEstadoUsuario(SesionUsuario.actual().getIdUsuario(), idUsuario,  false );
         return RespuestaOperacion.ok();
     }
 

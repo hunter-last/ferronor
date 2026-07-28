@@ -1,6 +1,8 @@
 
 package com.ferronor.sic.shared;
 
+import com.ferronor.sic.auditoria.dao.AuditoriaDAOImpl;
+import com.ferronor.sic.auditoria.logica.AuditoriaServiceImpl;
 import com.ferronor.sic.seguridad.dao.*;
 import com.ferronor.sic.seguridad.logica.*;
 import com.ferronor.sic.maestros.dao.*;
@@ -14,10 +16,10 @@ public final class ServiceFactory {
 
     // Seguridad
     public static LoginService loginService() {
-        return new LoginServiceImpl(new UsuarioDAOImpl(), new RolDAOImpl(), new PermisoDAOImpl());
+        return new LoginServiceImpl(new UsuarioDAOImpl(), new RolDAOImpl(), new PermisoDAOImpl(), new AuditoriaServiceImpl(new AuditoriaDAOImpl()));
     }
     public static UsuarioService usuarioService() {
-        return new UsuarioServiceImpl(new UsuarioDAOImpl(), new RolDAOImpl());
+        return new UsuarioServiceImpl(new UsuarioDAOImpl(), new RolDAOImpl(), new AuditoriaServiceImpl(new AuditoriaDAOImpl()));
     }
     public static RolService rolService() {
         return new RolServiceImpl(new RolDAOImpl(), new RolPermisoDAOImpl(), new PermisoDAOImpl());

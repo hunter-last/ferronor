@@ -1,5 +1,9 @@
 package com.ferronor.sic.pruebas;
 
+import com.ferronor.sic.auditoria.dao.AuditoriaDAO;
+import com.ferronor.sic.auditoria.dao.AuditoriaDAOImpl;
+import com.ferronor.sic.auditoria.logica.AuditoriaService;
+import com.ferronor.sic.auditoria.logica.AuditoriaServiceImpl;
 import com.ferronor.sic.conexion.TransactionContext;
 import com.ferronor.sic.conexion.TransactionManager;
 import com.ferronor.sic.inventario.dao.*;
@@ -32,7 +36,9 @@ public class Main {
             RolPermisoDAO rolPermisoDAO = new RolPermisoDAOImpl();
             UsuarioDAO usuarioDAO = new UsuarioDAOImpl();
             RolService rolService = new RolServiceImpl(rolDAO, rolPermisoDAO, permisoDAO);
-            UsuarioService usuarioService = new UsuarioServiceImpl(usuarioDAO, rolDAO);
+            AuditoriaDAO auditoriaDAO = new AuditoriaDAOImpl();
+            AuditoriaService auditoriaService = new AuditoriaServiceImpl(auditoriaDAO);
+            UsuarioService usuarioService = new UsuarioServiceImpl(usuarioDAO, rolDAO, auditoriaService);
 
             CategoriaDAO categoriaDAO = new CategoriaDAOImpl();
             UnidadMedidaDAO unidadDAO = new UnidadMedidaDAOImpl();

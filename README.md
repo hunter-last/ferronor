@@ -652,7 +652,7 @@ mirando una sola carpeta.
 
 &#x20;  depósito de caja a banco, ambos en Tesorería), el propio `Service` del módulo
 
-&#x20;  es el orquestador transaccional — no crear un `Proceso\\\*` para eso.
+&#x20;  es el orquestador transaccional — no crear un `Proceso\\\\\\\*` para eso.
 
 4\. \*\*Los DAO de reportes o consulta se mantienen separados por entidad\*\*, nunca
 
@@ -698,7 +698,7 @@ mirando una sola carpeta.
 
 &#x20;  `AutoCloseable`: usar siempre `try (TransactionContext tx =
 
-&#x20;  TransactionManager.iniciar()) { ... tx.commit(); }`\\\*\\\*sin bloque`catch`\*\* —
+&#x20;  TransactionManager.iniciar()) { ... tx.commit(); }`\\\\\\\*\\\\\\\*sin bloque`catch`\*\* —
 
 &#x20;  el `close()` automático hace `rollback()` si `commit()` nunca se ejecutó.
 
@@ -706,9 +706,9 @@ mirando una sola carpeta.
 
 &#x20;   Estado de Resultados) nunca son tablas persistentes.\*\* Se calculan en la
 
-&#x20;   capa de lógica a partir de las tablas transaccionales (`movimiento\\\_inventario`,
+&#x20;   capa de lógica a partir de las tablas transaccionales (`movimiento\\\\\\\_inventario`,
 
-&#x20;   `asiento\\\_contable` + `detalle\\\_asiento`).
+&#x20;   `asiento\\\\\\\_contable` + `detalle\\\\\\\_asiento`).
 
 11\. \*\*`Stock` y `MovimientoInventario` siempre se actualizan juntos, en la
 
@@ -740,19 +740,19 @@ mirando una sola carpeta.
 
 &#x20;   borrar físicamente); `ON DELETE CASCADE` únicamente en tablas de detalle
 
-&#x20;   puro (`detalle\\\_venta`, `detalle\\\_compra`, `detalle\\\_orden\\\_compra`,
+&#x20;   puro (`detalle\\\\\\\_venta`, `detalle\\\\\\\_compra`, `detalle\\\\\\\_orden\\\\\\\_compra`,
 
-&#x20;   `detalle\\\_asiento`, `rol\\\_permiso`) — una tabla usa `CASCADE` solo cuando la
+&#x20;   `detalle\\\\\\\_asiento`, `rol\\\\\\\_permiso`) — una tabla usa `CASCADE` solo cuando la
 
 &#x20;   fila hija no tiene significado fuera de la existencia de la fila padre.
 
 17\. \*\*Convención de escritura en los DAO:\*\*
 
-&#x20;   - `INSERT` siempre usa `RETURNING id\\\_xxx`.
+&#x20;   - `INSERT` siempre usa `RETURNING id\\\\\\\_xxx`.
 
 &#x20;   - `UPDATE` usa `RETURNING <columna>` si el objeto Java necesita ese valor
 
-&#x20;     de vuelta (ej. `fecha\\\_ultima\\\_actualizacion`), o `RETURNING 1` si solo se
+&#x20;     de vuelta (ej. `fecha\\\\\\\_ultima\\\\\\\_actualizacion`), o `RETURNING 1` si solo se
 
 &#x20;     verifica que la fila existe.
 
@@ -762,7 +762,7 @@ mirando una sola carpeta.
 
 &#x20;     inmediatamente — indica que la operación no afectó ninguna fila.
 
-&#x20;   - Nunca usar `Statement.RETURN\\\_GENERATED\\\_KEYS`.
+&#x20;   - Nunca usar `Statement.RETURN\\\\\\\_GENERATED\\\\\\\_KEYS`.
 
 
 
@@ -812,29 +812,29 @@ se encuentra activo").
 
 public RespuestaOperacion<Void> registrar(Categoria categoria) {
 
-\&#x20;   if (categoria == null) {
+\\\&#x20;   if (categoria == null) {
 
-\&#x20;       return RespuestaOperacion.error("La categoría es obligatoria");
+\\\&#x20;       return RespuestaOperacion.error("La categoría es obligatoria");
 
-\&#x20;   }
+\\\&#x20;   }
 
-\&#x20;   RespuestaOperacion<String> r = Validaciones.requerido(categoria.getNombre(), "El nombre", 50);
+\\\&#x20;   RespuestaOperacion<String> r = Validaciones.requerido(categoria.getNombre(), "El nombre", 50);
 
-\&#x20;   if (!r.isExito()) return RespuestaOperacion.error(r.getMensaje());
+\\\&#x20;   if (!r.isExito()) return RespuestaOperacion.error(r.getMensaje());
 
-\&#x20;   categoria.setNombre(r.getResultado());
+\\\&#x20;   categoria.setNombre(r.getResultado());
 
 
 
-\&#x20;   if (categoriaDAO.buscarPorNombre(categoria.getNombre()) != null) {
+\\\&#x20;   if (categoriaDAO.buscarPorNombre(categoria.getNombre()) != null) {
 
-\&#x20;       return RespuestaOperacion.error("Ya existe una categoría con ese nombre");
+\\\&#x20;       return RespuestaOperacion.error("Ya existe una categoría con ese nombre");
 
-\&#x20;   }
+\\\&#x20;   }
 
-\&#x20;   categoriaDAO.insertar(categoria);
+\\\&#x20;   categoriaDAO.insertar(categoria);
 
-\&#x20;   return RespuestaOperacion.ok();
+\\\&#x20;   return RespuestaOperacion.ok();
 
 }
 
@@ -850,35 +850,35 @@ public RespuestaOperacion<Void> registrar(Categoria categoria) {
 
 public class ProcesoVenta {
 
-\&#x20;   public RespuestaOperacion<Void> ejecutar(...) {
+\\\&#x20;   public RespuestaOperacion<Void> ejecutar(...) {
 
-\&#x20;       try (TransactionContext tx = TransactionManager.iniciar()) {
+\\\&#x20;       try (TransactionContext tx = TransactionManager.iniciar()) {
 
-\&#x20;           RespuestaOperacion<Void> rVenta = ventaService.registrarVenta(...);
+\\\&#x20;           RespuestaOperacion<Void> rVenta = ventaService.registrarVenta(...);
 
-\&#x20;           if (!rVenta.isExito()) return rVenta;
-
-
-
-\&#x20;           RespuestaOperacion<Void> rInventario = inventarioService.registrarSalida(...);
-
-\&#x20;           if (!rInventario.isExito()) return rInventario;
+\\\&#x20;           if (!rVenta.isExito()) return rVenta;
 
 
 
-\&#x20;           RespuestaOperacion<Void> rContabilidad = contabilidadService.generarAsientoVenta(...);
+\\\&#x20;           RespuestaOperacion<Void> rInventario = inventarioService.registrarSalida(...);
 
-\&#x20;           if (!rContabilidad.isExito()) return rContabilidad;
+\\\&#x20;           if (!rInventario.isExito()) return rInventario;
 
 
 
-\&#x20;           tx.commit();
+\\\&#x20;           RespuestaOperacion<Void> rContabilidad = contabilidadService.generarAsientoVenta(...);
 
-\&#x20;           return RespuestaOperacion.ok();
+\\\&#x20;           if (!rContabilidad.isExito()) return rContabilidad;
 
-\&#x20;       }
 
-\&#x20;   }
+
+\\\&#x20;           tx.commit();
+
+\\\&#x20;           return RespuestaOperacion.ok();
+
+\\\&#x20;       }
+
+\\\&#x20;   }
 
 }
 
@@ -898,15 +898,15 @@ Ningún `catch` es necesario — si cualquier paso lanza una excepción técnica
 
 \- Una sola sucursal (sin `InventarioSucursal` ni soporte multi-almacén).
 
-\- IGV fijo al 18%, `precio\\\_venta` de producto ya incluye IGV.
+\- IGV fijo al 18%, `precio\\\\\\\_venta` de producto ya incluye IGV.
 
 \- Balance de Comprobación (RF07) y Balance General (RF13, prioridad baja)
 
 &#x20; ambos implementados como reportes derivados, no como tablas.
 
-\- El diagrama de estados de Venta usa 5 estados (`INICIADA`, `PAGO\\\_PENDIENTE`,
+\- El diagrama de estados de Venta usa 5 estados (`INICIADA`, `PAGO\\\\\\\_PENDIENTE`,
 
-&#x20; `PAGADA`, `DESPACHADA`, `CANCELADA`), sin `COMPROBANTE\\\_EMITIDO` — revisión
+&#x20; `PAGADA`, `DESPACHADA`, `CANCELADA`), sin `COMPROBANTE\\\\\\\_EMITIDO` — revisión
 
 &#x20; respecto a la Figura 2 del PA1 original, pendiente de documentar formalmente
 
@@ -914,7 +914,7 @@ Ningún `catch` es necesario — si cualquier paso lanza una excepción técnica
 
 \- Sin auditoría de intentos de login fallidos con usuario inexistente (la FK
 
-&#x20; `auditoria.id\\\_usuario` es `NOT NULL`, no hay a qué usuario asociar el intento).
+&#x20; `auditoria.id\\\\\\\_usuario` es `NOT NULL`, no hay a qué usuario asociar el intento).
 
 
 

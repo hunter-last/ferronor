@@ -1,5 +1,9 @@
 package com.ferronor.sic.pruebas;
 
+import com.ferronor.sic.auditoria.dao.AuditoriaDAO;
+import com.ferronor.sic.auditoria.dao.AuditoriaDAOImpl;
+import com.ferronor.sic.auditoria.logica.AuditoriaService;
+import com.ferronor.sic.auditoria.logica.AuditoriaServiceImpl;
 import com.ferronor.sic.conexion.TransactionContext;
 import com.ferronor.sic.conexion.TransactionManager;
 
@@ -53,15 +57,20 @@ public class MainPruebaSeguridad {
                 permisoDAO
         );
 
+        AuditoriaDAO auditoriaDAO = new AuditoriaDAOImpl();
+        AuditoriaService auditoriaService = new AuditoriaServiceImpl(auditoriaDAO);
+
         UsuarioServiceImpl usuarioService = new UsuarioServiceImpl(
                 usuarioDAO,
-                rolDAO
+                rolDAO,
+                auditoriaService
         );
 
         LoginServiceImpl loginService = new LoginServiceImpl(
                 usuarioDAO,
                 rolDAO,
-                permisoDAO
+                permisoDAO,
+                auditoriaService
         );
 
         try (TransactionContext tx = TransactionManager.iniciar()) {
@@ -73,7 +82,7 @@ public class MainPruebaSeguridad {
                     "Login administrador inicial",
                     loginAdmin.isExito()
             );
-
+            
             // =====================================================
 // PARTE 2 - ROLES, PERMISOS Y ASIGNACIONES
 // =====================================================
@@ -256,7 +265,7 @@ public class MainPruebaSeguridad {
                     "ID Usuario creado: "
                     + usuarioAdmin.getIdUsuario()
             );
-
+           
 // =====================================================
 // BUSCAR USUARIO
 // =====================================================

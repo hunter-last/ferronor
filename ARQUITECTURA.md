@@ -126,7 +126,7 @@ mirando una sola carpeta.
 
 &#x20;  `AutoCloseable`): usar siempre `try (TransactionContext tx =
 
-&#x20;  TransactionManager.iniciar()) { ... tx.commit(); }` \*\*sin bloque `catch`\*\*.
+&#x20;  TransactionManager.iniciar()) { ... tx.commit(); }`\\\\\\\\\\\\\\\*\\\\\\\\\\\\\\\*sin bloque`catch`\*\*.
 
 10\. \*\*Los reportes derivados (Kardex, Libro Diario, Libro Mayor, Balances,
 
@@ -154,11 +154,11 @@ mirando una sola carpeta.
 
 &#x20;   `ON DELETE RESTRICT` por defecto; `ON DELETE CASCADE` únicamente en
 
-&#x20;   tablas de detalle puro (`detalle\_venta`, `detalle\_compra`,
+&#x20;   tablas de detalle puro (`detalle\\\\\\\\\\\\\\\_venta`, `detalle\\\\\\\\\\\\\\\_compra`,
 
-&#x20;   `detalle\_orden\_compra`, `detalle\_asiento`, `rol\_permiso`).
+&#x20;   `detalle\\\\\\\\\\\\\\\_orden\\\\\\\\\\\\\\\_compra`, `detalle\\\\\\\\\\\\\\\_asiento`, `rol\\\\\\\\\\\\\\\_permiso`).
 
-17\. \*\*Convención de escritura en los DAO:\*\* `INSERT` usa `RETURNING id\_xxx`;
+17\. \*\*Convención de escritura en los DAO:\*\* `INSERT` usa `RETURNING id\\\\\\\\\\\\\\\_xxx`;
 
 &#x20;   `UPDATE` usa `RETURNING <columna>` o `RETURNING 1` si solo se verifica
 
@@ -166,7 +166,7 @@ mirando una sola carpeta.
 
 &#x20;   `!rs.next()` tras un `RETURNING`, se lanza `DaoException` de inmediato;
 
-&#x20;   nunca usar `Statement.RETURN\_GENERATED\_KEYS`.
+&#x20;   nunca usar `Statement.RETURN\\\\\\\\\\\\\\\_GENERATED\\\\\\\\\\\\\\\_KEYS`.
 
 
 
@@ -276,9 +276,9 @@ Dos niveles:
 
 \- \*\*Permisos de operación\*\* (controlan una acción sensible dentro del módulo):
 
-&#x20; `ADMIN\_USUARIOS`, `AJUSTAR\_STOCK`, `REGISTRAR\_COMPRA`, `REGISTRAR\_VENTA`,
+&#x20; `ADMIN\\\\\\\\\\\\\\\_USUARIOS`, `AJUSTAR\\\\\\\\\\\\\\\_STOCK`, `REGISTRAR\\\\\\\\\\\\\\\_COMPRA`, `REGISTRAR\\\\\\\\\\\\\\\_VENTA`,
 
-&#x20; `ANULAR\_VENTA`, `VER\_BALANCE`, `GENERAR\_REPORTES`.
+&#x20; `ANULAR\\\\\\\\\\\\\\\_VENTA`, `VER\\\\\\\\\\\\\\\_BALANCE`, `GENERAR\\\\\\\\\\\\\\\_REPORTES`.
 
 
 
@@ -288,7 +288,7 @@ módulo, no necesita un permiso propio. Los `Service` solo validan el permiso
 
 de operación en las acciones realmente sensibles (hoy: `AjusteInventarioService`
 
-valida `AJUSTAR\_STOCK`; `UsuarioService` valida `ADMIN\_USUARIOS` en
+valida `AJUSTAR\\\\\\\\\\\\\\\_STOCK`; `UsuarioService` valida `ADMIN\\\\\\\\\\\\\\\_USUARIOS` en
 
 `registrar`/`actualizar`/`activar`/`desactivar`, pero no en `cambiarPassword`,
 
@@ -304,25 +304,25 @@ que cualquier usuario autenticado puede usar sobre sí mismo).
 
 public RespuestaOperacion<Void> registrar(Categoria categoria) {
 
-&#x20;   if (categoria == null) return RespuestaOperacion.error("La categoría es obligatoria");
+\\\\\\\&#x20;   if (categoria == null) return RespuestaOperacion.error("La categoría es obligatoria");
 
-&#x20;   RespuestaOperacion<String> r = Validaciones.requerido(categoria.getNombre(), "El nombre", 50);
+\\\\\\\&#x20;   RespuestaOperacion<String> r = Validaciones.requerido(categoria.getNombre(), "El nombre", 50);
 
-&#x20;   if (!r.isExito()) return RespuestaOperacion.error(r.getMensaje());
+\\\\\\\&#x20;   if (!r.isExito()) return RespuestaOperacion.error(r.getMensaje());
 
-&#x20;   categoria.setNombre(r.getResultado());
+\\\\\\\&#x20;   categoria.setNombre(r.getResultado());
 
 
 
-&#x20;   if (categoriaDAO.buscarPorNombre(categoria.getNombre()) != null) {
+\\\\\\\&#x20;   if (categoriaDAO.buscarPorNombre(categoria.getNombre()) != null) {
 
-&#x20;       return RespuestaOperacion.error("Ya existe una categoría con ese nombre");
+\\\\\\\&#x20;       return RespuestaOperacion.error("Ya existe una categoría con ese nombre");
 
-&#x20;   }
+\\\\\\\&#x20;   }
 
-&#x20;   categoriaDAO.insertar(categoria);
+\\\\\\\&#x20;   categoriaDAO.insertar(categoria);
 
-&#x20;   return RespuestaOperacion.ok();
+\\\\\\\&#x20;   return RespuestaOperacion.ok();
 
 }
 
@@ -338,35 +338,35 @@ public RespuestaOperacion<Void> registrar(Categoria categoria) {
 
 public class ProcesoVenta {
 
-&#x20;   public RespuestaOperacion<Void> ejecutar(...) {
+\\\\\\\&#x20;   public RespuestaOperacion<Void> ejecutar(...) {
 
-&#x20;       try (TransactionContext tx = TransactionManager.iniciar()) {
+\\\\\\\&#x20;       try (TransactionContext tx = TransactionManager.iniciar()) {
 
-&#x20;           RespuestaOperacion<Void> rVenta = ventaService.registrarVenta(...);
+\\\\\\\&#x20;           RespuestaOperacion<Void> rVenta = ventaService.registrarVenta(...);
 
-&#x20;           if (!rVenta.isExito()) return rVenta;
-
-
-
-&#x20;           RespuestaOperacion<Void> rInventario = inventarioService.registrarSalida(...);
-
-&#x20;           if (!rInventario.isExito()) return rInventario;
+\\\\\\\&#x20;           if (!rVenta.isExito()) return rVenta;
 
 
 
-&#x20;           RespuestaOperacion<Void> rContabilidad = contabilidadService.generarAsientoVenta(...);
+\\\\\\\&#x20;           RespuestaOperacion<Void> rInventario = inventarioService.registrarSalida(...);
 
-&#x20;           if (!rContabilidad.isExito()) return rContabilidad;
+\\\\\\\&#x20;           if (!rInventario.isExito()) return rInventario;
 
 
 
-&#x20;           tx.commit();
+\\\\\\\&#x20;           RespuestaOperacion<Void> rContabilidad = contabilidadService.generarAsientoVenta(...);
 
-&#x20;           return RespuestaOperacion.ok();
+\\\\\\\&#x20;           if (!rContabilidad.isExito()) return rContabilidad;
 
-&#x20;       }
 
-&#x20;   }
+
+\\\\\\\&#x20;           tx.commit();
+
+\\\\\\\&#x20;           return RespuestaOperacion.ok();
+
+\\\\\\\&#x20;       }
+
+\\\\\\\&#x20;   }
 
 }
 
@@ -380,15 +380,15 @@ public class ProcesoVenta {
 
 \- Una sola sucursal (sin `InventarioSucursal` ni soporte multi-almacén).
 
-\- IGV fijo al 18%, `precio\_venta` de producto ya incluye IGV.
+\- IGV fijo al 18%, `precio\\\\\\\\\\\\\\\_venta` de producto ya incluye IGV.
 
 \- Balance de Comprobación (RF07) y Balance General (RF13, prioridad baja)
 
 &#x20; ambos como reportes derivados, no como tablas.
 
-\- El diagrama de estados de Venta usa 5 estados (`INICIADA`, `PAGO\_PENDIENTE`,
+\- El diagrama de estados de Venta usa 5 estados (`INICIADA`, `PAGO\\\\\\\\\\\\\\\_PENDIENTE`,
 
-&#x20; `PAGADA`, `DESPACHADA`, `CANCELADA`), sin `COMPROBANTE\_EMITIDO` — revisión
+&#x20; `PAGADA`, `DESPACHADA`, `CANCELADA`), sin `COMPROBANTE\\\\\\\\\\\\\\\_EMITIDO` — revisión
 
 &#x20; respecto a la Figura 2 del PA1 original, pendiente de documentar
 
@@ -396,7 +396,7 @@ public class ProcesoVenta {
 
 \- Sin auditoría de intentos de login fallidos con usuario inexistente
 
-&#x20; (`auditoria.id\_usuario` es `NOT NULL`).
+&#x20; (`auditoria.id\\\\\\\\\\\\\\\_usuario` es `NOT NULL`).
 
 
 
