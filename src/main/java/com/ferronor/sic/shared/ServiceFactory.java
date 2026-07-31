@@ -1,4 +1,3 @@
-
 package com.ferronor.sic.shared;
 
 import com.ferronor.sic.seguridad.dao.*;
@@ -7,6 +6,8 @@ import com.ferronor.sic.maestros.dao.*;
 import com.ferronor.sic.maestros.logica.*;
 import com.ferronor.sic.inventario.dao.*;
 import com.ferronor.sic.inventario.logica.*;
+import com.ferronor.sic.compras.dao.*;
+import com.ferronor.sic.compras.logica.*;
 
 public final class ServiceFactory {
 
@@ -62,5 +63,21 @@ public final class ServiceFactory {
     }
     public static KardexService kardexService() {
         return new KardexServiceImpl(new MovimientoInventarioDAOImpl());
+    }
+
+    // Compras
+    public static OrdenCompraService ordenCompraService() {
+        return new OrdenCompraServiceImpl(new OrdenCompraDAOImpl(), new DetalleOrdenCompraDAOImpl(),
+                new ProveedorDAOImpl(), new ProductoDAOImpl());
+    }
+
+    public static CompraService compraService() {
+        return new CompraServiceImpl(new CompraDAOImpl(), new DetalleCompraDAOImpl(), new CuentaPagarDAOImpl(),
+                new ProveedorDAOImpl(), new ProductoDAOImpl(), new FormaPagoDAOImpl(), new OrdenCompraDAOImpl());
+    }
+
+    public static DevolucionCompraService devolucionCompraService() {
+        return new DevolucionCompraServiceImpl(new DevolucionCompraDAOImpl(), new CompraDAOImpl(),
+                new ProductoDAOImpl());
     }
 }
