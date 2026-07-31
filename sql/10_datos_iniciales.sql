@@ -85,6 +85,12 @@ INSERT INTO plan_cuenta (codigo, nombre_cuenta, id_cuenta_padre, nivel)
 SELECT '101','Caja',(SELECT id_cuenta FROM plan_cuenta WHERE codigo='10'),3
 UNION ALL SELECT '104','Cuentas corrientes en instituciones financieras',(SELECT id_cuenta FROM plan_cuenta WHERE codigo='10'),3;
 
+INSERT INTO plan_cuenta (codigo, nombre_cuenta, id_cuenta_padre, nivel) VALUES
+('5','Patrimonio', NULL, 1);
+
+INSERT INTO plan_cuenta (codigo, nombre_cuenta, id_cuenta_padre, nivel)
+SELECT '50','Capital', (SELECT id_cuenta FROM plan_cuenta WHERE codigo='5'), 2;
+
 -- CREACION DE UN USUSARIO ADMINISTRADOR
 INSERT INTO usuario (
     nombres,
