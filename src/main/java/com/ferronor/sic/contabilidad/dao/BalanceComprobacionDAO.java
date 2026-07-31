@@ -9,5 +9,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface BalanceComprobacionDAO {
+
     List<BalanceComprobacionItem> obtenerAgregadoPorCuenta(LocalDate hasta);
 }

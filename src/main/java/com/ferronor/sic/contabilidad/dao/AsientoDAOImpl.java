@@ -108,7 +108,7 @@ public class AsientoDAOImpl extends AbstractDAO implements AsientoDAO {
     @Override
     public List<AsientoContable> listar() {
         String sql = "SELECT " + COLUMNAS + " FROM " + TABLA
-                + " WHERE ORDER BY , id_asiento ASC";
+                + " ORDER BY fecha ASC, id_asiento ASC";
         Connection cn = obtenerConexion();
         List<AsientoContable> resultado = new ArrayList<>();
         try (PreparedStatement ps = cn.prepareStatement(sql)) {
