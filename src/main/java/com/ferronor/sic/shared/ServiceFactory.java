@@ -1,4 +1,3 @@
-
 package com.ferronor.sic.shared;
 
 import com.ferronor.sic.auditoria.dao.AuditoriaDAOImpl;
@@ -9,6 +8,10 @@ import com.ferronor.sic.maestros.dao.*;
 import com.ferronor.sic.maestros.logica.*;
 import com.ferronor.sic.inventario.dao.*;
 import com.ferronor.sic.inventario.logica.*;
+import com.ferronor.sic.compras.dao.*;
+import com.ferronor.sic.compras.logica.*;
+import com.ferronor.sic.tesoreria.dao.*;
+import com.ferronor.sic.tesoreria.logica.*;
 
 public final class ServiceFactory {
 
@@ -64,5 +67,29 @@ public final class ServiceFactory {
     }
     public static KardexService kardexService() {
         return new KardexServiceImpl(new MovimientoInventarioDAOImpl());
+    }
+
+    // Compras
+    public static OrdenCompraService ordenCompraService() {
+        return new OrdenCompraServiceImpl(new OrdenCompraDAOImpl(), new DetalleOrdenCompraDAOImpl(),
+                new ProveedorDAOImpl(), new ProductoDAOImpl());
+    }
+
+    public static CompraService compraService() {
+        return new CompraServiceImpl(new CompraDAOImpl(), new DetalleCompraDAOImpl(), new CuentaPagarDAOImpl(),
+                new ProveedorDAOImpl(), new ProductoDAOImpl(), new FormaPagoDAOImpl(), new OrdenCompraDAOImpl());
+    }
+
+    public static DevolucionCompraService devolucionCompraService() {
+        return new DevolucionCompraServiceImpl(new DevolucionCompraDAOImpl(), new CompraDAOImpl(),
+                new ProductoDAOImpl());
+    }
+
+    // Tesorería: CajaService/BancoService quedan internos, no se exponen aquí.
+    public static TesoreriaService tesoreriaService() {
+        CajaService cajaService = new CajaServiceImpl(new CajaDAOImpl(), new MovimientoCajaDAOImpl(),
+                new CierreCajaDAOImpl());
+        BancoService bancoService = new BancoServiceImpl(new CuentaBancariaDAOImpl(), new MovimientoBancoDAOImpl());
+        return new TesoreriaServiceImpl(cajaService, bancoService);
     }
 }

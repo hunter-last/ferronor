@@ -19,4 +19,15 @@ public final class CalculadoraImpuestos {
     public static BigDecimal calcularIGV(BigDecimal totalConIgv) {
         return totalConIgv.subtract(calcularValorVenta(totalConIgv));
     }
+
+    // Dirección inversa a la anterior: usada por Compras, donde costo_unitario
+    // (y por tanto el subtotal de detalle_compra) NO incluye IGV.
+    public static BigDecimal calcularIGVDesdeSubtotal(BigDecimal subtotalSinIgv) {
+        return subtotalSinIgv.multiply(Constantes.IGV_PORCENTAJE)
+                .setScale(Constantes.ESCALA_MONEDA, Constantes.REDONDEO);
+    }
+
+    public static BigDecimal calcularTotalConIgv(BigDecimal subtotalSinIgv) {
+        return subtotalSinIgv.add(calcularIGVDesdeSubtotal(subtotalSinIgv));
+    }
 }
