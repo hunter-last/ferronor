@@ -8,6 +8,8 @@ import com.ferronor.sic.inventario.dao.*;
 import com.ferronor.sic.inventario.logica.*;
 import com.ferronor.sic.compras.dao.*;
 import com.ferronor.sic.compras.logica.*;
+import com.ferronor.sic.tesoreria.dao.*;
+import com.ferronor.sic.tesoreria.logica.*;
 
 public final class ServiceFactory {
 
@@ -79,5 +81,13 @@ public final class ServiceFactory {
     public static DevolucionCompraService devolucionCompraService() {
         return new DevolucionCompraServiceImpl(new DevolucionCompraDAOImpl(), new CompraDAOImpl(),
                 new ProductoDAOImpl());
+    }
+
+    // Tesorería: CajaService/BancoService quedan internos, no se exponen aquí.
+    public static TesoreriaService tesoreriaService() {
+        CajaService cajaService = new CajaServiceImpl(new CajaDAOImpl(), new MovimientoCajaDAOImpl(),
+                new CierreCajaDAOImpl());
+        BancoService bancoService = new BancoServiceImpl(new CuentaBancariaDAOImpl(), new MovimientoBancoDAOImpl());
+        return new TesoreriaServiceImpl(cajaService, bancoService);
     }
 }
