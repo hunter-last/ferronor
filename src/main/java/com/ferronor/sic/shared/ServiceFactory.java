@@ -12,6 +12,8 @@ import com.ferronor.sic.compras.dao.*;
 import com.ferronor.sic.compras.logica.*;
 import com.ferronor.sic.tesoreria.dao.*;
 import com.ferronor.sic.tesoreria.logica.*;
+import com.ferronor.sic.ventas.dao.*;
+import com.ferronor.sic.ventas.logica.*;
 
 public final class ServiceFactory {
 
@@ -91,5 +93,17 @@ public final class ServiceFactory {
                 new CierreCajaDAOImpl());
         BancoService bancoService = new BancoServiceImpl(new CuentaBancariaDAOImpl(), new MovimientoBancoDAOImpl());
         return new TesoreriaServiceImpl(cajaService, bancoService);
+    }
+
+    // Ventas
+    public static VentaService ventaService() {
+        return new VentaServiceImpl(new VentaDAOImpl(), new DetalleVentaDAOImpl(), new ComprobanteDAOImpl(),
+                new CorrelativoComprobanteDAOImpl(), new CuentaCobrarDAOImpl(), new ClienteDAOImpl(),
+                new FormaPagoDAOImpl(), new TipoComprobanteDAOImpl(), new ProductoDAOImpl());
+    }
+
+    public static DevolucionVentaService devolucionVentaService() {
+        return new DevolucionVentaServiceImpl(new DevolucionVentaDAOImpl(), new VentaDAOImpl(),
+                new ProductoDAOImpl());
     }
 }
