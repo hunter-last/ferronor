@@ -6,6 +6,10 @@ package com.ferronor.sic.contabilidad.logica;
 
 import com.ferronor.sic.contabilidad.modelo.AsientoContable;
 import com.ferronor.sic.contabilidad.modelo.dto.BalanceComprobacionItem;
+import com.ferronor.sic.contabilidad.modelo.dto.DatosCobroParaAsiento;
+import com.ferronor.sic.contabilidad.modelo.dto.DatosCompraParaAsiento;
+import com.ferronor.sic.contabilidad.modelo.dto.DatosPagoParaAsiento;
+import com.ferronor.sic.contabilidad.modelo.dto.DatosVentaParaAsiento;
 import com.ferronor.sic.contabilidad.modelo.dto.EstadoResultadosDTO;
 import com.ferronor.sic.contabilidad.modelo.dto.LibroMayorItem;
 import com.ferronor.sic.shared.RespuestaOperacion;
@@ -15,6 +19,14 @@ import java.util.List;
 public interface ContabilidadService {
 
     RespuestaOperacion<Integer> registrarAsiento(AsientoContable asiento);
+
+    RespuestaOperacion<Integer> generarAsientoVenta(DatosVentaParaAsiento datos, int idUsuario);
+
+    RespuestaOperacion<Integer> generarAsientoCompra(DatosCompraParaAsiento datos, int idUsuario);
+
+    RespuestaOperacion<Integer> generarAsientoCobro(DatosCobroParaAsiento datos, int idUsuario);
+
+    RespuestaOperacion<Integer> generarAsientoPago(DatosPagoParaAsiento datos, int idUsuario);
 
     RespuestaOperacion<Void> anularAsiento(int idAsiento);
 

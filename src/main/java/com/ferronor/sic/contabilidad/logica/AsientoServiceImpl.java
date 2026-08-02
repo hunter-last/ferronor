@@ -11,6 +11,13 @@ import com.ferronor.sic.contabilidad.dao.DetalleAsientoDAO;
 import com.ferronor.sic.contabilidad.modelo.AsientoContable;
 import com.ferronor.sic.contabilidad.modelo.DetalleAsiento;
 import com.ferronor.sic.contabilidad.modelo.EstadoAsiento;
+import com.ferronor.sic.contabilidad.modelo.OrigenAsiento;
+import com.ferronor.sic.contabilidad.modelo.dto.DatosCobroParaAsiento;
+import com.ferronor.sic.contabilidad.modelo.dto.DatosCompraParaAsiento;
+import com.ferronor.sic.contabilidad.modelo.dto.DatosPagoParaAsiento;
+import com.ferronor.sic.contabilidad.modelo.dto.DatosVentaParaAsiento;
+import com.ferronor.sic.maestros.logica.PlanCuentaService;
+import com.ferronor.sic.maestros.modelo.PlanCuenta;
 import com.ferronor.sic.shared.RespuestaOperacion;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -20,10 +27,13 @@ public class AsientoServiceImpl implements AsientoService {
 
     private final AsientoDAO asientoDAO;
     private final DetalleAsientoDAO detalleAsientoDAO;
+    private final PlanCuentaService planCuentaService;
 
-    public AsientoServiceImpl(AsientoDAO asientoDAO, DetalleAsientoDAO detalleAsientoDAO) {
+    public AsientoServiceImpl(AsientoDAO asientoDAO, DetalleAsientoDAO detalleAsientoDAO,
+            PlanCuentaService planCuentaService) {
         this.asientoDAO = asientoDAO;
         this.detalleAsientoDAO = detalleAsientoDAO;
+        this.planCuentaService = planCuentaService;
     }
 
     @Override
@@ -96,5 +106,81 @@ public class AsientoServiceImpl implements AsientoService {
     @Override
     public List<AsientoContable> listar() {
         return asientoDAO.listar();
-    } // nuevo método en AsientoDAO, sin filtro de fecha
+    }
+
+    @Override
+    public RespuestaOperacion<Integer> generarAsientoVenta(DatosVentaParaAsiento datos, int idUsuario) {
+        PlanCuenta ventas = planCuentaService.buscarPorCodigo("70");
+        PlanCuenta igvPorPagar = planCuentaService.buscarPorCodigo("40");
+        PlanCuenta contrapartida = planCuentaService.buscarPorCodigo(datos.codigoCuentaContrapartida());
+
+        if (contrapartida == null) {
+            return RespuestaOperacion.error("Cuenta contable no encontrada: " + datos.codigoCuentaContrapartida());
+        }
+
+        AsientoContable asiento = new AsientoContable(OrigenAsiento.VENTA, datos.idVenta(),
+                "Venta N° " + datos.idVenta(), idUsuario);
+
+        asiento.agregarDetalle(DetalleAsiento.debe(contrapartida.getIdCuenta(), datos.total()));
+        asiento.agregarDetalle(DetalleAsiento.haber(ventas.getIdCuenta(), datos.subtotal()));
+        asiento.agregarDetalle(DetalleAsiento.haber(igvPorPagar.getIdCuenta(), datos.igv()));
+
+        return registrar(asiento);
+    }
+
+    @Override
+    public RespuestaOperacion<Integer> generarAsientoCompra(DatosCompraParaAsiento datos, int idUsuario) {
+        PlanCuenta mercaderias = planCuentaService.buscarPorCodigo("20");
+        PlanCuenta igvPorPagar = planCuentaService.buscarPorCodigo("40");
+        PlanCuenta contrapartida = planCuentaService.buscarPorCodigo(datos.codigoCuentaContrapartida());
+
+        if (contrapartida == null) {
+            return RespuestaOperacion.error("Cuenta contable no encontrada: " + datos.codigoCuentaContrapartida());
+        }
+
+        AsientoContable asiento = new AsientoContable(OrigenAsiento.COMPRA, datos.idCompra(),
+                "Compra N° " + datos.idCompra(), idUsuario);
+
+        asiento.agregarDetalle(DetalleAsiento.debe(mercaderias.getIdCuenta(), datos.subtotal()));
+        asiento.agregarDetalle(DetalleAsiento.debe(igvPorPagar.getIdCuenta(), datos.igv()));
+        asiento.agregarDetalle(DetalleAsiento.haber(contrapartida.getIdCuenta(), datos.total()));
+
+        return registrar(asiento);
+    }
+
+    @Override
+    public RespuestaOperacion<Integer> generarAsientoCobro(DatosCobroParaAsiento datos, int idUsuario) {
+        PlanCuenta cuentasPorCobrar = planCuentaService.buscarPorCodigo("12");
+        PlanCuenta efectivo = planCuentaService.buscarPorCodigo(datos.codigoCuentaEfectivo());
+
+        if (efectivo == null) {
+            return RespuestaOperacion.error("Cuenta contable no encontrada: " + datos.codigoCuentaEfectivo());
+        }
+
+        AsientoContable asiento = new AsientoContable(OrigenAsiento.COBRO, datos.idVenta(),
+                "Cobro venta N° " + datos.idVenta(), idUsuario);
+
+        asiento.agregarDetalle(DetalleAsiento.debe(efectivo.getIdCuenta(), datos.monto()));
+        asiento.agregarDetalle(DetalleAsiento.haber(cuentasPorCobrar.getIdCuenta(), datos.monto()));
+
+        return registrar(asiento);
+    }
+
+    @Override
+    public RespuestaOperacion<Integer> generarAsientoPago(DatosPagoParaAsiento datos, int idUsuario) {
+        PlanCuenta cuentasPorPagar = planCuentaService.buscarPorCodigo("42");
+        PlanCuenta efectivo = planCuentaService.buscarPorCodigo(datos.codigoCuentaEfectivo());
+
+        if (efectivo == null) {
+            return RespuestaOperacion.error("Cuenta contable no encontrada: " + datos.codigoCuentaEfectivo());
+        }
+
+        AsientoContable asiento = new AsientoContable(OrigenAsiento.PAGO, datos.idCompra(),
+                "Pago compra N° " + datos.idCompra(), idUsuario);
+
+        asiento.agregarDetalle(DetalleAsiento.debe(cuentasPorPagar.getIdCuenta(), datos.monto()));
+        asiento.agregarDetalle(DetalleAsiento.haber(efectivo.getIdCuenta(), datos.monto()));
+
+        return registrar(asiento);
+    }
 }
