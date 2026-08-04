@@ -27,6 +27,10 @@ import com.ferronor.sic.contabilidad.logica.LibroDiarioService;
 import com.ferronor.sic.contabilidad.logica.LibroDiarioServiceImpl;
 import com.ferronor.sic.contabilidad.logica.LibroMayorService;
 import com.ferronor.sic.contabilidad.logica.LibroMayorServiceImpl;
+import com.ferronor.sic.procesos.ProcesoCobroCliente;
+import com.ferronor.sic.procesos.ProcesoCompra;
+import com.ferronor.sic.procesos.ProcesoPagoProveedor;
+import com.ferronor.sic.procesos.ProcesoVenta;
 import com.ferronor.sic.tesoreria.dao.*;
 import com.ferronor.sic.tesoreria.logica.*;
 import com.ferronor.sic.ventas.dao.*;
@@ -137,7 +141,6 @@ public final class ServiceFactory {
                 new ProductoDAOImpl());
     }
 
-
 // ServiceFactory.java — agregar al final, junto a Tesorería
 // Contabilidad: AsientoService/LibroDiarioService/LibroMayorService/BalanceComprobacionService/
 // EstadoResultadosService quedan internos, no se exponen aquí — mismo patrón que Tesorería.
@@ -154,5 +157,22 @@ public final class ServiceFactory {
 
         return new ContabilidadServiceImpl(asientoService, libroDiarioService, libroMayorService,
                 balanceComprobacionService, estadoResultadosService);
+    }
+    // Procesos: orquestadores que cruzan varios módulos en una sola transacción.
+    // Cada uno arma sus propios Services vía los métodos de arriba — mismo patrón que el resto.
+    public static ProcesoVenta procesoVenta() {
+        return new ProcesoVenta(ventaService(), inventarioService(), tesoreriaService(), contabilidadService());
+    }
+
+    public static ProcesoCompra procesoCompra() {
+        return new ProcesoCompra(compraService(), inventarioService(), tesoreriaService(), contabilidadService());
+    }
+
+    public static ProcesoCobroCliente procesoCobroCliente() {
+        return new ProcesoCobroCliente(ventaService(), tesoreriaService(), contabilidadService());
+    }
+
+    public static ProcesoPagoProveedor procesoPagoProveedor() {
+        return new ProcesoPagoProveedor(compraService(), tesoreriaService(), contabilidadService());
     }
 }
