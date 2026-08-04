@@ -6,6 +6,7 @@ package com.ferronor.sic.contabilidad.logica;
 
 import com.ferronor.sic.contabilidad.modelo.AsientoContable;
 import com.ferronor.sic.contabilidad.modelo.dto.BalanceComprobacionItem;
+import com.ferronor.sic.contabilidad.modelo.dto.BalanceGeneralDTO;
 import com.ferronor.sic.contabilidad.modelo.dto.DatosCobroParaAsiento;
 import com.ferronor.sic.contabilidad.modelo.dto.DatosCompraParaAsiento;
 import com.ferronor.sic.contabilidad.modelo.dto.DatosPagoParaAsiento;
@@ -37,4 +38,6 @@ public interface ContabilidadService {
     List<BalanceComprobacionItem> obtenerBalanceComprobacion(LocalDate hasta);
 
     EstadoResultadosDTO obtenerEstadoResultados(LocalDate hasta);
+    
+    BalanceGeneralDTO obtenerBalanceGeneral(LocalDate fechaCorte);
 }

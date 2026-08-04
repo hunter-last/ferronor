@@ -6,6 +6,7 @@ package com.ferronor.sic.contabilidad.logica;
 
 import com.ferronor.sic.contabilidad.modelo.AsientoContable;
 import com.ferronor.sic.contabilidad.modelo.dto.BalanceComprobacionItem;
+import com.ferronor.sic.contabilidad.modelo.dto.BalanceGeneralDTO;
 import com.ferronor.sic.contabilidad.modelo.dto.DatosCobroParaAsiento;
 import com.ferronor.sic.contabilidad.modelo.dto.DatosCompraParaAsiento;
 import com.ferronor.sic.contabilidad.modelo.dto.DatosPagoParaAsiento;
@@ -23,15 +24,17 @@ public class ContabilidadServiceImpl implements ContabilidadService {
     private final LibroMayorService libroMayorService;
     private final BalanceComprobacionService balanceComprobacionService;
     private final EstadoResultadosService estadoResultadosService;
+    private final BalanceGeneralService balanceGeneralService;
 
     public ContabilidadServiceImpl(AsientoService asientoService, LibroDiarioService libroDiarioService,
             LibroMayorService libroMayorService, BalanceComprobacionService balanceComprobacionService,
-            EstadoResultadosService estadoResultadosService) {
+            EstadoResultadosService estadoResultadosService, BalanceGeneralService balanceGeneralService) {
         this.asientoService = asientoService;
         this.libroDiarioService = libroDiarioService;
         this.libroMayorService = libroMayorService;
         this.balanceComprobacionService = balanceComprobacionService;
         this.estadoResultadosService = estadoResultadosService;
+        this.balanceGeneralService = balanceGeneralService;
     }
 
     @Override
@@ -82,5 +85,10 @@ public class ContabilidadServiceImpl implements ContabilidadService {
     @Override
     public EstadoResultadosDTO obtenerEstadoResultados(LocalDate hasta) {
         return estadoResultadosService.obtenerEstadoResultados(hasta);
+    }
+
+    @Override
+    public BalanceGeneralDTO obtenerBalanceGeneral(LocalDate fechaCorte) {
+        return balanceGeneralService.obtenerBalanceGeneral(fechaCorte);
     }
 }

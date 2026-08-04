@@ -19,6 +19,8 @@ import com.ferronor.sic.contabilidad.logica.AsientoService;
 import com.ferronor.sic.contabilidad.logica.AsientoServiceImpl;
 import com.ferronor.sic.contabilidad.logica.BalanceComprobacionService;
 import com.ferronor.sic.contabilidad.logica.BalanceComprobacionServiceImpl;
+import com.ferronor.sic.contabilidad.logica.BalanceGeneralService;
+import com.ferronor.sic.contabilidad.logica.BalanceGeneralServiceImpl;
 import com.ferronor.sic.contabilidad.logica.ContabilidadService;
 import com.ferronor.sic.contabilidad.logica.ContabilidadServiceImpl;
 import com.ferronor.sic.contabilidad.logica.EstadoResultadosService;
@@ -154,10 +156,13 @@ public final class ServiceFactory {
         BalanceComprobacionService balanceComprobacionService
                 = new BalanceComprobacionServiceImpl(new BalanceComprobacionDAOImpl());
         EstadoResultadosService estadoResultadosService = new EstadoResultadosServiceImpl(balanceComprobacionService);
+        BalanceGeneralService balanceGeneralService
+                = new BalanceGeneralServiceImpl(balanceComprobacionService, estadoResultadosService);
 
         return new ContabilidadServiceImpl(asientoService, libroDiarioService, libroMayorService,
-                balanceComprobacionService, estadoResultadosService);
+                balanceComprobacionService, estadoResultadosService, balanceGeneralService);
     }
+
     // Procesos: orquestadores que cruzan varios módulos en una sola transacción.
     // Cada uno arma sus propios Services vía los métodos de arriba — mismo patrón que el resto.
     public static ProcesoVenta procesoVenta() {
