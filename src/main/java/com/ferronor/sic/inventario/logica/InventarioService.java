@@ -1,4 +1,3 @@
-
 package com.ferronor.sic.inventario.logica;
 
 import com.ferronor.sic.inventario.modelo.MovimientoInventario;
@@ -21,4 +20,6 @@ public interface InventarioService {
     BigDecimal obtenerCostoPromedioActual(int idProducto);
 
     List<MovimientoInventario> listarMovimientos(int idProducto, LocalDate desde, LocalDate hasta);
+
+    MovimientoInventario buscarMovimientoOrigen(int idProducto, OrigenMovimiento origen, int idDocumentoOrigen);
 }

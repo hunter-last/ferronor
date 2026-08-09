@@ -31,6 +31,8 @@ import com.ferronor.sic.contabilidad.logica.LibroMayorService;
 import com.ferronor.sic.contabilidad.logica.LibroMayorServiceImpl;
 import com.ferronor.sic.procesos.ProcesoCobroCliente;
 import com.ferronor.sic.procesos.ProcesoCompra;
+import com.ferronor.sic.procesos.ProcesoDevolucionCompra;
+import com.ferronor.sic.procesos.ProcesoDevolucionVenta;
 import com.ferronor.sic.procesos.ProcesoPagoProveedor;
 import com.ferronor.sic.procesos.ProcesoVenta;
 import com.ferronor.sic.tesoreria.dao.*;
@@ -179,5 +181,13 @@ public final class ServiceFactory {
 
     public static ProcesoPagoProveedor procesoPagoProveedor() {
         return new ProcesoPagoProveedor(compraService(), tesoreriaService(), contabilidadService());
+    }
+    
+    public static ProcesoDevolucionCompra procesoDevolucionCompra() {
+        return new ProcesoDevolucionCompra(devolucionCompraService(), inventarioService());
+    }
+
+    public static ProcesoDevolucionVenta procesoDevolucionVenta() {
+        return new ProcesoDevolucionVenta(devolucionVentaService(), inventarioService());
     }
 }

@@ -56,6 +56,3 @@ public class ProcesoDevolucionVenta {
     }
 }
 
-
-    // Busca, en el historial real de movimientos, el costo exacto que tenía el producto
-    // en el momento en que salió por esa venta — no el costo promedio de hoy.
