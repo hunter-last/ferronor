@@ -136,4 +136,9 @@ public class InventarioServiceImpl implements InventarioService {
     public List<MovimientoInventario> listarMovimientos(int idProducto, LocalDate desde, LocalDate hasta) {
         return movimientoDAO.listarPorProductoYFecha(idProducto, desde.atStartOfDay(), hasta.plusDays(1).atStartOfDay());
     }
+
+    @Override
+    public MovimientoInventario buscarMovimientoOrigen(int idProducto, OrigenMovimiento origen, int idDocumentoOrigen) {
+        return movimientoDAO.buscarPorOrigenYDocumento(idProducto, origen, idDocumentoOrigen);
+    }
 }

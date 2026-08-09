@@ -120,7 +120,7 @@ public final class ServiceFactory {
 
     public static DevolucionCompraService devolucionCompraService() {
         return new DevolucionCompraServiceImpl(new DevolucionCompraDAOImpl(), new CompraDAOImpl(),
-                new ProductoDAOImpl());
+                new ProductoDAOImpl(), new DetalleCompraDAOImpl());
     }
 
     // Tesorería: CajaService/BancoService quedan internos, no se exponen aquí.
@@ -140,7 +140,7 @@ public final class ServiceFactory {
 
     public static DevolucionVentaService devolucionVentaService() {
         return new DevolucionVentaServiceImpl(new DevolucionVentaDAOImpl(), new VentaDAOImpl(),
-                new ProductoDAOImpl());
+                new ProductoDAOImpl(), new DetalleVentaDAOImpl());
     }
 
 // ServiceFactory.java — agregar al final, junto a Tesorería
