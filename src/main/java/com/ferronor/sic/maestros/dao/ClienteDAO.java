@@ -14,6 +14,8 @@ public interface ClienteDAO extends IGeneralDAO<Cliente, Integer> {
 
     List<Cliente> listarActivos();
 
+    List<Cliente> buscarActivosPorNombreODocumentoParcial(String texto);
+
     void activar(int idCliente);
 
     void desactivar(int idCliente);

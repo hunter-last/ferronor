@@ -14,6 +14,7 @@ public class CategoriaDAOImpl extends AbstractDAO implements CategoriaDAO {
 
     private static final String TABLA = "categoria";
     private static final String COLUMNAS = "id_categoria, nombre";
+    private static final int LIMITE_BUSQUEDA = 20;
 
     @Override
     public void insertar(Categoria categoria) {
@@ -106,5 +107,27 @@ public class CategoriaDAOImpl extends AbstractDAO implements CategoriaDAO {
         Categoria c = new Categoria(rs.getString("nombre"));
         c.setIdCategoria(rs.getInt("id_categoria"));
         return c;
+    }
+    
+        @Override
+    public List<Categoria> buscarPorNombreParcial(String texto) {
+        String sql = "SELECT " + COLUMNAS + " FROM " + TABLA
+                + " WHERE nombre ILIKE '%' || ? || '%' ORDER BY nombre LIMIT ?";
+        Connection cn = obtenerConexion();
+        List<Categoria> resultado = new ArrayList<>();
+        try (PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setString(1, texto == null ? "" : texto.trim());
+            ps.setInt(2, LIMITE_BUSQUEDA);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    resultado.add(mapear(rs));
+                }
+            }
+            return resultado;
+        } catch (SQLException e) {
+            throw error("Error al buscar categorías por nombre parcial", e);
+        } finally {
+            cerrar(cn);
+        }
     }
 }
