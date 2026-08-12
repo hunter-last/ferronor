@@ -23,4 +23,7 @@ public interface ProductoService {
     Producto buscarPorId(int idProducto);
 
     Producto buscarPorCodigo(String codigo);
+
+    List<Producto> buscarActivosPorNombreOCodigoParcial(String texto);
+
 }

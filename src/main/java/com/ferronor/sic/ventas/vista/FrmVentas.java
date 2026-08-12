@@ -4,17 +4,384 @@
  */
 package com.ferronor.sic.ventas.vista;
 
+import com.ferronor.sic.maestros.logica.ClienteService;
+import com.ferronor.sic.maestros.logica.FormaPagoService;
+import com.ferronor.sic.maestros.logica.ProductoService;
+import com.ferronor.sic.maestros.logica.TipoComprobanteService;
+import com.ferronor.sic.maestros.modelo.Cliente;
+import com.ferronor.sic.maestros.modelo.FormaPago;
+import com.ferronor.sic.maestros.modelo.Producto;
+import com.ferronor.sic.maestros.modelo.TipoComprobante;
+import com.ferronor.sic.procesos.ProcesoVenta;
+import com.ferronor.sic.shared.FrmBase;
+import com.ferronor.sic.shared.RespuestaOperacion;
+import com.ferronor.sic.shared.ServiceFactory;
+import com.ferronor.sic.shared.SesionUsuario;
+import com.ferronor.sic.shared.ui.ComboAutoFiltro;
+import com.ferronor.sic.tesoreria.logica.TesoreriaService;
+import com.ferronor.sic.tesoreria.modelo.Caja;
+import com.ferronor.sic.tesoreria.modelo.CuentaBancaria;
+import com.ferronor.sic.util.CalculadoraImpuestos;
+import com.ferronor.sic.ventas.modelo.DetalleVenta;
+import com.ferronor.sic.ventas.modelo.Venta;
+
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JOptionPane;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.table.DefaultTableModel;
+import java.awt.BorderLayout;
+import java.awt.event.ItemEvent;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 /**
  *
  * @author Usuario
  */
-public class FrmVentas extends javax.swing.JFrame {
+public class FrmVentas extends FrmBase {
+
+    // Services y Proceso obtenidos vía ServiceFactory — nunca instanciados a mano
+    // ni accedidos a través de DAO directo, según ARQUITECTURA.md 3.1.
+    private final ClienteService clienteService = ServiceFactory.clienteService();
+    private final ProductoService productoService = ServiceFactory.productoService();
+    private final FormaPagoService formaPagoService = ServiceFactory.formaPagoService();
+    private final TipoComprobanteService tipoComprobanteService = ServiceFactory.tipoComprobanteService();
+    private final TesoreriaService tesoreriaService = ServiceFactory.tesoreriaService();
+    private final ProcesoVenta procesoVenta = ServiceFactory.procesoVenta();
+
+    // Colección de DetalleVenta en memoria: se va llenando con "Agregar producto"
+    // y recién se envía completa al confirmar la venta.
+    private final List<DetalleVenta> detalles = new ArrayList<>();
+    private final DefaultTableModel modeloDetalle = new DefaultTableModel(
+            new Object[]{"PRODUCTO", "CANTIDAD", "P. UNIT (CON IGV)", "SUBTOTAL"}, 0) {
+        @Override
+        public boolean isCellEditable(int fila, int columna) {
+            return false;
+        }
+    };
+
+    private Caja cajaAbierta;
+    private CuentaBancaria cuentaBancariaActiva;
+
+    private static final DecimalFormat FORMATO_MONEDA = new DecimalFormat("#,##0.00");
 
     /**
      * Creates new form FrmVentas
      */
     public FrmVentas() {
+        super("VENTAS");
         initComponents();
+        configurarComponentes();
+    }
+
+    // ============================================================
+    // Conexión del formulario con Service/ProcesoVenta.
+    // Nada de lo siguiente accede a DAO ni a PostgreSQL directamente.
+    // ============================================================
+    private void configurarComponentes() {
+        lblNombreVend.setText(SesionUsuario.actual().getNombreCompleto());
+        lblFechaHora.setText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yy - hh:mm a")));
+
+        configurarCaja();
+        configurarTabla();
+        configurarSpinnerCantidad();
+        configurarComboClientes();
+        configurarComboProductos();
+        configurarComboFormasPago();
+        configurarComboTipoComprobante();
+        limpiarValidaciones();
+        recalcularTotales();
+
+        txtValEj1.setEditable(false);
+        txtValEj2.setEditable(false);
+        txtValEj3.setEditable(false);
+
+        txtPrecioUnitario.setEditable(false);
+        lblNroComprobante.setText("Se genera automáticamente al confirmar");
+
+        btnAgregarProducto.addActionListener(e -> agregarProducto());
+        btnRegistrarVenta.addActionListener(e -> registrarVenta());
+        btnCancelar.addActionListener(e -> dispose());
+    }
+
+    // Caja abierta y cuenta bancaria activa se obtienen una sola vez al abrir el
+    // formulario, exclusivamente vía TesoreriaService (nunca CajaDAO/BancoDAO).
+    private void configurarCaja() {
+        Optional<Caja> caja = tesoreriaService.obtenerCajaAbierta();
+        if (caja.isPresent()) {
+            cajaAbierta = caja.get();
+            lblCaja.setText(cajaAbierta.getNombre() + " - Abierta");
+            rbtnCaja.setText("Caja - " + cajaAbierta.getNombre());
+            rbtnCaja.setEnabled(true);
+        } else {
+            cajaAbierta = null;
+            lblCaja.setText("Sin caja abierta");
+            rbtnCaja.setText("Caja (no hay ninguna abierta)");
+            rbtnCaja.setEnabled(false);
+        }
+
+        List<CuentaBancaria> cuentas = tesoreriaService.listarCuentasBancariasActivas();
+        if (!cuentas.isEmpty()) {
+            // El formulario solo tiene un radio para "Cuenta Bancaria": se usa la
+            // primera cuenta activa. Si existiera más de una, este mockup no
+            // permite elegir entre varias — se deja constancia en el resumen.
+            cuentaBancariaActiva = cuentas.get(0);
+            rbtnCtaBancaria.setText("Cuenta Bancaria - " + cuentaBancariaActiva.getBanco()
+                    + " " + cuentaBancariaActiva.getAlias());
+            rbtnCtaBancaria.setEnabled(true);
+        } else {
+            cuentaBancariaActiva = null;
+            rbtnCtaBancaria.setText("Cuenta Bancaria (no hay ninguna activa)");
+            rbtnCtaBancaria.setEnabled(false);
+        }
+
+        if (cajaAbierta != null) {
+            rbtnCaja.setSelected(true);
+        } else if (cuentaBancariaActiva != null) {
+            rbtnCtaBancaria.setSelected(true);
+        }
+    }
+
+    private void configurarTabla() {
+        tblDetProducto.setModel(modeloDetalle);
+    }
+
+    private void configurarSpinnerCantidad() {
+        spnCantidad.setModel(new SpinnerNumberModel(1, 1, 99999, 1));
+    }
+
+    // cmbClientes: editable + ComboAutoFiltro sobre
+    // ClienteService.buscarActivosPorNombreODocumentoParcial(texto).
+    private void configurarComboClientes() {
+        cmbClientes.setModel(new DefaultComboBoxModel<>());
+        ComboAutoFiltro.mejorarCombo(cmbClientes, clienteService::buscarActivosPorNombreODocumentoParcial);
+        cmbClientes.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED && e.getItem() instanceof Cliente cliente) {
+                mostrarClienteSeleccionado(cliente);
+            }
+        });
+        limpiarClienteMostrado();
+    }
+
+    private void mostrarClienteSeleccionado(Cliente cliente) {
+        lblDocumento.setText(cliente.getTipoDocumento() + " " + cliente.getNumeroDocumento());
+        lblNombreCliente.setText(cliente.getNombreRazonSocial());
+        tblTelefono.setText("Tel. " + (cliente.getTelefono() == null ? "-" : cliente.getTelefono()));
+    }
+
+    private void limpiarClienteMostrado() {
+        lblDocumento.setText("RUC/DNI —");
+        lblNombreCliente.setText("Selecciona un cliente");
+        tblTelefono.setText("Tel. —");
+    }
+
+    // cmbProductos: editable + ComboAutoFiltro sobre
+    // ProductoService.buscarActivosPorNombreOCodigoParcial(texto).
+    // txtPrecioUnitario se autocompleta desde Producto.precioVenta y es de solo lectura.
+    private void configurarComboProductos() {
+        cmbProductos.setModel(new DefaultComboBoxModel<>());
+        ComboAutoFiltro.mejorarCombo(cmbProductos, productoService::buscarActivosPorNombreOCodigoParcial);
+        cmbProductos.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED && e.getItem() instanceof Producto producto) {
+                txtPrecioUnitario.setText(FORMATO_MONEDA.format(producto.getPrecioVenta()));
+            }
+        });
+    }
+
+    // cmbFormasPago: lista fija, sin ComboAutoFiltro — se carga completa con
+    // formaPagoService.listar(). Nunca se compara el nombre: crédito/contado se
+    // decide siempre con FormaPago.isEsCredito().
+    private void configurarComboFormasPago() {
+        cmbFormasPago.setModel(new DefaultComboBoxModel<>(formaPagoService.listar().toArray(new FormaPago[0])));
+        cmbFormasPago.setSelectedItem(null);
+        cmbFormasPago.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                actualizarVisibilidadPago();
+            }
+        });
+        actualizarVisibilidadPago();
+    }
+
+    private void configurarComboTipoComprobante() {
+        cmbTipoComprobante.setModel(
+                new DefaultComboBoxModel<>(tipoComprobanteService.listar().toArray(new TipoComprobante[0])));
+        cmbTipoComprobante.setSelectedItem(null);
+    }
+
+    // Si la forma de pago es crédito: se oculta el destino de pago (caja/banco)
+    // y se muestra el aviso de cuenta por cobrar. Si es contado: al revés.
+    private void actualizarVisibilidadPago() {
+        Object seleccion = cmbFormasPago.getSelectedItem();
+        boolean esCredito = seleccion instanceof FormaPago fp && fp.isEsCredito();
+
+        pnlDestinoPago.setVisible(!esCredito);
+        pnlAvisoCtaCobrar.setVisible(esCredito);
+
+        if (esCredito && pnlAvisoCtaCobrar.getComponentCount() == 0) {
+            pnlAvisoCtaCobrar.setLayout(new BorderLayout());
+            javax.swing.JLabel lblAviso = new javax.swing.JLabel(
+                    "Se generará una cuenta por cobrar. Sin movimiento de caja/banco.");
+            lblAviso.setFont(lblAviso.getFont().deriveFont(java.awt.Font.ITALIC, 11f));
+            pnlAvisoCtaCobrar.add(lblAviso, BorderLayout.CENTER);
+        }
+        pnlDestinoPago.getParent().revalidate();
+        pnlDestinoPago.getParent().repaint();
+    }
+
+    // ------------------------------------------------------------------
+    // Detalle de productos en memoria
+    // ------------------------------------------------------------------
+    private void agregarProducto() {
+        limpiarValidaciones();
+
+        Object seleccion = cmbProductos.getSelectedItem();
+        if (!(seleccion instanceof Producto producto)) {
+            mostrarValidacion("Selecciona un producto del listado.");
+            return;
+        }
+
+        Object valorSpinner = spnCantidad.getValue();
+        BigDecimal cantidad = new BigDecimal(valorSpinner.toString());
+        if (cantidad.compareTo(BigDecimal.ZERO) <= 0) {
+            mostrarValidacion("La cantidad debe ser mayor a cero.");
+            return;
+        }
+
+        DetalleVenta detalle = new DetalleVenta(producto.getIdProducto(), cantidad, producto.getPrecioVenta());
+        detalles.add(detalle);
+        modeloDetalle.addRow(new Object[]{
+            producto,
+            cantidad.toPlainString(),
+            "S/ " + FORMATO_MONEDA.format(producto.getPrecioVenta()),
+            "S/ " + FORMATO_MONEDA.format(detalle.getSubtotal())
+        });
+
+        recalcularTotales();
+
+        cmbProductos.setSelectedItem(null);
+        txtPrecioUnitario.setText("");
+        spnCantidad.setValue(1);
+    }
+
+    // El total acumulado ya incluye IGV (precio_unitario lo incluye); subtotal e
+    // IGV se derivan con CalculadoraImpuestos — misma fórmula centralizada que
+    // usa VentaServiceImpl, no se repite el cálculo aquí.
+    private void recalcularTotales() {
+        BigDecimal total = BigDecimal.ZERO;
+        for (DetalleVenta d : detalles) {
+            total = total.add(d.getSubtotal());
+        }
+        total = total.setScale(2, RoundingMode.HALF_UP);
+
+        BigDecimal subtotal = total.compareTo(BigDecimal.ZERO) == 0
+                ? BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP)
+                : CalculadoraImpuestos.calcularValorVenta(total);
+        BigDecimal igv = total.compareTo(BigDecimal.ZERO) == 0
+                ? BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP)
+                : CalculadoraImpuestos.calcularIGV(total);
+
+        lblCantSubTotal.setText("S/ " + FORMATO_MONEDA.format(subtotal));
+        lblCantIGV.setText("S/ " + FORMATO_MONEDA.format(igv));
+        lblCantTotal.setText("S/ " + FORMATO_MONEDA.format(total));
+    }
+
+    // ------------------------------------------------------------------
+    // Registrar venta — decide la variante de ProcesoVenta según forma de pago
+    // ------------------------------------------------------------------
+    private void registrarVenta() {
+        limpiarValidaciones();
+
+        Object clienteSel = cmbClientes.getSelectedItem();
+        if (!(clienteSel instanceof Cliente cliente)) {
+            mostrarValidacion("Selecciona un cliente.");
+            return;
+        }
+
+        if (detalles.isEmpty()) {
+            mostrarValidacion("La venta debe tener al menos un producto.");
+            return;
+        }
+
+        Object formaPagoSel = cmbFormasPago.getSelectedItem();
+        if (!(formaPagoSel instanceof FormaPago formaPago)) {
+            mostrarValidacion("Selecciona una forma de pago.");
+            return;
+        }
+
+        Object tipoComprobanteSel = cmbTipoComprobante.getSelectedItem();
+        if (!(tipoComprobanteSel instanceof TipoComprobante tipoComprobante)) {
+            mostrarValidacion("Selecciona el tipo de comprobante.");
+            return;
+        }
+
+        Venta venta = new Venta(cliente.getIdCliente(), formaPago.getIdFormaPago(),
+                SesionUsuario.actual().getIdUsuario());
+        for (DetalleVenta d : detalles) {
+            venta.agregarDetalle(d);
+        }
+
+        RespuestaOperacion<Integer> resultado;
+        if (formaPago.isEsCredito()) {
+            resultado = procesoVenta.registrarVentaCredito(venta, tipoComprobante.getIdTipoComprobante());
+        } else if (rbtnCaja.isSelected()) {
+            if (cajaAbierta == null) {
+                mostrarValidacion("No hay una caja abierta para cobrar al contado.");
+                return;
+            }
+            resultado = procesoVenta.registrarVentaContadoCaja(venta, tipoComprobante.getIdTipoComprobante(),
+                    cajaAbierta.getIdCaja());
+        } else if (rbtnCtaBancaria.isSelected()) {
+            if (cuentaBancariaActiva == null) {
+                mostrarValidacion("No hay una cuenta bancaria activa para cobrar.");
+                return;
+            }
+            resultado = procesoVenta.registrarVentaContadoBanco(venta, tipoComprobante.getIdTipoComprobante(),
+                    cuentaBancariaActiva.getIdCuentaBancaria());
+        } else {
+            mostrarValidacion("Selecciona caja o cuenta bancaria para el cobro al contado.");
+            return;
+        }
+
+        if (!resultado.isExito()) {
+            mostrarValidacion(resultado.getMensaje());
+            return;
+        }
+
+        JOptionPane.showMessageDialog(this, "Venta N° " + resultado.getResultado() + " registrada correctamente.");
+        limpiarFormularioTrasRegistro();
+    }
+
+    private void limpiarFormularioTrasRegistro() {
+        detalles.clear();
+        modeloDetalle.setRowCount(0);
+        recalcularTotales();
+        cmbClientes.setSelectedItem(null);
+        limpiarClienteMostrado();
+        cmbFormasPago.setSelectedItem(null);
+        cmbTipoComprobante.setSelectedItem(null);
+        actualizarVisibilidadPago();
+    }
+
+    // ------------------------------------------------------------------
+    // pnlValidaciones: los errores de RespuestaOperacion (y las validaciones
+    // propias del formulario) se muestran acá, nunca con JOptionPane.
+    // ------------------------------------------------------------------
+    private void mostrarValidacion(String mensaje) {
+        txtValEj1.setText(mensaje);
+        txtValEj2.setText("");
+        txtValEj3.setText("");
+    }
+
+    private void limpiarValidaciones() {
+        txtValEj1.setText("");
+        txtValEj2.setText("");
+        txtValEj3.setText("");
     }
 
     /**
@@ -549,10 +916,10 @@ public class FrmVentas extends javax.swing.JFrame {
     private javax.swing.JButton btnAgregarProducto;
     private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnRegistrarVenta;
-    private javax.swing.JComboBox<String> cmbClientes;
-    private javax.swing.JComboBox<String> cmbFormasPago;
-    private javax.swing.JComboBox<String> cmbProductos;
-    private javax.swing.JComboBox<String> cmbTipoComprobante;
+    private javax.swing.JComboBox<Cliente> cmbClientes;
+    private javax.swing.JComboBox<FormaPago> cmbFormasPago;
+    private javax.swing.JComboBox<Producto> cmbProductos;
+    private javax.swing.JComboBox<TipoComprobante> cmbTipoComprobante;
     private javax.swing.ButtonGroup grpBtnFormaPago;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;

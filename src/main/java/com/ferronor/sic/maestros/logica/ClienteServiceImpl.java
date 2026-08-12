@@ -91,6 +91,17 @@ public class ClienteServiceImpl implements ClienteService {
     public List<Cliente> listarActivos() {
         return clienteDAO.listarActivos();
     }
+    
+    @Override
+    public Cliente buscarPorNumeroDocumento(String numeroDocumento) {
+        return clienteDAO.buscarPorNumeroDocumento(numeroDocumento);
+    }
+
+    @Override
+    public List<Cliente> buscarActivosPorNombreODocumentoParcial(String texto) {
+        return clienteDAO.buscarActivosPorNombreODocumentoParcial(texto);
+    }
+
 
     private RespuestaOperacion<Void> validarComun(Cliente c) {
         if (c == null) {
@@ -139,8 +150,4 @@ public class ClienteServiceImpl implements ClienteService {
         return clienteDAO.buscarPorId(idCliente);
     }
 
-    @Override
-    public Cliente buscarPorNumeroDocumento(String numeroDocumento) {
-        return clienteDAO.buscarPorNumeroDocumento(numeroDocumento);
-    }
 }
