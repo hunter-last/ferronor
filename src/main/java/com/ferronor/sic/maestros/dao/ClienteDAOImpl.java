@@ -20,7 +20,8 @@ public class ClienteDAOImpl extends AbstractDAO implements ClienteDAO {
     private static final String TABLA = "cliente";
     private static final String COLUMNAS =
         "id_cliente, tipo_documento, numero_documento, nombre_razon_social, telefono, activo";
-
+    private static final int LIMITE_BUSQUEDA = 20;
+    
     @Override
     public void insertar(Cliente c) {
         String sql = "INSERT INTO " + TABLA +
@@ -114,6 +115,32 @@ public class ClienteDAOImpl extends AbstractDAO implements ClienteDAO {
     @Override
     public List<Cliente> listarActivos() {
         return listarConFiltro("SELECT " + COLUMNAS + " FROM " + TABLA + " WHERE activo = TRUE ORDER BY nombre_razon_social");
+    }
+    
+    @Override
+    public List<Cliente> buscarActivosPorNombreODocumentoParcial(String texto) {
+        String sql = "SELECT " + COLUMNAS + " FROM " + TABLA
+                + " WHERE activo = TRUE AND (nombre_razon_social ILIKE '%' || ? || '%' "
+                + "OR numero_documento ILIKE '%' || ? || '%') "
+                + "ORDER BY nombre_razon_social LIMIT ?";
+        Connection cn = obtenerConexion();
+        List<Cliente> resultado = new ArrayList<>();
+        try (PreparedStatement ps = cn.prepareStatement(sql)) {
+            String valor = texto == null ? "" : texto.trim();
+            ps.setString(1, valor);
+            ps.setString(2, valor);
+            ps.setInt(3, LIMITE_BUSQUEDA);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    resultado.add(mapear(rs));
+                }
+            }
+            return resultado;
+        } catch (SQLException e) {
+            throw error("Error al buscar clientes por nombre o documento parcial", e);
+        } finally {
+            cerrar(cn);
+        }
     }
 
     private List<Cliente> listarConFiltro(String sql) {

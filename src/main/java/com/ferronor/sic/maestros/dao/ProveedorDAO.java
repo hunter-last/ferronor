@@ -14,6 +14,8 @@ public interface ProveedorDAO extends IGeneralDAO<Proveedor, Integer> {
 
     List<Proveedor> listarActivos();
 
+    List<Proveedor> buscarActivosPorRazonSocialORucParcial(String texto);
+
     void desactivar(int idProveedor);
 
     void activar(int idProveedor);

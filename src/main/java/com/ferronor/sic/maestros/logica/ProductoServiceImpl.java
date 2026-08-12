@@ -171,4 +171,9 @@ public class ProductoServiceImpl implements ProductoService {
         return productoDAO.buscarPorCodigo(codigo);
     }
 
+    @Override
+    public List<Producto> buscarActivosPorNombreOCodigoParcial(String texto) {
+        return productoDAO.buscarActivosPorNombreOCodigoParcial(texto);
+    }
+
 }

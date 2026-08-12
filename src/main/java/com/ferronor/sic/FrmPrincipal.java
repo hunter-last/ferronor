@@ -3,6 +3,7 @@ package com.ferronor.sic;
 import com.ferronor.sic.maestros.vista.FrmCategoria;
 import com.ferronor.sic.seguridad.vista.FrmLogin;
 import com.ferronor.sic.shared.SesionUsuario;
+import com.ferronor.sic.ventas.vista.FrmVentas;
 
 import javax.swing.*;
 
@@ -79,10 +80,13 @@ public class FrmPrincipal extends JFrame {
 
     private JMenu crearMenuVentas() {
         JMenu menu = new JMenu("Ventas");
+
         if (SesionUsuario.puedeAcceder("REGISTRAR_VENTA")) {
             menu.add(crearItem("Registrar Venta", e -> {
-                /* TODO */ }));
+                new FrmVentas().setVisible(true);
+            }));
         }
+
         return menu;
     }
 

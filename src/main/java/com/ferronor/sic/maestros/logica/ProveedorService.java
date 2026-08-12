@@ -25,4 +25,7 @@ public interface ProveedorService {
     Proveedor buscarPorId(int idProveedor);
 
     Proveedor buscarPorRuc(String ruc);
+
+    List<Proveedor> buscarActivosPorRazonSocialORucParcial(String texto);
 }
+

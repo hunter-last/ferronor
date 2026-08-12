@@ -135,4 +135,10 @@ public class ProveedorServiceImpl implements ProveedorService {
     public Proveedor buscarPorRuc(String ruc) {
         return proveedorDAO.buscarPorRuc(ruc);
     }
+
+    @Override
+    public List<Proveedor> buscarActivosPorRazonSocialORucParcial(String texto) {
+        return proveedorDAO.buscarActivosPorRazonSocialORucParcial(texto);
+    }
+
 }
