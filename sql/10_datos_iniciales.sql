@@ -1,5 +1,5 @@
 INSERT INTO rol (nombre) VALUES
-('Administrador'), ('Cajero'), ('Contador'), ('Logistica');
+('Administrador'), ('Cajero'), ('Contador'), ('Logistica'), ('Tesoreria');
 
 INSERT INTO permiso (codigo, nombre) VALUES
 ('REGISTRAR_VENTA','Registrar venta'),
@@ -15,6 +15,7 @@ INSERT INTO permiso (codigo, nombre) VALUES
 ('INVENTARIO','Acceso al módulo de Inventario'),
 ('COMPRAS','Acceso al módulo de Compras'),
 ('VENTAS','Acceso al módulo de Ventas'),
+('CAJA','Acceso al módulo de Caja'),
 ('TESORERIA','Acceso al módulo de Tesorería'),
 ('CONTABILIDAD','Acceso al módulo de Contabilidad'),
 ('SEGURIDAD','Acceso al módulo de Seguridad');
@@ -23,10 +24,15 @@ INSERT INTO permiso (codigo, nombre) VALUES
 INSERT INTO rol_permiso (id_rol, id_permiso)
 SELECT r.id_rol, p.id_permiso FROM rol r, permiso p WHERE r.nombre = 'Administrador';
 
--- Cajero: registra ventas y maneja caja
+-- Cajero: vende y opera su propia caja (YA NO valida ni deposita)
 INSERT INTO rol_permiso (id_rol, id_permiso)
 SELECT r.id_rol, p.id_permiso FROM rol r, permiso p
-WHERE r.nombre = 'Cajero' AND p.codigo IN ('VENTAS','TESORERIA','REGISTRAR_VENTA');
+WHERE r.nombre = 'Cajero' AND p.codigo IN ('VENTAS','CAJA','REGISTRAR_VENTA');
+
+-- Tesoreria: valida liquidaciones, deposita, controla movimientos, gastos operativos
+INSERT INTO rol_permiso (id_rol, id_permiso)
+SELECT r.id_rol, p.id_permiso FROM rol r, permiso p
+WHERE r.nombre = 'Tesoreria' AND p.codigo IN ('TESORERIA');
 
 -- Contador: revisa contabilidad y reportes
 INSERT INTO rol_permiso (id_rol, id_permiso)
@@ -37,9 +43,6 @@ WHERE r.nombre = 'Contador' AND p.codigo IN ('CONTABILIDAD','VER_BALANCE','GENER
 INSERT INTO rol_permiso (id_rol, id_permiso)
 SELECT r.id_rol, p.id_permiso FROM rol r, permiso p
 WHERE r.nombre = 'Logistica' AND p.codigo IN ('INVENTARIO','MAESTROS','COMPRAS','AJUSTAR_STOCK','REGISTRAR_COMPRA');
-
-
-
 
 
 INSERT INTO categoria (nombre) VALUES
