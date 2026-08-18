@@ -38,4 +38,10 @@ public class FormaPago {
     public void setEsCredito(boolean esCredito) {
         this.esCredito = esCredito;
     }
+
+    @Override
+    public String toString() {
+        return nombre;
+    }
+    
 }

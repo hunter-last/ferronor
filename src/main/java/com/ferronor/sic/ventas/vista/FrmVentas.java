@@ -596,6 +596,11 @@ public class FrmVentas extends FrmBase {
 
         btnAgregarProducto.setBackground(new java.awt.Color(51, 102, 0));
         btnAgregarProducto.setText("Agregar Producto");
+        btnAgregarProducto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAgregarProductoActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout pnlAgregarProductoLayout = new javax.swing.GroupLayout(pnlAgregarProducto);
         pnlAgregarProducto.setLayout(pnlAgregarProductoLayout);
@@ -773,9 +778,19 @@ public class FrmVentas extends FrmBase {
 
         btnRegistrarVenta.setBackground(new java.awt.Color(204, 51, 0));
         btnRegistrarVenta.setText("REGISTRAR VENTA");
+        btnRegistrarVenta.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRegistrarVentaActionPerformed(evt);
+            }
+        });
 
         btnCancelar.setBackground(new java.awt.Color(102, 51, 0));
         btnCancelar.setText("CANCELAR");
+        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelarActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout pnlAvisoCtaCobrarLayout = new javax.swing.GroupLayout(pnlAvisoCtaCobrar);
         pnlAvisoCtaCobrar.setLayout(pnlAvisoCtaCobrarLayout);
@@ -876,6 +891,21 @@ public class FrmVentas extends FrmBase {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnRegistrarVentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrarVentaActionPerformed
+        // TODO add your handling code here:
+        registrarVenta();
+    }//GEN-LAST:event_btnRegistrarVentaActionPerformed
+
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        // TODO add your handling code here:
+        dispose();
+    }//GEN-LAST:event_btnCancelarActionPerformed
+
+    private void btnAgregarProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarProductoActionPerformed
+        // TODO add your handling code here:
+        agregarProducto();
+    }//GEN-LAST:event_btnAgregarProductoActionPerformed
 
     /**
      * @param args the command line arguments

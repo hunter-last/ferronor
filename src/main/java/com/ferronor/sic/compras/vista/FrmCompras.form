@@ -310,7 +310,7 @@
                 </Property>
               </Properties>
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+                <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;OrdenCompra&gt;"/>
               </AuxValues>
             </Component>
           </SubComponents>
@@ -322,7 +322,7 @@
             </Property>
           </Properties>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+            <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;Proveedor&gt;"/>
           </AuxValues>
         </Component>
       </SubComponents>
@@ -429,6 +429,9 @@
             </Property>
             <Property name="text" type="java.lang.String" value="Agregar Producto"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnAgregarProductoActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JTextField" name="txtPrecioUnitario">
         </Component>
@@ -441,7 +444,7 @@
             </Property>
           </Properties>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+            <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;Producto&gt;"/>
           </AuxValues>
         </Component>
       </SubComponents>
@@ -513,15 +516,15 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="pnlFormaPago" alignment="1" max="32767" attributes="0"/>
                       <Component id="pnlDestinoPago" alignment="0" max="32767" attributes="0"/>
-                      <Component id="jPanel2" alignment="0" max="32767" attributes="0"/>
+                      <Component id="pnlTotales" alignment="0" max="32767" attributes="0"/>
                       <Component id="btnRegistrarVenta" max="32767" attributes="0"/>
                       <Component id="btnCancelar" max="32767" attributes="0"/>
                       <Component id="txtFacturaProveedor" max="32767" attributes="0"/>
                       <Component id="jdcFechaCompra" alignment="0" max="32767" attributes="0"/>
                       <Group type="102" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="lblTipo" min="-2" max="-2" attributes="0"/>
-                              <Component id="lblTipo1" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblNroFactura" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblFechaCompra" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                       </Group>
@@ -535,11 +538,11 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="lblTipo" min="-2" max="-2" attributes="0"/>
+                  <Component id="lblNroFactura" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="txtFacturaProveedor" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="lblTipo1" min="-2" max="-2" attributes="0"/>
+                  <Component id="lblFechaCompra" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="jdcFechaCompra" min="-2" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
@@ -549,7 +552,7 @@
                   <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
                   <Component id="pnlPlazoDias" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="jPanel2" min="-2" max="-2" attributes="0"/>
+                  <Component id="pnlTotales" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="btnRegistrarVenta" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
@@ -560,7 +563,7 @@
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Component class="javax.swing.JLabel" name="lblTipo">
+        <Component class="javax.swing.JLabel" name="lblNroFactura">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Consolas" size="10" style="0"/>
@@ -607,7 +610,7 @@
                 </Property>
               </Properties>
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+                <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;FormaPago&gt;"/>
               </AuxValues>
             </Component>
           </SubComponents>
@@ -627,8 +630,8 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jRadioButton1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jRadioButton2" min="-2" max="-2" attributes="0"/>
+                          <Component id="rbtnCaja" min="-2" max="-2" attributes="0"/>
+                          <Component id="rbtnCtaBancaria" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="32767" attributes="0"/>
                   </Group>
@@ -638,16 +641,16 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jRadioButton1" min="-2" max="-2" attributes="0"/>
+                      <Component id="rbtnCaja" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
-                      <Component id="jRadioButton2" min="-2" max="-2" attributes="0"/>
+                      <Component id="rbtnCtaBancaria" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="javax.swing.JRadioButton" name="jRadioButton1">
+            <Component class="javax.swing.JRadioButton" name="rbtnCaja">
               <Properties>
                 <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                   <ComponentRef name="grpBtnFormaPago"/>
@@ -655,7 +658,7 @@
                 <Property name="text" type="java.lang.String" value="Caja - Caja Principal"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JRadioButton" name="jRadioButton2">
+            <Component class="javax.swing.JRadioButton" name="rbtnCtaBancaria">
               <Properties>
                 <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                   <ComponentRef name="grpBtnFormaPago"/>
@@ -665,7 +668,7 @@
             </Component>
           </SubComponents>
         </Container>
-        <Container class="javax.swing.JPanel" name="jPanel2">
+        <Container class="javax.swing.JPanel" name="pnlTotales">
           <Properties>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
@@ -779,22 +782,28 @@
         <Component class="javax.swing.JButton" name="btnRegistrarVenta">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="0" green="33" red="cc" type="rgb"/>
+              <Color blue="0" green="33" red="99" type="rgb"/>
             </Property>
             <Property name="text" type="java.lang.String" value="REGISTRAR COMPRA"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnRegistrarVentaActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="btnCancelar">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="0" green="33" red="66" type="rgb"/>
+              <Color blue="33" green="33" red="33" type="rgb"/>
             </Property>
             <Property name="text" type="java.lang.String" value="CANCELAR"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCancelarActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JTextField" name="txtFacturaProveedor">
         </Component>
-        <Component class="javax.swing.JLabel" name="lblTipo1">
+        <Component class="javax.swing.JLabel" name="lblFechaCompra">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Consolas" size="10" style="0"/>

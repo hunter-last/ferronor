@@ -378,6 +378,9 @@
             </Property>
             <Property name="text" type="java.lang.String" value="Agregar Producto"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnAgregarProductoActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JComboBox" name="cmbProductos">
           <Properties>
@@ -759,6 +762,9 @@
             </Property>
             <Property name="text" type="java.lang.String" value="REGISTRAR VENTA"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnRegistrarVentaActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="btnCancelar">
           <Properties>
@@ -767,6 +773,9 @@
             </Property>
             <Property name="text" type="java.lang.String" value="CANCELAR"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCancelarActionPerformed"/>
+          </Events>
         </Component>
         <Container class="javax.swing.JPanel" name="pnlAvisoCtaCobrar">
 

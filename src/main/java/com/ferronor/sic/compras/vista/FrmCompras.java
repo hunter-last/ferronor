@@ -4,17 +4,82 @@
  */
 package com.ferronor.sic.compras.vista;
 
+import com.ferronor.sic.compras.logica.OrdenCompraService;
+import com.ferronor.sic.compras.modelo.Compra;
+import com.ferronor.sic.compras.modelo.DetalleCompra;
+import com.ferronor.sic.compras.modelo.EstadoOrdenCompra;
+import com.ferronor.sic.compras.modelo.OrdenCompra;
+import com.ferronor.sic.maestros.logica.FormaPagoService;
+import com.ferronor.sic.maestros.logica.ProductoService;
+import com.ferronor.sic.maestros.logica.ProveedorService;
+import com.ferronor.sic.maestros.modelo.FormaPago;
+import com.ferronor.sic.maestros.modelo.Producto;
+import com.ferronor.sic.maestros.modelo.Proveedor;
+import com.ferronor.sic.procesos.ProcesoCompra;
+import com.ferronor.sic.shared.FrmBase;
+import com.ferronor.sic.shared.RespuestaOperacion;
+import com.ferronor.sic.shared.ServiceFactory;
+import com.ferronor.sic.shared.SesionUsuario;
+import com.ferronor.sic.shared.ui.ComboAutoFiltro;
+import com.ferronor.sic.tesoreria.logica.TesoreriaService;
+import com.ferronor.sic.tesoreria.modelo.Caja;
+import com.ferronor.sic.tesoreria.modelo.CuentaBancaria;
+import com.ferronor.sic.util.CalculadoraImpuestos;
+
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JOptionPane;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.table.DefaultTableModel;
+import java.awt.BorderLayout;
+import java.awt.event.ItemEvent;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
 /**
  *
  * @author Usuario
  */
 public class FrmCompras extends javax.swing.JFrame {
 
+    // Services y ProcesoCompra vía ServiceFactory — igual patrón que FrmVentas.
+    private final ProveedorService proveedorService = ServiceFactory.proveedorService();
+    private final ProductoService productoService = ServiceFactory.productoService();
+    private final FormaPagoService formaPagoService = ServiceFactory.formaPagoService();
+    private final OrdenCompraService ordenCompraService = ServiceFactory.ordenCompraService();
+    private final TesoreriaService tesoreriaService = ServiceFactory.tesoreriaService();
+    private final ProcesoCompra procesoCompra = ServiceFactory.procesoCompra();
+
+    private final List<DetalleCompra> detalles = new ArrayList<>();
+    private final DefaultTableModel modeloDetalle = new DefaultTableModel(
+            new Object[]{"PRODUCTO", "CANTIDAD", "COSTO UNIT. (SIN IGV)", "SUBTOTAL"}, 0) {
+        @Override
+        public boolean isCellEditable(int fila, int columna) {
+            return false;
+        }
+    };
+
+    private Caja cajaAbierta;
+    private CuentaBancaria cuentaBancariaActiva;
+    private List<OrdenCompra> ordenesAprobadas = new ArrayList<>();
+
+    private static final DecimalFormat FORMATO_MONEDA = new DecimalFormat("#,##0.00");
+
     /**
      * Creates new form FrmVentas
      */
     public FrmCompras() {
+        super("COMPRAS");
         initComponents();
+        configurarComponentes();
     }
 
     /**
@@ -54,13 +119,13 @@ public class FrmCompras extends javax.swing.JFrame {
         txtValEj2 = new javax.swing.JTextField();
         txtValEj3 = new javax.swing.JTextField();
         pnlComprobante = new javax.swing.JPanel();
-        lblTipo = new javax.swing.JLabel();
+        lblNroFactura = new javax.swing.JLabel();
         pnlFormaPago = new javax.swing.JPanel();
         cmbFormasPago = new javax.swing.JComboBox<>();
         pnlDestinoPago = new javax.swing.JPanel();
-        jRadioButton1 = new javax.swing.JRadioButton();
-        jRadioButton2 = new javax.swing.JRadioButton();
-        jPanel2 = new javax.swing.JPanel();
+        rbtnCaja = new javax.swing.JRadioButton();
+        rbtnCtaBancaria = new javax.swing.JRadioButton();
+        pnlTotales = new javax.swing.JPanel();
         lblSubtotal = new javax.swing.JLabel();
         lblCantSubTotal = new javax.swing.JLabel();
         lblIGV = new javax.swing.JLabel();
@@ -71,7 +136,7 @@ public class FrmCompras extends javax.swing.JFrame {
         btnRegistrarVenta = new javax.swing.JButton();
         btnCancelar = new javax.swing.JButton();
         txtFacturaProveedor = new javax.swing.JTextField();
-        lblTipo1 = new javax.swing.JLabel();
+        lblFechaCompra = new javax.swing.JLabel();
         jdcFechaCompra = new com.toedter.calendar.JDateChooser();
         pnlPlazoDias = new javax.swing.JPanel();
 
@@ -256,6 +321,11 @@ public class FrmCompras extends javax.swing.JFrame {
 
         btnAgregarProducto.setBackground(new java.awt.Color(51, 102, 0));
         btnAgregarProducto.setText("Agregar Producto");
+        btnAgregarProducto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAgregarProductoActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout pnlAgregarProdLayout = new javax.swing.GroupLayout(pnlAgregarProd);
         pnlAgregarProd.setLayout(pnlAgregarProdLayout);
@@ -312,8 +382,8 @@ public class FrmCompras extends javax.swing.JFrame {
 
         pnlComprobante.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "COMPROBANTE", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
-        lblTipo.setFont(new java.awt.Font("Consolas", 0, 10)); // NOI18N
-        lblTipo.setText("NRO. FACTURA DEL PROVEEDOR");
+        lblNroFactura.setFont(new java.awt.Font("Consolas", 0, 10)); // NOI18N
+        lblNroFactura.setText("NRO. FACTURA DEL PROVEEDOR");
 
         pnlFormaPago.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "FORMA DE PAGO", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
@@ -336,11 +406,11 @@ public class FrmCompras extends javax.swing.JFrame {
 
         pnlDestinoPago.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
 
-        grpBtnFormaPago.add(jRadioButton1);
-        jRadioButton1.setText("Caja - Caja Principal");
+        grpBtnFormaPago.add(rbtnCaja);
+        rbtnCaja.setText("Caja - Caja Principal");
 
-        grpBtnFormaPago.add(jRadioButton2);
-        jRadioButton2.setText("Cuenta bancaria - BCP Cta. Cte.");
+        grpBtnFormaPago.add(rbtnCtaBancaria);
+        rbtnCtaBancaria.setText("Cuenta bancaria - BCP Cta. Cte.");
 
         javax.swing.GroupLayout pnlDestinoPagoLayout = new javax.swing.GroupLayout(pnlDestinoPago);
         pnlDestinoPago.setLayout(pnlDestinoPagoLayout);
@@ -349,21 +419,21 @@ public class FrmCompras extends javax.swing.JFrame {
             .addGroup(pnlDestinoPagoLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(pnlDestinoPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jRadioButton1)
-                    .addComponent(jRadioButton2))
+                    .addComponent(rbtnCaja)
+                    .addComponent(rbtnCtaBancaria))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         pnlDestinoPagoLayout.setVerticalGroup(
             pnlDestinoPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlDestinoPagoLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jRadioButton1)
+                .addComponent(rbtnCaja)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jRadioButton2)
+                .addComponent(rbtnCtaBancaria)
                 .addContainerGap())
         );
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "TOTALES", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlTotales.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "TOTALES", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         lblSubtotal.setText("Subtotal:");
 
@@ -381,56 +451,66 @@ public class FrmCompras extends javax.swing.JFrame {
         lblCantTotal.setFont(new java.awt.Font("Consolas", 0, 16)); // NOI18N
         lblCantTotal.setText("S/ 1,078.50 ");
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout pnlTotalesLayout = new javax.swing.GroupLayout(pnlTotales);
+        pnlTotales.setLayout(pnlTotalesLayout);
+        pnlTotalesLayout.setHorizontalGroup(
+            pnlTotalesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jSeparator1)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+            .addGroup(pnlTotalesLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(pnlTotalesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnlTotalesLayout.createSequentialGroup()
                         .addComponent(lblTotal)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 60, Short.MAX_VALUE)
                         .addComponent(lblCantTotal))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(pnlTotalesLayout.createSequentialGroup()
+                        .addGroup(pnlTotalesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(lblIGV, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(lblSubtotal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(pnlTotalesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lblCantSubTotal, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(lblCantIGV, javax.swing.GroupLayout.Alignment.TRAILING))))
                 .addContainerGap())
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        pnlTotalesLayout.setVerticalGroup(
+            pnlTotalesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlTotalesLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(pnlTotalesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblSubtotal)
                     .addComponent(lblCantSubTotal))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(pnlTotalesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblIGV)
                     .addComponent(lblCantIGV))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(pnlTotalesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblTotal)
                     .addComponent(lblCantTotal))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        btnRegistrarVenta.setBackground(new java.awt.Color(204, 51, 0));
+        btnRegistrarVenta.setBackground(new java.awt.Color(153, 51, 0));
         btnRegistrarVenta.setText("REGISTRAR COMPRA");
+        btnRegistrarVenta.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRegistrarVentaActionPerformed(evt);
+            }
+        });
 
-        btnCancelar.setBackground(new java.awt.Color(102, 51, 0));
+        btnCancelar.setBackground(new java.awt.Color(51, 51, 51));
         btnCancelar.setText("CANCELAR");
+        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelarActionPerformed(evt);
+            }
+        });
 
-        lblTipo1.setFont(new java.awt.Font("Consolas", 0, 10)); // NOI18N
-        lblTipo1.setText("FECHA DE LA COMPRA");
+        lblFechaCompra.setFont(new java.awt.Font("Consolas", 0, 10)); // NOI18N
+        lblFechaCompra.setText("FECHA DE LA COMPRA");
 
         javax.swing.GroupLayout pnlPlazoDiasLayout = new javax.swing.GroupLayout(pnlPlazoDias);
         pnlPlazoDias.setLayout(pnlPlazoDiasLayout);
@@ -452,15 +532,15 @@ public class FrmCompras extends javax.swing.JFrame {
                 .addGroup(pnlComprobanteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(pnlFormaPago, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(pnlDestinoPago, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(pnlTotales, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnRegistrarVenta, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnCancelar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(txtFacturaProveedor)
                     .addComponent(jdcFechaCompra, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(pnlComprobanteLayout.createSequentialGroup()
                         .addGroup(pnlComprobanteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblTipo)
-                            .addComponent(lblTipo1))
+                            .addComponent(lblNroFactura)
+                            .addComponent(lblFechaCompra))
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(pnlPlazoDias, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -469,11 +549,11 @@ public class FrmCompras extends javax.swing.JFrame {
             pnlComprobanteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlComprobanteLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(lblTipo)
+                .addComponent(lblNroFactura)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtFacturaProveedor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblTipo1)
+                .addComponent(lblFechaCompra)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jdcFechaCompra, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(8, 8, 8)
@@ -483,7 +563,7 @@ public class FrmCompras extends javax.swing.JFrame {
                 .addGap(8, 8, 8)
                 .addComponent(pnlPlazoDias, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(pnlTotales, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnRegistrarVenta)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -531,6 +611,404 @@ public class FrmCompras extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnRegistrarVentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrarVentaActionPerformed
+        // TODO add your handling code here:
+        registrarCompra();
+    }//GEN-LAST:event_btnRegistrarVentaActionPerformed
+
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        // TODO add your handling code here:
+        dispose();
+    }//GEN-LAST:event_btnCancelarActionPerformed
+
+    private void btnAgregarProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarProductoActionPerformed
+        // TODO add your handling code here:
+        agregarProducto();
+    }//GEN-LAST:event_btnAgregarProductoActionPerformed
+
+    // ============================================================
+    // Conexión del formulario con Service/ProcesoCompra.
+    // Nada de lo siguiente accede a DAO ni a PostgreSQL directamente.
+    // ============================================================
+    private void configurarComponentes() {
+        lblNombreVend.setText(SesionUsuario.actual().getNombreCompleto());
+        lblFechaHora.setText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yy - hh:mm a")));
+
+        configurarCaja();
+        configurarTabla();
+        configurarSpinnerCantidad();
+        configurarSpinnerPlazoDias();
+        configurarFechaCompra();
+        configurarComboProveedor();
+        configurarComboOrdenCompra();
+        configurarComboProductos();
+        configurarComboFormasPago();
+        limpiarValidaciones();
+        recalcularTotales();
+
+        txtValEj1.setEditable(false);
+        txtValEj2.setEditable(false);
+        txtValEj3.setEditable(false);
+
+        // A diferencia de Ventas, el costo unitario de compra SÍ es editable:
+        // no existe un precio de compra en el catálogo (Producto solo tiene
+        // precioVenta), así que lo captura el usuario en cada compra.
+        txtPrecioUnitario.setEditable(true);
+
+        btnAgregarProducto.addActionListener(e -> agregarProducto());
+        btnRegistrarVenta.addActionListener(e -> registrarCompra());
+        btnCancelar.addActionListener(e -> dispose());
+    }
+
+    // Caja abierta y cuenta bancaria activa, igual que en FrmVentas.
+    // NOTA: el formulario solo tiene un radio para "Cuenta Bancaria" (no una
+    // lista), así que si hay varias cuentas activas se usa la primera —
+    // mismo criterio ya adoptado en FrmVentas, no se agrega un selector nuevo.
+    private void configurarCaja() {
+        Optional<Caja> caja = tesoreriaService.obtenerCajaAbierta();
+        if (caja.isPresent()) {
+            cajaAbierta = caja.get();
+            lblCaja.setText(cajaAbierta.getNombre() + " - Abierta");
+            rbtnCaja.setText("Caja - " + cajaAbierta.getNombre());
+            rbtnCaja.setEnabled(true);
+        } else {
+            cajaAbierta = null;
+            lblCaja.setText("Sin caja abierta");
+            rbtnCaja.setText("Caja (no hay ninguna abierta)");
+            rbtnCaja.setEnabled(false);
+        }
+
+        List<CuentaBancaria> cuentas = tesoreriaService.listarCuentasBancariasActivas();
+        if (!cuentas.isEmpty()) {
+            cuentaBancariaActiva = cuentas.get(0);
+            rbtnCtaBancaria.setText("Cuenta bancaria - " + cuentaBancariaActiva.getBanco()
+                    + " " + cuentaBancariaActiva.getAlias());
+            rbtnCtaBancaria.setEnabled(true);
+        } else {
+            cuentaBancariaActiva = null;
+            rbtnCtaBancaria.setText("Cuenta bancaria (no hay ninguna activa)");
+            rbtnCtaBancaria.setEnabled(false);
+        }
+
+        if (cajaAbierta != null) {
+            rbtnCaja.setSelected(true);
+        } else if (cuentaBancariaActiva != null) {
+            rbtnCtaBancaria.setSelected(true);
+        }
+    }
+
+    private void configurarTabla() {
+        tblDetProducto.setModel(modeloDetalle);
+    }
+
+    private void configurarSpinnerCantidad() {
+        spnCantidad.setModel(new SpinnerNumberModel(1, 1, 99999, 1));
+    }
+
+    // pnlPlazoDias venía vacío en el diseño (un panel de 0x0, sin ningún
+    // control adentro) — sin esto es imposible capturar el plazo que exige
+    // CompraServiceImpl para crédito, así que se agrega el único control que
+    // faltaba (misma idea que el aviso agregado a pnlAvisoCtaCobrar en
+    // FrmVentas: rellenar un placeholder vacío, no rediseñar el formulario).
+    private JSpinner spnPlazoDias;
+
+    private void configurarSpinnerPlazoDias() {
+        pnlPlazoDias.setLayout(new BorderLayout(6, 0));
+        javax.swing.JLabel lblPlazo = new javax.swing.JLabel("Plazo (días):");
+        lblPlazo.setFont(lblPlazo.getFont().deriveFont(11f));
+        spnPlazoDias = new JSpinner(new SpinnerNumberModel(30, 1, 360, 1));
+        pnlPlazoDias.add(lblPlazo, BorderLayout.WEST);
+        pnlPlazoDias.add(spnPlazoDias, BorderLayout.CENTER);
+    }
+
+    private void configurarFechaCompra() {
+        jdcFechaCompra.setDate(new Date());
+    }
+
+    // cmbProveedor: editable + ComboAutoFiltro sobre
+    // ProveedorService.buscarActivosPorRazonSocialORucParcial(texto).
+    private void configurarComboProveedor() {
+        cmbProveedor.setModel(new DefaultComboBoxModel<>());
+        ComboAutoFiltro.mejorarCombo(cmbProveedor, proveedorService::buscarActivosPorRazonSocialORucParcial);
+        cmbProveedor.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED && e.getItem() instanceof Proveedor proveedor) {
+                mostrarProveedorSeleccionado(proveedor);
+                actualizarOrdenesDelProveedor(proveedor);
+            }
+        });
+        limpiarProveedorMostrado();
+    }
+
+    private void mostrarProveedorSeleccionado(Proveedor proveedor) {
+        lblDocumento.setText("RUC " + proveedor.getRuc());
+        lblNombreCliente.setText(proveedor.getRazonSocial());
+        tblTelefono.setText("Tel. " + (proveedor.getTelefono() == null ? "-" : proveedor.getTelefono()));
+    }
+
+    private void limpiarProveedorMostrado() {
+        lblDocumento.setText("RUC —");
+        lblNombreCliente.setText("Selecciona un proveedor");
+        tblTelefono.setText("Tel. —");
+    }
+
+    // cmbOrdenCompra: SIN ComboAutoFiltro (lista corta) — solo órdenes
+    // APROBADA, y además acotada al proveedor seleccionado (una orden le
+    // pertenece a un proveedor puntual). Siempre incluye la opción "sin
+    // orden" (compra directa), que es el caso más común.
+    private void configurarComboOrdenCompra() {
+        ordenesAprobadas = ordenCompraService.listarPorEstado(EstadoOrdenCompra.APROBADA);
+        cmbOrdenCompra.setModel(new DefaultComboBoxModel<>());
+        cmbOrdenCompra.addItem(null);
+        cmbOrdenCompra.setSelectedItem(null);
+        cmbOrdenCompra.setRenderer(new javax.swing.DefaultListCellRenderer() {
+            @Override
+            public java.awt.Component getListCellRendererComponent(javax.swing.JList<?> list, Object value,
+                    int index, boolean isSelected, boolean cellHasFocus) {
+                Object mostrado = (value == null) ? "— Compra directa, sin orden previa —" : value;
+                return super.getListCellRendererComponent(list, mostrado, index, isSelected, cellHasFocus);
+            }
+        });
+    }
+
+    private void actualizarOrdenesDelProveedor(Proveedor proveedor) {
+        DefaultComboBoxModel<OrdenCompra> modelo = new DefaultComboBoxModel<>();
+        modelo.addElement(null); // "— Compra directa, sin orden previa —"
+        for (OrdenCompra orden : ordenesAprobadas) {
+            if (orden.getIdProveedor() == proveedor.getIdProveedor()) {
+                modelo.addElement(orden);
+            }
+        }
+        cmbOrdenCompra.setModel(modelo);
+        cmbOrdenCompra.setSelectedItem(null);
+    }
+
+    // cmbProductos: editable + ComboAutoFiltro sobre
+    // ProductoService.buscarActivosPorNombreOCodigoParcial(texto).
+    // A diferencia de Ventas, txtPrecioUnitario NO se autocompleta: es el
+    // costo de compra, que el catálogo no guarda (Producto solo tiene
+    // precioVenta), así que queda vacío y editable para que el usuario lo
+    // ingrese.
+    private void configurarComboProductos() {
+        cmbProductos.setModel(new DefaultComboBoxModel<>());
+        ComboAutoFiltro.mejorarCombo(cmbProductos, productoService::buscarActivosPorNombreOCodigoParcial);
+        cmbProductos.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED && e.getItem() instanceof Producto) {
+                txtPrecioUnitario.setText("");
+            }
+        });
+    }
+
+    // cmbFormasPago: lista fija, sin ComboAutoFiltro. Crédito/contado se
+    // decide siempre con FormaPago.isEsCredito(), nunca por nombre.
+    private void configurarComboFormasPago() {
+        cmbFormasPago.setModel(new DefaultComboBoxModel<>(formaPagoService.listar().toArray(new FormaPago[0])));
+        cmbFormasPago.setSelectedItem(null);
+        cmbFormasPago.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                actualizarVisibilidadPago();
+            }
+        });
+        actualizarVisibilidadPago();
+    }
+
+    // Contado: se muestra pnlDestinoPago (caja/banco) y se oculta pnlPlazoDias.
+    // Crédito: al revés. CompraServiceImpl ya fuerza plazoDias=null si no es
+    // crédito, así que aquí no hace falta limpiar el spinner manualmente.
+    private void actualizarVisibilidadPago() {
+        Object seleccion = cmbFormasPago.getSelectedItem();
+        boolean esCredito = seleccion instanceof FormaPago fp && fp.isEsCredito();
+
+        pnlDestinoPago.setVisible(!esCredito);
+        pnlPlazoDias.setVisible(esCredito);
+
+        pnlComprobante.revalidate();
+        pnlComprobante.repaint();
+    }
+
+    // ------------------------------------------------------------------
+    // Detalle de productos en memoria
+    // ------------------------------------------------------------------
+    private void agregarProducto() {
+        limpiarValidaciones();
+
+        Object seleccion = cmbProductos.getSelectedItem();
+        if (!(seleccion instanceof Producto producto)) {
+            mostrarValidacion("Selecciona un producto del listado.");
+            return;
+        }
+
+        Object valorSpinner = spnCantidad.getValue();
+        BigDecimal cantidad = new BigDecimal(valorSpinner.toString());
+        if (cantidad.compareTo(BigDecimal.ZERO) <= 0) {
+            mostrarValidacion("La cantidad debe ser mayor a cero.");
+            return;
+        }
+
+        BigDecimal costoUnitario;
+        try {
+            costoUnitario = new BigDecimal(txtPrecioUnitario.getText().trim().replace(",", ""));
+        } catch (NumberFormatException | NullPointerException ex) {
+            mostrarValidacion("El costo unitario es inválido.");
+            return;
+        }
+        if (costoUnitario.compareTo(BigDecimal.ZERO) < 0) {
+            mostrarValidacion("El costo unitario es inválido.");
+            return;
+        }
+
+        DetalleCompra detalle = new DetalleCompra(producto.getIdProducto(), cantidad, costoUnitario);
+        detalles.add(detalle);
+        modeloDetalle.addRow(new Object[]{
+            producto,
+            cantidad.toPlainString(),
+            "S/ " + FORMATO_MONEDA.format(costoUnitario),
+            "S/ " + FORMATO_MONEDA.format(detalle.getSubtotal())
+        });
+
+        recalcularTotales();
+
+        cmbProductos.setSelectedItem(null);
+        txtPrecioUnitario.setText("");
+        spnCantidad.setValue(1);
+    }
+
+    // El costo unitario NO incluye IGV (al revés que Ventas): se usa
+    // CalculadoraImpuestos.calcularIGVDesdeSubtotal/calcularTotalConIgv, la
+    // misma fórmula centralizada que usa CompraServiceImpl — no se repite acá.
+    private void recalcularTotales() {
+        BigDecimal subtotal = BigDecimal.ZERO;
+        for (DetalleCompra d : detalles) {
+            subtotal = subtotal.add(d.getSubtotal());
+        }
+        subtotal = subtotal.setScale(2, RoundingMode.HALF_UP);
+
+        BigDecimal igv = subtotal.compareTo(BigDecimal.ZERO) == 0
+                ? BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP)
+                : CalculadoraImpuestos.calcularIGVDesdeSubtotal(subtotal);
+        BigDecimal total = subtotal.compareTo(BigDecimal.ZERO) == 0
+                ? BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP)
+                : CalculadoraImpuestos.calcularTotalConIgv(subtotal);
+
+        lblCantSubTotal.setText("S/ " + FORMATO_MONEDA.format(subtotal));
+        lblCantIGV.setText("S/ " + FORMATO_MONEDA.format(igv));
+        lblCantTotal.setText("S/ " + FORMATO_MONEDA.format(total));
+    }
+
+    // ------------------------------------------------------------------
+    // Registrar compra — decide la variante de ProcesoCompra según forma de pago
+    // ------------------------------------------------------------------
+    private void registrarCompra() {
+        limpiarValidaciones();
+
+        Object proveedorSel = cmbProveedor.getSelectedItem();
+        if (!(proveedorSel instanceof Proveedor proveedor)) {
+            mostrarValidacion("Selecciona un proveedor.");
+            return;
+        }
+
+        if (txtFacturaProveedor.getText() == null || txtFacturaProveedor.getText().isBlank()) {
+            mostrarValidacion("El número de factura del proveedor es obligatorio.");
+            return;
+        }
+
+        if (detalles.isEmpty()) {
+            mostrarValidacion("La compra debe tener al menos un producto.");
+            return;
+        }
+
+        Object formaPagoSel = cmbFormasPago.getSelectedItem();
+        if (!(formaPagoSel instanceof FormaPago formaPago)) {
+            mostrarValidacion("Selecciona una forma de pago.");
+            return;
+        }
+
+        if (jdcFechaCompra.getDate() == null) {
+            mostrarValidacion("Selecciona la fecha de la compra.");
+            return;
+        }
+
+        Compra compra = new Compra(proveedor.getIdProveedor(), formaPago.getIdFormaPago(),
+                txtFacturaProveedor.getText().trim(), SesionUsuario.actual().getIdUsuario());
+        compra.setFecha(jdcFechaCompra.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+        Object ordenSel = cmbOrdenCompra.getSelectedItem();
+        if (ordenSel instanceof OrdenCompra orden) {
+            compra.setIdOrdenCompra(orden.getIdOrdenCompra());
+        }
+
+        if (formaPago.isEsCredito()) {
+            compra.setPlazoDias((Integer) spnPlazoDias.getValue());
+        }
+
+        for (DetalleCompra d : detalles) {
+            compra.agregarDetalle(d);
+        }
+
+        RespuestaOperacion<Integer> resultado;
+        if (formaPago.isEsCredito()) {
+            resultado = procesoCompra.registrarCompraCredito(compra);
+        } else if (rbtnCaja.isSelected()) {
+            if (cajaAbierta == null) {
+                mostrarValidacion("No hay una caja abierta para pagar al contado.");
+                return;
+            }
+            resultado = procesoCompra.registrarCompraContadoCaja(compra, cajaAbierta.getIdCaja());
+        } else if (rbtnCtaBancaria.isSelected()) {
+            if (cuentaBancariaActiva == null) {
+                mostrarValidacion("No hay una cuenta bancaria activa para pagar.");
+                return;
+            }
+            resultado = procesoCompra.registrarCompraContadoBanco(compra, cuentaBancariaActiva.getIdCuentaBancaria());
+        } else {
+            mostrarValidacion("Selecciona caja o cuenta bancaria para el pago al contado.");
+            return;
+        }
+
+        if (!resultado.isExito()) {
+            mostrarValidacion(resultado.getMensaje());
+            return;
+        }
+
+        JOptionPane.showMessageDialog(this, "Compra N° " + resultado.getResultado() + " registrada correctamente.");
+        limpiarFormularioTrasRegistro();
+    }
+
+    private void limpiarFormularioTrasRegistro() {
+        detalles.clear();
+        modeloDetalle.setRowCount(0);
+        recalcularTotales();
+
+        cmbProveedor.setSelectedItem(null);
+        limpiarProveedorMostrado();
+        cmbOrdenCompra.setModel(new DefaultComboBoxModel<>());
+        cmbOrdenCompra.addItem(null);
+        cmbOrdenCompra.setSelectedItem(null);
+        cmbProductos.setSelectedItem(null);
+        txtPrecioUnitario.setText("");
+        spnCantidad.setValue(1);
+        txtFacturaProveedor.setText("");
+        jdcFechaCompra.setDate(new Date());
+        cmbFormasPago.setSelectedItem(null);
+        spnPlazoDias.setValue(30);
+        actualizarVisibilidadPago();
+    }
+
+    // ------------------------------------------------------------------
+    // pnlValidaciones: los errores de RespuestaOperacion (y las validaciones
+    // propias del formulario) se muestran acá, nunca con JOptionPane.
+    // ------------------------------------------------------------------
+    private void mostrarValidacion(String mensaje) {
+        txtValEj1.setText(mensaje);
+        txtValEj2.setText("");
+        txtValEj3.setText("");
+    }
+
+    private void limpiarValidaciones() {
+        txtValEj1.setText("");
+        txtValEj2.setText("");
+        txtValEj3.setText("");
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -571,14 +1049,11 @@ public class FrmCompras extends javax.swing.JFrame {
     private javax.swing.JButton btnAgregarProducto;
     private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnRegistrarVenta;
-    private javax.swing.JComboBox<String> cmbFormasPago;
-    private javax.swing.JComboBox<String> cmbOrdenCompra;
-    private javax.swing.JComboBox<String> cmbProductos;
-    private javax.swing.JComboBox<String> cmbProveedor;
+    private javax.swing.JComboBox<FormaPago> cmbFormasPago;
+    private javax.swing.JComboBox<OrdenCompra> cmbOrdenCompra;
+    private javax.swing.JComboBox<Producto> cmbProductos;
+    private javax.swing.JComboBox<Proveedor> cmbProveedor;
     private javax.swing.ButtonGroup grpBtnFormaPago;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JRadioButton jRadioButton1;
-    private javax.swing.JRadioButton jRadioButton2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private com.toedter.calendar.JDateChooser jdcFechaCompra;
@@ -588,13 +1063,13 @@ public class FrmCompras extends javax.swing.JFrame {
     private javax.swing.JLabel lblCantTotal;
     private javax.swing.JLabel lblDocumento;
     private javax.swing.JLabel lblFecha;
+    private javax.swing.JLabel lblFechaCompra;
     private javax.swing.JLabel lblFechaHora;
     private javax.swing.JLabel lblIGV;
     private javax.swing.JLabel lblNombreCliente;
     private javax.swing.JLabel lblNombreVend;
+    private javax.swing.JLabel lblNroFactura;
     private javax.swing.JLabel lblSubtotal;
-    private javax.swing.JLabel lblTipo;
-    private javax.swing.JLabel lblTipo1;
     private javax.swing.JLabel lblTotal;
     private javax.swing.JLabel lblUsuario;
     private javax.swing.JPanel pnlAgregarProd;
@@ -607,7 +1082,10 @@ public class FrmCompras extends javax.swing.JFrame {
     private javax.swing.JPanel pnlOrdenCompra;
     private javax.swing.JPanel pnlPlazoDias;
     private javax.swing.JPanel pnlSuperior;
+    private javax.swing.JPanel pnlTotales;
     private javax.swing.JPanel pnlValidaciones;
+    private javax.swing.JRadioButton rbtnCaja;
+    private javax.swing.JRadioButton rbtnCtaBancaria;
     private javax.swing.JSpinner spnCantidad;
     private javax.swing.JTable tblDetProducto;
     private javax.swing.JLabel tblTelefono;
