@@ -11,6 +11,7 @@ import com.ferronor.sic.compras.modelo.EstadoCuenta;
 import com.ferronor.sic.compras.modelo.EstadoOrdenCompra;
 import com.ferronor.sic.compras.modelo.OrdenCompra;
 import com.ferronor.sic.compras.modelo.PagoProveedor;
+import com.ferronor.sic.compras.modelo.dto.CuentaPagarConsulta;
 import com.ferronor.sic.conexion.TransactionContext;
 import com.ferronor.sic.conexion.TransactionManager;
 import com.ferronor.sic.config.Constantes;
@@ -21,6 +22,7 @@ import com.ferronor.sic.maestros.modelo.FormaPago;
 import com.ferronor.sic.shared.RespuestaOperacion;
 import com.ferronor.sic.util.CalculadoraImpuestos;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 public class CompraServiceImpl implements CompraService {
@@ -197,5 +199,11 @@ public class CompraServiceImpl implements CompraService {
     @Override
     public List<CuentaPagar> listarCuentasPorPagarVencidas() {
         return cuentaPagarDAO.listarPorEstado(EstadoCuenta.VENCIDA);
+    }
+
+    @Override
+    public List<CuentaPagarConsulta> consultarCuentasPorPagar(EstadoCuenta estado, Integer idProveedor,
+            LocalDate fechaDesde, LocalDate fechaHasta) {
+        return cuentaPagarDAO.consultar(estado, idProveedor, fechaDesde, fechaHasta);
     }
 }

@@ -2,6 +2,7 @@ package com.ferronor.sic.compras.dao;
 
 import com.ferronor.sic.compras.modelo.CuentaPagar;
 import com.ferronor.sic.compras.modelo.EstadoCuenta;
+import com.ferronor.sic.compras.modelo.dto.CuentaPagarConsulta;
 import com.ferronor.sic.exception.DaoException;
 import com.ferronor.sic.shared.dao.AbstractDAO;
 import java.math.BigDecimal;
@@ -9,6 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -168,5 +170,76 @@ public class CuentaPagarDAOImpl extends AbstractDAO implements CuentaPagarDAO {
         cp.setFechaVencimiento(rs.getDate("fecha_vencimiento").toLocalDate());
         cp.setEstado(EstadoCuenta.valueOf(rs.getString("estado")));
         return cp;
+    }
+
+    @Override
+    public List<CuentaPagarConsulta> consultar(EstadoCuenta estado, Integer idProveedor,
+            LocalDate fechaDesde, LocalDate fechaHasta) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT cp.id_cuenta_pagar, cp.id_compra, p.razon_social, p.ruc, "
+                + "c.fecha AS fecha_compra, cp.fecha_vencimiento, cp.monto_total, "
+                + "cp.monto_pagado, cp.saldo_pendiente, cp.estado "
+                + "FROM cuenta_pagar cp "
+                + "JOIN compra c ON c.id_compra = cp.id_compra "
+                + "JOIN proveedor p ON p.id_proveedor = c.id_proveedor "
+                + "WHERE 1 = 1");
+
+        if (estado != null) {
+            sql.append(" AND cp.estado = ?");
+        }
+        if (idProveedor != null) {
+            sql.append(" AND c.id_proveedor = ?");
+        }
+        if (fechaDesde != null) {
+            sql.append(" AND c.fecha >= ?");
+        }
+        if (fechaHasta != null) {
+            sql.append(" AND c.fecha < ?");
+        }
+        sql.append(" ORDER BY cp.fecha_vencimiento ASC");
+
+        Connection cn = obtenerConexion();
+        List<CuentaPagarConsulta> resultado = new ArrayList<>();
+        try (PreparedStatement ps = cn.prepareStatement(sql.toString())) {
+            int i = 1;
+            if (estado != null) {
+                ps.setString(i++, estado.name());
+            }
+            if (idProveedor != null) {
+                ps.setInt(i++, idProveedor);
+            }
+            if (fechaDesde != null) {
+                ps.setTimestamp(i++, java.sql.Timestamp.valueOf(fechaDesde.atStartOfDay()));
+            }
+            if (fechaHasta != null) {
+                // Límite superior exclusivo del día siguiente: incluye toda compra
+                // registrada en cualquier hora del propio fechaHasta.
+                ps.setTimestamp(i++, java.sql.Timestamp.valueOf(fechaHasta.plusDays(1).atStartOfDay()));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    resultado.add(mapearConsulta(rs));
+                }
+            }
+            return resultado;
+        } catch (SQLException e) {
+            throw error("Error al consultar cuentas por pagar", e);
+        } finally {
+            cerrar(cn);
+        }
+    }
+
+    private CuentaPagarConsulta mapearConsulta(ResultSet rs) throws SQLException {
+        return new CuentaPagarConsulta(
+                rs.getInt("id_cuenta_pagar"),
+                rs.getInt("id_compra"),
+                rs.getString("razon_social"),
+                rs.getString("ruc"),
+                rs.getTimestamp("fecha_compra").toLocalDateTime(),
+                rs.getDate("fecha_vencimiento").toLocalDate(),
+                rs.getBigDecimal("monto_total"),
+                rs.getBigDecimal("monto_pagado"),
+                rs.getBigDecimal("saldo_pendiente"),
+                EstadoCuenta.valueOf(rs.getString("estado")));
     }
 }
