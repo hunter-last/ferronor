@@ -294,6 +294,9 @@
             </Property>
             <Property name="text" type="java.lang.String" value="Limpiar"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnLimpiarActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="btnConsultar">
           <Properties>
@@ -302,6 +305,9 @@
             </Property>
             <Property name="text" type="java.lang.String" value="Consultar"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnConsultarActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -467,6 +473,9 @@
             </Property>
             <Property name="text" type="java.lang.String" value="\ud83d\udc41&#xfe0f; Ver Detalle" containsInvalidXMLChars="true"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnVerDetalleActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

@@ -4,6 +4,7 @@ import com.ferronor.sic.exception.DaoException;
 import com.ferronor.sic.shared.dao.AbstractDAO;
 import com.ferronor.sic.ventas.modelo.CuentaCobrar;
 import com.ferronor.sic.ventas.modelo.EstadoCuenta;
+import com.ferronor.sic.ventas.modelo.dto.CuentaCobrarConsulta;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
@@ -11,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -151,6 +153,108 @@ public class CuentaCobrarDAOImpl extends AbstractDAO implements CuentaCobrarDAO 
         } finally {
             cerrar(cn);
         }
+    }
+
+    @Override
+    public List<CuentaCobrarConsulta> consultar(EstadoCuenta estado, Integer idCliente,
+            LocalDate fechaDesde, LocalDate fechaHasta) {
+
+        StringBuilder sql = new StringBuilder(
+                "SELECT "
+                + "cc.id_cuenta_cobrar, "
+                + "cc.id_venta, "
+                + "cl.nombre_razon_social, "
+                + "cl.tipo_documento, "
+                + "cl.numero_documento, "
+                + "v.fecha AS fecha_venta, "
+                + "cc.fecha_vencimiento, "
+                + "cc.monto_total, "
+                + "cc.monto_cobrado, "
+                + "cc.saldo_pendiente, "
+                + "cc.estado "
+                + "FROM cuenta_cobrar cc "
+                + "JOIN venta v ON v.id_venta = cc.id_venta "
+                + "JOIN cliente cl ON cl.id_cliente = v.id_cliente "
+                + "WHERE 1 = 1"
+        );
+
+        if (estado != null) {
+            sql.append(" AND cc.estado = ?");
+        }
+
+        if (idCliente != null) {
+            sql.append(" AND v.id_cliente = ?");
+        }
+
+        if (fechaDesde != null) {
+            sql.append(" AND cc.fecha_vencimiento >= ?");
+        }
+
+        if (fechaHasta != null) {
+            sql.append(" AND cc.fecha_vencimiento < ?");
+        }
+
+        sql.append(" ORDER BY cc.fecha_vencimiento ASC NULLS LAST");
+
+        Connection cn = obtenerConexion();
+        List<CuentaCobrarConsulta> resultado = new ArrayList<>();
+
+        try (PreparedStatement ps = cn.prepareStatement(sql.toString())) {
+
+            int i = 1;
+
+            if (estado != null) {
+                ps.setString(i++, estado.name());
+            }
+
+            if (idCliente != null) {
+                ps.setInt(i++, idCliente);
+            }
+
+            if (fechaDesde != null) {
+                ps.setDate(i++, Date.valueOf(fechaDesde));
+            }
+
+            if (fechaHasta != null) {
+                ps.setDate(i++, Date.valueOf(fechaHasta.plusDays(1)));
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                while (rs.next()) {
+                    resultado.add(mapearConsulta(rs));
+                }
+            }
+
+            return resultado;
+
+        } catch (SQLException e) {
+            throw error("Error al consultar cuentas por cobrar", e);
+        } finally {
+            cerrar(cn);
+        }
+    }
+
+    private CuentaCobrarConsulta mapearConsulta(ResultSet rs)
+            throws SQLException {
+
+        Date fechaVencimiento = rs.getDate("fecha_vencimiento");
+
+        return new CuentaCobrarConsulta(
+                rs.getInt("id_cuenta_cobrar"),
+                rs.getInt("id_venta"),
+                rs.getString("nombre_razon_social"),
+                rs.getString("tipo_documento"),
+                rs.getString("numero_documento"),
+                rs.getTimestamp("fecha_venta").toLocalDateTime(),
+                fechaVencimiento != null
+                        ? fechaVencimiento.toLocalDate()
+                        : null,
+                rs.getBigDecimal("monto_total"),
+                rs.getBigDecimal("monto_cobrado"),
+                rs.getBigDecimal("saldo_pendiente"),
+                EstadoCuenta.valueOf(rs.getString("estado"))
+        );
     }
 
     private List<CuentaCobrar> listarConFiltro(String sql) {

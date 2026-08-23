@@ -2,6 +2,7 @@ package com.ferronor.sic.inventario.logica;
 
 import com.ferronor.sic.inventario.modelo.MovimientoInventario;
 import com.ferronor.sic.inventario.modelo.OrigenMovimiento;
+import com.ferronor.sic.inventario.modelo.dto.StockConsulta;
 import com.ferronor.sic.shared.RespuestaOperacion;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,7 +20,12 @@ public interface InventarioService {
 
     BigDecimal obtenerCostoPromedioActual(int idProducto);
 
+    List<StockConsulta> consultarStock();
+
+    StockConsulta consultarStockPorProducto(int idProducto);
+
     List<MovimientoInventario> listarMovimientos(int idProducto, LocalDate desde, LocalDate hasta);
 
     MovimientoInventario buscarMovimientoOrigen(int idProducto, OrigenMovimiento origen, int idDocumentoOrigen);
+
 }

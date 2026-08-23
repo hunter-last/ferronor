@@ -23,7 +23,9 @@ import com.ferronor.sic.ventas.modelo.DetalleVenta;
 import com.ferronor.sic.ventas.modelo.EstadoCuenta;
 import com.ferronor.sic.ventas.modelo.EstadoVenta;
 import com.ferronor.sic.ventas.modelo.Venta;
+import com.ferronor.sic.ventas.modelo.dto.CuentaCobrarConsulta;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 public class VentaServiceImpl implements VentaService {
@@ -183,6 +185,13 @@ public class VentaServiceImpl implements VentaService {
         List<Venta> ventas = ventaDAO.listar();
         ventas.forEach(this::cargarDetalles);
         return ventas;
+    }
+
+    @Override
+    public List<CuentaCobrarConsulta> consultarCuentasPorCobrar(EstadoCuenta estado, Integer idCliente,
+            LocalDate fechaDesde, LocalDate fechaHasta) {
+
+        return cuentaCobrarDAO.consultar(estado, idCliente, fechaDesde, fechaHasta);
     }
 
     private void cargarDetalles(Venta venta) {

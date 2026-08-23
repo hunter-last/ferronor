@@ -5,6 +5,8 @@ import com.ferronor.sic.ventas.modelo.CuentaCobrar;
 import com.ferronor.sic.ventas.modelo.EstadoCuenta;
 import java.math.BigDecimal;
 import java.util.List;
+import com.ferronor.sic.ventas.modelo.dto.CuentaCobrarConsulta;
+import java.time.LocalDate;
 
 public interface CuentaCobrarDAO extends IGeneralDAO<CuentaCobrar, Integer> {
 
@@ -15,4 +17,11 @@ public interface CuentaCobrarDAO extends IGeneralDAO<CuentaCobrar, Integer> {
     // Actualiza montoCobrado/saldoPendiente/estado tras aplicar un cobro
     void registrarCobro(int idCuentaCobrar, BigDecimal nuevoMontoCobrado, BigDecimal nuevoSaldoPendiente,
             EstadoCuenta nuevoEstado);
+
+    List<CuentaCobrarConsulta> consultar(
+            EstadoCuenta estado,
+            Integer idCliente,
+            LocalDate fechaDesde,
+            LocalDate fechaHasta
+    );
 }

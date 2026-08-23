@@ -3,7 +3,10 @@ package com.ferronor.sic.ventas.logica;
 import com.ferronor.sic.shared.RespuestaOperacion;
 import com.ferronor.sic.ventas.modelo.CobroCliente;
 import com.ferronor.sic.ventas.modelo.CuentaCobrar;
+import com.ferronor.sic.ventas.modelo.EstadoCuenta;
 import com.ferronor.sic.ventas.modelo.Venta;
+import com.ferronor.sic.ventas.modelo.dto.CuentaCobrarConsulta;
+import java.time.LocalDate;
 import java.util.List;
 
 // Fachada pública de Ventas: único punto de entrada para procesos/ y otros
@@ -32,4 +35,7 @@ public interface VentaService {
     List<CuentaCobrar> listarCuentasPorCobrarPendientes();
 
     List<CuentaCobrar> listarCuentasPorCobrarVencidas();
+    
+    List<CuentaCobrarConsulta> consultarCuentasPorCobrar(EstadoCuenta estado, Integer idCliente,
+            LocalDate fechaDesde, LocalDate fechaHasta);
 }
