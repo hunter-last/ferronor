@@ -29,4 +29,14 @@ public interface TesoreriaService {
     Optional<Caja> obtenerCajaAbierta();
 
     List<CuentaBancaria> listarCuentasBancariasActivas();
+
+    List<MovimientoBanco> listarMovimientosBancarios();
+
+    List<MovimientoBanco> listarMovimientosBancariosPorCuenta(
+            int idCuentaBancaria);
+
+    List<MovimientoCaja> listarMovimientosCaja();
+
+    List<MovimientoCaja> listarMovimientosCajaPorCaja(
+            int idCaja);
 }

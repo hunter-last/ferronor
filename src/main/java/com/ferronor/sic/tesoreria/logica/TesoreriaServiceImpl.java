@@ -94,4 +94,30 @@ public class TesoreriaServiceImpl implements TesoreriaService {
     public List<CuentaBancaria> listarCuentasBancariasActivas() {
         return bancoService.listarActivas();
     }
+
+    @Override
+    public List<MovimientoBanco> listarMovimientosBancarios() {
+        return bancoService.listarMovimientos();
+    }
+
+    @Override
+    public List<MovimientoBanco> listarMovimientosBancariosPorCuenta(
+            int idCuentaBancaria) {
+
+        return bancoService.listarMovimientosPorCuenta(
+                idCuentaBancaria
+        );
+    }
+
+    @Override
+    public List<MovimientoCaja> listarMovimientosCaja() {
+        return cajaService.listarMovimientos();
+    }
+
+    @Override
+    public List<MovimientoCaja> listarMovimientosCajaPorCaja(
+            int idCaja) {
+
+        return cajaService.listarMovimientosPorCaja(idCaja);
+    }
 }

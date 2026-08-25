@@ -59,4 +59,18 @@ public class BancoServiceImpl implements BancoService {
     public CuentaBancaria buscarPorId(int idCuentaBancaria) {
         return cuentaBancariaDAO.buscarPorId(idCuentaBancaria);
     }
+
+    @Override
+    public List<MovimientoBanco> listarMovimientos() {
+        return movimientoBancoDAO.listar();
+    }
+
+    @Override
+    public List<MovimientoBanco> listarMovimientosPorCuenta(
+            int idCuentaBancaria) {
+
+        return movimientoBancoDAO.listarPorCuenta(
+                idCuentaBancaria
+        );
+    }
 }

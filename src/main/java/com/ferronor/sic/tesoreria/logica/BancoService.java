@@ -14,4 +14,9 @@ public interface BancoService {
     List<CuentaBancaria> listarActivas();
 
     CuentaBancaria buscarPorId(int idCuentaBancaria);
+
+    List<MovimientoBanco> listarMovimientos();
+
+    List<MovimientoBanco> listarMovimientosPorCuenta(
+            int idCuentaBancaria);
 }

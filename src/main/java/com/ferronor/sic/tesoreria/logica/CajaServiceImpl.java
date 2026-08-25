@@ -118,4 +118,16 @@ public class CajaServiceImpl implements CajaService {
     public Caja buscarPorId(int idCaja) {
         return cajaDAO.buscarPorId(idCaja);
     }
+
+    @Override
+    public List<MovimientoCaja> listarMovimientos() {
+        return movimientoCajaDAO.listar();
+    }
+
+    @Override
+    public List<MovimientoCaja> listarMovimientosPorCaja(
+            int idCaja) {
+
+        return movimientoCajaDAO.listarPorCaja(idCaja);
+    }
 }
