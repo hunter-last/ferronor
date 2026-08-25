@@ -1,32 +1,32 @@
-package com.ferronor.sic.ventas.vista;
+package com.ferronor.sic.compras.vista;
 
-import com.ferronor.sic.maestros.logica.ClienteService;
-import com.ferronor.sic.maestros.modelo.Cliente;
-
-import com.ferronor.sic.procesos.ProcesoCobroCliente;
-
+import com.ferronor.sic.compras.logica.CompraService;
+import com.ferronor.sic.compras.modelo.EstadoCuenta;
+import com.ferronor.sic.compras.modelo.PagoProveedor;
+import com.ferronor.sic.compras.modelo.dto.CuentaPagarConsulta;
+import com.ferronor.sic.maestros.logica.ProveedorService;
+import com.ferronor.sic.maestros.modelo.Proveedor;
+import com.ferronor.sic.procesos.ProcesoPagoProveedor;
 import com.ferronor.sic.shared.RespuestaOperacion;
-import com.ferronor.sic.shared.SesionUsuario;
 import com.ferronor.sic.shared.ServiceFactory;
-
+import com.ferronor.sic.shared.SesionUsuario;
 import com.ferronor.sic.tesoreria.logica.TesoreriaService;
 import com.ferronor.sic.tesoreria.modelo.Caja;
 import com.ferronor.sic.tesoreria.modelo.CuentaBancaria;
-
-import com.ferronor.sic.ventas.logica.VentaService;
-import com.ferronor.sic.ventas.modelo.CobroCliente;
-import com.ferronor.sic.ventas.modelo.EstadoCuenta;
-import com.ferronor.sic.ventas.modelo.dto.CuentaCobrarConsulta;
+import com.ferronor.sic.shared.ui.ComboAutoFiltro;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Font;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,28 +36,30 @@ import java.util.Optional;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.JDialog;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 
-public class FrmCobroCliente extends javax.swing.JDialog {
+public class FrmPagoProveedor extends javax.swing.JDialog {
 
     // ============================================================
     // SERVICES
     // ============================================================
-    private final ClienteService clienteService
-            = ServiceFactory.clienteService();
+    private final CompraService compraService
+            = ServiceFactory.compraService();
 
-    private final VentaService ventaService
-            = ServiceFactory.ventaService();
+    private final ProveedorService proveedorService
+            = ServiceFactory.proveedorService();
 
     private final TesoreriaService tesoreriaService
             = ServiceFactory.tesoreriaService();
 
-    private final ProcesoCobroCliente procesoCobroCliente
-            = ServiceFactory.procesoCobroCliente();
+    private final ProcesoPagoProveedor procesoPagoProveedor
+            = ServiceFactory.procesoPagoProveedor();
 
     // ============================================================
     // FORMATOS
@@ -74,10 +76,10 @@ public class FrmCobroCliente extends javax.swing.JDialog {
     // ============================================================
     // ESTADO DE LA VISTA
     // ============================================================
-    private List<CuentaCobrarConsulta> cuentasConsultadas
+    private List<CuentaPagarConsulta> cuentasConsultadas
             = new ArrayList<>();
 
-    private CuentaCobrarConsulta cuentaSeleccionada;
+    private CuentaPagarConsulta cuentaSeleccionada;
 
     private Caja cajaAbierta;
 
@@ -87,6 +89,11 @@ public class FrmCobroCliente extends javax.swing.JDialog {
     private CuentaBancaria cuentaBancariaSeleccionada;
 
     private DefaultTableModel modeloTablaCuentas;
+
+    /**
+     * true = Banco false = Efectivo
+     */
+    private boolean medioBanco;
 
     /**
      * Evita que cambios programáticos del combo bancario disparen lógica de
@@ -108,8 +115,9 @@ public class FrmCobroCliente extends javax.swing.JDialog {
     // ============================================================
     // CONSTRUCTOR
     // ============================================================
-    public FrmCobroCliente(java.awt.Frame parent, boolean modal) {
+    public FrmPagoProveedor(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
+
         initComponents();
 
         configurarFormulario();
@@ -140,12 +148,12 @@ public class FrmCobroCliente extends javax.swing.JDialog {
 
         modeloTablaCuentas = new DefaultTableModel(
                 new Object[]{
-                    "VENTA",
-                    "CLIENTE",
-                    "FECHA VENTA",
+                    "COMPRA",
+                    "PROVEEDOR",
+                    "FECHA COMPRA",
                     "VENCIMIENTO",
                     "TOTAL",
-                    "COBRADO",
+                    "PAGADO",
                     "SALDO",
                     "ESTADO"
                 },
@@ -161,17 +169,17 @@ public class FrmCobroCliente extends javax.swing.JDialog {
             }
         };
 
-        tblDetalleCuentasCobrar.setModel(
+        tblDetalleCuentasPagar.setModel(
                 modeloTablaCuentas
         );
 
-        tblDetalleCuentasCobrar.setSelectionMode(
+        tblDetalleCuentasPagar.setSelectionMode(
                 ListSelectionModel.SINGLE_SELECTION
         );
 
-        tblDetalleCuentasCobrar.setRowHeight(27);
+        tblDetalleCuentasPagar.setRowHeight(27);
 
-        tblDetalleCuentasCobrar.setFont(
+        tblDetalleCuentasPagar.setFont(
                 new Font(
                         "Segoe UI",
                         Font.PLAIN,
@@ -179,7 +187,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                 )
         );
 
-        tblDetalleCuentasCobrar
+        tblDetalleCuentasPagar
                 .getTableHeader()
                 .setFont(
                         new Font(
@@ -189,7 +197,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                         )
                 );
 
-        tblDetalleCuentasCobrar
+        tblDetalleCuentasPagar
                 .getSelectionModel()
                 .addListSelectionListener(e -> {
 
@@ -206,29 +214,37 @@ public class FrmCobroCliente extends javax.swing.JDialog {
     // ============================================================
     private void configurarCombos() {
 
-        // --------------------------------------------------------
-        // ESTADO
-        // --------------------------------------------------------
+        configurarComboEstados();
+
+        configurarComboProveedores();
+    }
+
+    private void configurarComboEstados() {
+
         cmbEstado.removeAllItems();
 
         cmbEstado.addItem("Todos");
         cmbEstado.addItem("Pendiente");
-        cmbEstado.addItem("Pagada");
         cmbEstado.addItem("Vencida");
+        cmbEstado.addItem("Pagada");
 
-        cmbEstado.setSelectedItem("Todos");
+        /*
+         * En esta pantalla resulta más útil iniciar con
+         * cuentas que realmente pueden recibir un pago.
+         */
+        cmbEstado.setSelectedItem("Pendiente");
+    }
 
-        // --------------------------------------------------------
-        // CLIENTES
-        // --------------------------------------------------------
-        cmbClientes.removeAllItems();
+    private void configurarComboProveedores() {
 
-        cmbClientes.setRenderer(
+        cmbProveedores.removeAllItems();
+
+        cmbProveedores.setRenderer(
                 new DefaultListCellRenderer() {
 
             @Override
             public Component getListCellRendererComponent(
-                    javax.swing.JList<?> list,
+                    JList<?> list,
                     Object value,
                     int index,
                     boolean isSelected,
@@ -242,10 +258,12 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                         cellHasFocus
                 );
 
-                if (value instanceof Cliente cliente) {
+                if (value instanceof Proveedor proveedor) {
 
                     setText(
-                            cliente.getNombreRazonSocial()
+                            valorTexto(
+                                    proveedor.getRazonSocial()
+                            )
                     );
                 }
 
@@ -253,33 +271,34 @@ public class FrmCobroCliente extends javax.swing.JDialog {
             }
         });
 
-        cargarClientes();
-    }
+        /*
+     * Búsqueda incremental:
+     *
+     * texto escrito
+     *      ↓
+     * ProveedorService.buscarActivosPorRazonSocialORucParcial(...)
+     *      ↓
+     * ComboAutoFiltro
+     *      ↓
+     * JComboBox<Proveedor>
+         */
+        ComboAutoFiltro.mejorarCombo(
+                cmbProveedores,
+                proveedorService::buscarActivosPorRazonSocialORucParcial
+        );
 
-    private void cargarClientes() {
+        /*
+     * Al iniciar no queremos un texto ni una selección
+     * accidental.
+         */
+        cmbProveedores.setSelectedItem(null);
 
-        try {
+        javax.swing.JTextField editor
+                = (javax.swing.JTextField) cmbProveedores
+                        .getEditor()
+                        .getEditorComponent();
 
-            List<Cliente> clientes
-                    = clienteService.listarActivos();
-
-            cmbClientes.removeAllItems();
-
-            for (Cliente cliente : clientes) {
-                cmbClientes.addItem(cliente);
-            }
-
-            cmbClientes.setSelectedItem(null);
-
-        } catch (RuntimeException ex) {
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    obtenerMensajeError(ex),
-                    "Error al cargar clientes",
-                    JOptionPane.ERROR_MESSAGE
-            );
-        }
+        editor.setText("");
     }
 
     // ============================================================
@@ -293,47 +312,47 @@ public class FrmCobroCliente extends javax.swing.JDialog {
 
         cuentaBancariaSeleccionada = null;
 
-        cmbClientes.setSelectedItem(null);
+        medioBanco = false;
 
-        cmbEstado.setSelectedItem("Todos");
+        cmbProveedores.setSelectedItem(null);
+
+        cmbEstado.setSelectedItem("Pendiente");
 
         jdcDesdeFecha.setDate(null);
 
         jdcHastaFecha.setDate(null);
 
-        txtFechaYHoraCobro.setEditable(false);
+        txtFechaYHoraPago.setEditable(false);
 
-        txtFechaYHoraCobro.setText(
+        txtFechaYHoraPago.setText(
                 LocalDateTime.now()
                         .format(FORMATO_FECHA_HORA)
         );
 
-        txtEstadoCuentaCobrar.setEditable(false);
+        txtEstadoCuentaPagar.setEditable(false);
 
-        txtEstadoCobro.setEditable(false);
+        txtEstadoPago.setEditable(false);
 
-        txtValorMontoACobrar.setText("");
+        txtValorMontoAPagar.setText("");
 
-        /*
-     * Sin cuenta seleccionada:
-     * ningún medio de cobro debe estar visible.
-         */
-        pnlDatosCaja.setVisible(false);
-
-        pnlSelectorCtaBancaria.setVisible(false);
+        txtValorMontoAPagar.setEnabled(false);
 
         btnEfectivo.setEnabled(false);
 
         btnBanco.setEnabled(false);
 
-        btnRegistrarCobro.setEnabled(false);
+        btnRegistrarPago.setEnabled(false);
+
+        pnlDatosCaja.setVisible(false);
+
+        pnlSelectorCtaBancaria.setVisible(false);
 
         limpiarCuentaSeleccionada();
 
         actualizarDatosUsuario();
 
-        lblNCuentasCobrarFiltrosSeleccionados.setText(
-                "Seleccione los filtros y consulte las cuentas por cobrar"
+        lblNCuentasPagarFiltrosSeleccionados.setText(
+                "Seleccione los filtros y consulte las cuentas por pagar"
         );
     }
 
@@ -366,9 +385,10 @@ public class FrmCobroCliente extends javax.swing.JDialog {
     // ============================================================
     private void configurarEventosManual() {
 
-        // --------------------------------------------------------
-        // MEDIOS DE COBRO
-        // --------------------------------------------------------
+        /*
+         * Estos botones no tienen actionPerformed generado
+         * por NetBeans.
+         */
         btnEfectivo.addActionListener(
                 e -> mostrarMedioEfectivo()
         );
@@ -377,10 +397,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                 e -> mostrarMedioBanco()
         );
 
-        // --------------------------------------------------------
-        // MONTO
-        // --------------------------------------------------------
-        txtValorMontoACobrar
+        txtValorMontoAPagar
                 .getDocument()
                 .addDocumentListener(
                         new DocumentListener() {
@@ -389,27 +406,27 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                     public void insertUpdate(
                             DocumentEvent e) {
 
-                        actualizarCalculoCobro();
+                        actualizarCalculoPago();
                     }
 
                     @Override
                     public void removeUpdate(
                             DocumentEvent e) {
 
-                        actualizarCalculoCobro();
+                        actualizarCalculoPago();
                     }
 
                     @Override
                     public void changedUpdate(
                             DocumentEvent e) {
 
-                        actualizarCalculoCobro();
+                        actualizarCalculoPago();
                     }
                 });
     }
 
     // ============================================================
-    // CARGA INICIAL DE DATOS
+    // CARGA INICIAL
     // ============================================================
     private void cargarDatosIniciales() {
 
@@ -417,7 +434,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
 
         cargarCuentasBancariasActivas();
 
-        consultarCuentas();
+        consultarCuentasPorPagar();
     }
 
     // ============================================================
@@ -428,7 +445,8 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         try {
 
             Optional<Caja> resultado
-                    = tesoreriaService.obtenerCajaAbierta();
+                    = tesoreriaService
+                            .obtenerCajaAbierta();
 
             if (resultado.isPresent()) {
 
@@ -439,7 +457,9 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                 );
 
                 lblCajaPrincipal.setText(
-                        cajaAbierta.getNombre()
+                        valorTexto(
+                                cajaAbierta.getNombre()
+                        )
                 );
 
                 lblValorSaldoActual.setText(
@@ -482,6 +502,8 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                     "S/ 0.00"
             );
         }
+
+        actualizarEstadoBotonRegistrar();
     }
 
     // ============================================================
@@ -489,7 +511,8 @@ public class FrmCobroCliente extends javax.swing.JDialog {
     // ============================================================
     private void configurarSelectorBanco() {
 
-        cmbCuenta = new javax.swing.JComboBox<>();
+        cmbCuenta
+                = new javax.swing.JComboBox<>();
 
         lblTituloCuentaBancaria
                 = new javax.swing.JLabel(
@@ -531,8 +554,11 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         );
 
         /*
-         * El .form ya reservó este panel.
-         * Sustituimos solamente su contenido generado vacío.
+         * pnlSelectorCtaBancaria ya está dentro de
+         * pnlRegistrarPago en el .form definitivo.
+         *
+         * Aquí solamente reemplazamos el contenido
+         * reservado por NetBeans.
          */
         pnlSelectorCtaBancaria.removeAll();
 
@@ -621,16 +647,12 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                 BorderLayout.CENTER
         );
 
-        /*
-         * Cómo se mostrará cada CuentaBancaria
-         * dentro del combo.
-         */
         cmbCuenta.setRenderer(
                 new DefaultListCellRenderer() {
 
             @Override
             public Component getListCellRendererComponent(
-                    javax.swing.JList<?> list,
+                    JList<?> list,
                     Object value,
                     int index,
                     boolean isSelected,
@@ -677,8 +699,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                     }
 
                     CuentaBancaria cuenta
-                    = (CuentaBancaria) cmbCuenta
-                            .getSelectedItem();
+                    = (CuentaBancaria) cmbCuenta.getSelectedItem();
 
                     cuentaBancariaSeleccionada
                     = cuenta;
@@ -689,16 +710,16 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                 }
         );
 
-        /*
-         * Regla explícita del formulario:
-         * BANCO permanece oculto hasta pulsar Banco.
-         */
         pnlSelectorCtaBancaria.setVisible(false);
 
         pnlSelectorCtaBancaria.revalidate();
+
         pnlSelectorCtaBancaria.repaint();
     }
 
+    // ============================================================
+    // CUENTAS BANCARIAS ACTIVAS
+    // ============================================================
     private void cargarCuentasBancariasActivas() {
 
         try {
@@ -708,11 +729,15 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                             .listarCuentasBancariasActivas();
 
             if (cuentas == null) {
-                cuentas = Collections.emptyList();
+
+                cuentas
+                        = Collections.emptyList();
             }
 
             cuentasBancariasActivas
-                    = new ArrayList<>(cuentas);
+                    = new ArrayList<>(
+                            cuentas
+                    );
 
             cuentasBancariasActivas.sort(
                     Comparator.comparing(
@@ -724,7 +749,8 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                                 if (alias == null
                                 || alias.isBlank()) {
 
-                                    alias = cuenta.getBanco();
+                                    alias
+                                    = cuenta.getBanco();
                                 }
 
                                 return alias == null
@@ -758,8 +784,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
             cuentasBancariasActivas
                     = new ArrayList<>();
 
-            cuentaBancariaSeleccionada
-                    = null;
+            cuentaBancariaSeleccionada = null;
 
             actualizandoInterfaz = true;
 
@@ -773,6 +798,8 @@ public class FrmCobroCliente extends javax.swing.JDialog {
 
             actualizarDatosCuentaBancaria();
         }
+
+        actualizarEstadoBotonRegistrar();
     }
 
     private void actualizarDatosCuentaBancaria() {
@@ -795,8 +822,9 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         if (alias == null
                 || alias.isBlank()) {
 
-            alias = cuentaBancariaSeleccionada
-                    .getBanco();
+            alias
+                    = cuentaBancariaSeleccionada
+                            .getBanco();
         }
 
         lblTituloCuentaBancaria.setText(
@@ -820,9 +848,9 @@ public class FrmCobroCliente extends javax.swing.JDialog {
     }
 
     // ============================================================
-    // CONSULTA DE CUENTAS POR COBRAR
+    // CONSULTA
     // ============================================================
-    private void consultarCuentas() {
+    private void consultarCuentasPorPagar() {
 
         try {
 
@@ -856,14 +884,14 @@ public class FrmCobroCliente extends javax.swing.JDialog {
             EstadoCuenta estado
                     = obtenerEstadoSeleccionado();
 
-            Integer idCliente
-                    = obtenerIdClienteSeleccionado();
+            Integer idProveedor
+                    = obtenerIdProveedorSeleccionado();
 
-            List<CuentaCobrarConsulta> resultados
-                    = ventaService
-                            .consultarCuentasPorCobrar(
+            List<CuentaPagarConsulta> resultados
+                    = compraService
+                            .consultarCuentasPorPagar(
                                     estado,
-                                    idCliente,
+                                    idProveedor,
                                     fechaDesde,
                                     fechaHasta
                             );
@@ -886,7 +914,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
             JOptionPane.showMessageDialog(
                     this,
                     obtenerMensajeError(ex),
-                    "Error al consultar cuentas por cobrar",
+                    "Error al consultar cuentas por pagar",
                     JOptionPane.ERROR_MESSAGE
             );
         }
@@ -917,14 +945,14 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         };
     }
 
-    private Integer obtenerIdClienteSeleccionado() {
+    private Integer obtenerIdProveedorSeleccionado() {
 
         Object seleccionado
-                = cmbClientes.getSelectedItem();
+                = cmbProveedores.getSelectedItem();
 
-        if (seleccionado instanceof Cliente cliente) {
+        if (seleccionado instanceof Proveedor proveedor) {
 
-            return cliente.getIdCliente();
+            return proveedor.getIdProveedor();
         }
 
         return null;
@@ -951,22 +979,23 @@ public class FrmCobroCliente extends javax.swing.JDialog {
     // TABLA
     // ============================================================
     private void cargarTablaCuentas(
-            List<CuentaCobrarConsulta> cuentas) {
+            List<CuentaPagarConsulta> cuentas) {
 
         modeloTablaCuentas.setRowCount(0);
 
-        for (CuentaCobrarConsulta cuenta
+        for (CuentaPagarConsulta cuenta
                 : cuentas) {
 
             modeloTablaCuentas.addRow(
                     new Object[]{
-                        "#" + cuenta.getIdVenta(),
+                        "#" + cuenta.getIdCompra(),
                         valorTexto(
                                 cuenta
-                                        .getNombreRazonSocialCliente()
+                                        .getRazonSocialProveedor()
                         ),
                         formatearFechaHora(
-                                cuenta.getFechaVenta()
+                                cuenta
+                                        .getFechaCompra()
                         ),
                         formatearFecha(
                                 cuenta
@@ -974,11 +1003,13 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                         ),
                         "S/ "
                         + formatearMonto(
-                                cuenta.getMontoTotal()
+                                cuenta
+                                        .getMontoTotal()
                         ),
                         "S/ "
                         + formatearMonto(
-                                cuenta.getMontoCobrado()
+                                cuenta
+                                        .getMontoPagado()
                         ),
                         "S/ "
                         + formatearMonto(
@@ -986,7 +1017,8 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                                         .getSaldoPendiente()
                         ),
                         formatearEstado(
-                                cuenta.getEstado()
+                                cuenta
+                                        .getEstado()
                         )
                     }
             );
@@ -996,12 +1028,13 @@ public class FrmCobroCliente extends javax.swing.JDialog {
     private void seleccionarCuentaDesdeTabla() {
 
         int filaVista
-                = tblDetalleCuentasCobrar
+                = tblDetalleCuentasPagar
                         .getSelectedRow();
 
         if (filaVista < 0) {
 
             if (cuentaSeleccionada != null) {
+
                 limpiarCuentaSeleccionada();
             }
 
@@ -1009,7 +1042,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         }
 
         int filaModelo
-                = tblDetalleCuentasCobrar
+                = tblDetalleCuentasPagar
                         .convertRowIndexToModel(
                                 filaVista
                         );
@@ -1046,33 +1079,28 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         lblNombreEmpresaYTipoEmpresa.setText(
                 valorTexto(
                         cuentaSeleccionada
-                                .getNombreRazonSocialCliente()
+                                .getRazonSocialProveedor()
                 )
         );
-
-        String documento
-                = valorTexto(
-                        cuentaSeleccionada
-                                .getTipoDocumentoCliente()
-                )
-                + " "
-                + valorTexto(
-                        cuentaSeleccionada
-                                .getNumeroDocumentoCliente()
-                );
 
         lblRucNroRuc.setText(
-                documento.trim()
+                "RUC "
+                + valorTexto(
+                        cuentaSeleccionada
+                                .getRucProveedor()
+                )
         );
 
-        lblValorCodigoVenta.setText(
-                "#" + cuentaSeleccionada.getIdVenta()
+        lblValorCodigoCompra.setText(
+                "#"
+                + cuentaSeleccionada
+                        .getIdCompra()
         );
 
-        lblValorFechaVenta.setText(
+        lblValorFechaCompra.setText(
                 formatearFechaHora(
                         cuentaSeleccionada
-                                .getFechaVenta()
+                                .getFechaCompra()
                 )
         );
 
@@ -1083,7 +1111,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                 )
         );
 
-        txtEstadoCuentaCobrar.setText(
+        txtEstadoCuentaPagar.setText(
                 "• "
                 + formatearEstado(
                         cuentaSeleccionada
@@ -1101,7 +1129,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         lblSaldoCobrado.setText(
                 formatearMonto(
                         cuentaSeleccionada
-                                .getMontoCobrado()
+                                .getMontoPagado()
                 )
         );
 
@@ -1122,7 +1150,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                         + ")"
                 );
 
-        txtValorMontoACobrar.setText("");
+        txtValorMontoAPagar.setText("");
 
         boolean tieneSaldo
                 = cuentaSeleccionada
@@ -1133,21 +1161,21 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                                 BigDecimal.ZERO
                         ) > 0;
 
-        habilitarComponentesCobro(
+        habilitarComponentesPago(
                 tieneSaldo
         );
 
-        actualizarCalculoCobro();
+        actualizarCalculoPago();
     }
 
     private void limpiarCuentaSeleccionada() {
 
         cuentaSeleccionada = null;
 
-        if (tblDetalleCuentasCobrar
+        if (tblDetalleCuentasPagar
                 .getSelectedRow() >= 0) {
 
-            tblDetalleCuentasCobrar
+            tblDetalleCuentasPagar
                     .clearSelection();
         }
 
@@ -1157,11 +1185,11 @@ public class FrmCobroCliente extends javax.swing.JDialog {
 
         lblRucNroRuc.setText("");
 
-        lblValorCodigoVenta.setText(
+        lblValorCodigoCompra.setText(
                 "—"
         );
 
-        lblValorFechaVenta.setText(
+        lblValorFechaCompra.setText(
                 "—"
         );
 
@@ -1169,7 +1197,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                 "—"
         );
 
-        txtEstadoCuentaCobrar.setText(
+        txtEstadoCuentaPagar.setText(
                 "• Sin selección"
         );
 
@@ -1187,12 +1215,12 @@ public class FrmCobroCliente extends javax.swing.JDialog {
 
         lblMensajeNoPuedeExcederSaldoPendienteValorSaldoPendiente
                 .setText(
-                        "Seleccione una cuenta por cobrar"
+                        "Seleccione una cuenta por pagar"
                 );
 
-        txtValorMontoACobrar.setText("");
+        txtValorMontoAPagar.setText("");
 
-        txtEstadoCobro.setText(
+        txtEstadoPago.setText(
                 "SIN CUENTA"
         );
 
@@ -1208,36 +1236,36 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                 "0.00"
         );
 
-        btnRegistrarCobro.setEnabled(false);
+        txtValorMontoAPagar.setEnabled(false);
+
+        btnRegistrarPago.setEnabled(false);
 
         btnEfectivo.setEnabled(false);
 
         btnBanco.setEnabled(false);
 
-        /*
-     * Sin cuenta seleccionada:
-     * ocultamos ambos medios.
-         */
         pnlDatosCaja.setVisible(false);
 
         pnlSelectorCtaBancaria.setVisible(false);
 
+        medioBanco = false;
+
         cuentaBancariaSeleccionada = null;
 
-        actualizarLayoutMedioCobro();
+        actualizarLayoutMedioPago();
     }
 
     // ============================================================
     // HABILITACIÓN DEL REGISTRO
     // ============================================================
-    private void habilitarComponentesCobro(
+    private void habilitarComponentesPago(
             boolean habilitar) {
 
-        txtValorMontoACobrar.setEnabled(
+        txtValorMontoAPagar.setEnabled(
                 habilitar
         );
 
-        txtFechaYHoraCobro.setEnabled(
+        txtFechaYHoraPago.setEnabled(
                 true
         );
 
@@ -1251,7 +1279,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                 && !cuentasBancariasActivas.isEmpty()
         );
 
-        btnRegistrarCobro.setEnabled(false);
+        btnRegistrarPago.setEnabled(false);
 
         if (!habilitar) {
 
@@ -1259,22 +1287,22 @@ public class FrmCobroCliente extends javax.swing.JDialog {
 
             pnlSelectorCtaBancaria.setVisible(false);
 
-            txtValorMontoACobrar.setText("");
+            txtValorMontoAPagar.setText("");
 
-            txtEstadoCobro.setText(
+            txtEstadoPago.setText(
                     "SIN CUENTA"
             );
 
-            cuentaBancariaSeleccionada = null;
+            medioBanco = false;
 
-            actualizarLayoutMedioCobro();
+            cuentaBancariaSeleccionada = null;
 
             return;
         }
 
         /*
-     * Al seleccionar una cuenta:
-     * Efectivo es el medio inicial.
+         * Al seleccionar una cuenta:
+         * Efectivo es el medio inicial.
          */
         mostrarMedioEfectivo();
     }
@@ -1288,27 +1316,23 @@ public class FrmCobroCliente extends javax.swing.JDialog {
             return;
         }
 
+        medioBanco = false;
+
         pnlDatosCaja.setVisible(true);
 
         pnlSelectorCtaBancaria.setVisible(false);
 
-        boolean cajaDisponible
-                = cajaAbierta != null;
-
-        boolean bancoDisponible
-                = !cuentasBancariasActivas.isEmpty();
-
         btnEfectivo.setEnabled(
-                cajaDisponible
+                cajaAbierta != null
         );
 
         btnBanco.setEnabled(
-                bancoDisponible
+                !cuentasBancariasActivas.isEmpty()
         );
 
         actualizarEstadoBotonRegistrar();
 
-        actualizarLayoutMedioCobro();
+        actualizarLayoutMedioPago();
     }
 
     // ============================================================
@@ -1320,10 +1344,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
             return;
         }
 
-        boolean bancoDisponible
-                = !cuentasBancariasActivas.isEmpty();
-
-        if (!bancoDisponible) {
+        if (cuentasBancariasActivas.isEmpty()) {
 
             JOptionPane.showMessageDialog(
                     this,
@@ -1334,6 +1355,8 @@ public class FrmCobroCliente extends javax.swing.JDialog {
 
             return;
         }
+
+        medioBanco = true;
 
         pnlDatosCaja.setVisible(false);
 
@@ -1364,10 +1387,10 @@ public class FrmCobroCliente extends javax.swing.JDialog {
 
         actualizarEstadoBotonRegistrar();
 
-        actualizarLayoutMedioCobro();
+        actualizarLayoutMedioPago();
     }
 
-    private void actualizarLayoutMedioCobro() {
+    private void actualizarLayoutMedioPago() {
 
         pnlDatosCaja.revalidate();
         pnlDatosCaja.repaint();
@@ -1375,8 +1398,8 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         pnlSelectorCtaBancaria.revalidate();
         pnlSelectorCtaBancaria.repaint();
 
-        pnlRegistrarCobro.revalidate();
-        pnlRegistrarCobro.repaint();
+        pnlRegistrarPago.revalidate();
+        pnlRegistrarPago.repaint();
 
         pnlCuentaSeleccionada.revalidate();
         pnlCuentaSeleccionada.repaint();
@@ -1389,13 +1412,13 @@ public class FrmCobroCliente extends javax.swing.JDialog {
     }
 
     // ============================================================
-    // CÁLCULO DEL COBRO
+    // CÁLCULO DEL PAGO
     // ============================================================
-    private void actualizarCalculoCobro() {
+    private void actualizarCalculoPago() {
 
         if (cuentaSeleccionada == null) {
 
-            txtEstadoCobro.setText(
+            txtEstadoPago.setText(
                     "SIN CUENTA"
             );
 
@@ -1427,7 +1450,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                     formatearMonto(saldo)
             );
 
-            txtEstadoCobro.setText(
+            txtEstadoPago.setText(
                     "SIN MONTO"
             );
 
@@ -1449,7 +1472,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                     "—"
             );
 
-            txtEstadoCobro.setText(
+            txtEstadoPago.setText(
                     "MONTO INVÁLIDO"
             );
 
@@ -1466,14 +1489,14 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                 BigDecimal.ZERO
         ) == 0) {
 
-            txtEstadoCobro.setText(
-                    "COBRO TOTAL"
+            txtEstadoPago.setText(
+                    "PAGO TOTAL"
             );
 
         } else {
 
-            txtEstadoCobro.setText(
-                    "COBRO PARCIAL"
+            txtEstadoPago.setText(
+                    "PAGO PARCIAL"
             );
         }
 
@@ -1483,7 +1506,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
     private BigDecimal obtenerMontoIngresado() {
 
         String texto
-                = txtValorMontoACobrar
+                = txtValorMontoAPagar
                         .getText()
                         .trim()
                         .replace(",", "");
@@ -1519,13 +1542,13 @@ public class FrmCobroCliente extends javax.swing.JDialog {
     // ============================================================
     // VALIDACIÓN
     // ============================================================
-    private boolean validarRegistroCobro() {
+    private boolean validarRegistroPago() {
 
         if (cuentaSeleccionada == null) {
 
             JOptionPane.showMessageDialog(
                     this,
-                    "Debe seleccionar una cuenta por cobrar.",
+                    "Debe seleccionar una cuenta por pagar.",
                     "Cuenta obligatoria",
                     JOptionPane.WARNING_MESSAGE
             );
@@ -1551,7 +1574,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                     JOptionPane.WARNING_MESSAGE
             );
 
-            txtValorMontoACobrar.requestFocus();
+            txtValorMontoAPagar.requestFocus();
 
             return false;
         }
@@ -1567,7 +1590,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                     JOptionPane.WARNING_MESSAGE
             );
 
-            txtValorMontoACobrar.requestFocus();
+            txtValorMontoAPagar.requestFocus();
 
             return false;
         }
@@ -1576,7 +1599,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
 
             JOptionPane.showMessageDialog(
                     this,
-                    "El monto a cobrar no puede exceder "
+                    "El monto a pagar no puede exceder "
                     + "el saldo pendiente de S/ "
                     + formatearMonto(saldo)
                     + ".",
@@ -1584,7 +1607,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                     JOptionPane.WARNING_MESSAGE
             );
 
-            txtValorMontoACobrar.requestFocus();
+            txtValorMontoAPagar.requestFocus();
 
             return false;
         }
@@ -1592,7 +1615,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         // --------------------------------------------------------
         // EFECTIVO
         // --------------------------------------------------------
-        if (pnlDatosCaja.isVisible()) {
+        if (!medioBanco) {
 
             if (cajaAbierta == null) {
 
@@ -1612,45 +1635,33 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         // --------------------------------------------------------
         // BANCO
         // --------------------------------------------------------
-        if (pnlSelectorCtaBancaria.isVisible()) {
+        if (cuentasBancariasActivas.isEmpty()) {
 
-            if (cuentasBancariasActivas.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "No hay cuentas bancarias activas disponibles.",
+                    "Cuenta bancaria no disponible",
+                    JOptionPane.WARNING_MESSAGE
+            );
 
-                JOptionPane.showMessageDialog(
-                        this,
-                        "No hay cuentas bancarias activas disponibles.",
-                        "Cuenta bancaria no disponible",
-                        JOptionPane.WARNING_MESSAGE
-                );
-
-                return false;
-            }
-
-            if (cuentaBancariaSeleccionada == null) {
-
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Seleccione una cuenta bancaria.",
-                        "Cuenta bancaria obligatoria",
-                        JOptionPane.WARNING_MESSAGE
-                );
-
-                cmbCuenta.requestFocus();
-
-                return false;
-            }
-
-            return true;
+            return false;
         }
 
-        JOptionPane.showMessageDialog(
-                this,
-                "Seleccione un medio de cobro.",
-                "Medio de cobro",
-                JOptionPane.WARNING_MESSAGE
-        );
+        if (cuentaBancariaSeleccionada == null) {
 
-        return false;
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Seleccione una cuenta bancaria.",
+                    "Cuenta bancaria obligatoria",
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+            cmbCuenta.requestFocus();
+
+            return false;
+        }
+
+        return true;
     }
 
     // ============================================================
@@ -1660,7 +1671,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
 
         if (cuentaSeleccionada == null) {
 
-            btnRegistrarCobro.setEnabled(false);
+            btnRegistrarPago.setEnabled(false);
 
             return;
         }
@@ -1670,7 +1681,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
 
         if (monto == null) {
 
-            btnRegistrarCobro.setEnabled(false);
+            btnRegistrarPago.setEnabled(false);
 
             return;
         }
@@ -1686,7 +1697,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         ) <= 0
                 || monto.compareTo(saldo) > 0) {
 
-            btnRegistrarCobro.setEnabled(false);
+            btnRegistrarPago.setEnabled(false);
 
             return;
         }
@@ -1694,9 +1705,9 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         // --------------------------------------------------------
         // EFECTIVO
         // --------------------------------------------------------
-        if (pnlDatosCaja.isVisible()) {
+        if (!medioBanco) {
 
-            btnRegistrarCobro.setEnabled(
+            btnRegistrarPago.setEnabled(
                     cajaAbierta != null
             );
 
@@ -1706,24 +1717,17 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         // --------------------------------------------------------
         // BANCO
         // --------------------------------------------------------
-        if (pnlSelectorCtaBancaria.isVisible()) {
-
-            btnRegistrarCobro.setEnabled(
-                    cuentaBancariaSeleccionada != null
-            );
-
-            return;
-        }
-
-        btnRegistrarCobro.setEnabled(false);
+        btnRegistrarPago.setEnabled(
+                cuentaBancariaSeleccionada != null
+        );
     }
 
     // ============================================================
-    // REGISTRAR COBRO
+    // REGISTRAR PAGO
     // ============================================================
-    private void registrarCobro() {
+    private void registrarPago() {
 
-        if (!validarRegistroCobro()) {
+        if (!validarRegistroPago()) {
             return;
         }
 
@@ -1733,9 +1737,10 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         LocalDateTime fechaHora
                 = LocalDateTime.now();
 
-        CobroCliente cobro
-                = new CobroCliente(
-                        cuentaSeleccionada.getIdVenta(),
+        PagoProveedor pago
+                = new PagoProveedor(
+                        cuentaSeleccionada
+                                .getIdCompra(),
                         monto,
                         fechaHora
                 );
@@ -1751,12 +1756,12 @@ public class FrmCobroCliente extends javax.swing.JDialog {
             // ----------------------------------------------------
             // EFECTIVO
             // ----------------------------------------------------
-            if (pnlDatosCaja.isVisible()) {
+            if (!medioBanco) {
 
                 respuesta
-                        = procesoCobroCliente
-                                .registrarCobroCaja(
-                                        cobro,
+                        = procesoPagoProveedor
+                                .registrarPagoCaja(
+                                        pago,
                                         cajaAbierta
                                                 .getIdCaja(),
                                         idUsuario
@@ -1768,9 +1773,9 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                 // BANCO
                 // ------------------------------------------------
                 respuesta
-                        = procesoCobroCliente
-                                .registrarCobroBanco(
-                                        cobro,
+                        = procesoPagoProveedor
+                                .registrarPagoBanco(
+                                        pago,
                                         cuentaBancariaSeleccionada
                                                 .getIdCuentaBancaria(),
                                         idUsuario
@@ -1782,7 +1787,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                 JOptionPane.showMessageDialog(
                         this,
                         respuesta.getMensaje(),
-                        "No se pudo registrar el cobro",
+                        "No se pudo registrar el pago",
                         JOptionPane.WARNING_MESSAGE
                 );
 
@@ -1791,40 +1796,42 @@ public class FrmCobroCliente extends javax.swing.JDialog {
 
             JOptionPane.showMessageDialog(
                     this,
-                    "El cobro se registró correctamente.",
-                    "Cobro registrado",
+                    "El pago se registró correctamente.",
+                    "Pago registrado",
                     JOptionPane.INFORMATION_MESSAGE
             );
 
-            limpiarDespuesDeCobro();
+            limpiarDespuesDePago();
 
         } catch (RuntimeException ex) {
 
             JOptionPane.showMessageDialog(
                     this,
                     obtenerMensajeError(ex),
-                    "Error al registrar cobro",
+                    "Error al registrar pago",
                     JOptionPane.ERROR_MESSAGE
             );
         }
     }
 
     // ============================================================
-    // LIMPIAR DESPUÉS DE COBRO
+    // LIMPIAR DESPUÉS DE PAGO
     // ============================================================
-    private void limpiarDespuesDeCobro() {
+    private void limpiarDespuesDePago() {
 
         cuentaSeleccionada = null;
 
         cuentaBancariaSeleccionada = null;
 
-        txtValorMontoACobrar.setText("");
+        medioBanco = false;
 
-        txtEstadoCobro.setText(
+        txtValorMontoAPagar.setText("");
+
+        txtEstadoPago.setText(
                 "SIN CUENTA"
         );
 
-        tblDetalleCuentasCobrar.clearSelection();
+        tblDetalleCuentasPagar.clearSelection();
 
         limpiarCuentaSeleccionada();
 
@@ -1832,12 +1839,12 @@ public class FrmCobroCliente extends javax.swing.JDialog {
 
         cargarCuentasBancariasActivas();
 
-        txtFechaYHoraCobro.setText(
+        txtFechaYHoraPago.setText(
                 LocalDateTime.now()
                         .format(FORMATO_FECHA_HORA)
         );
 
-        consultarCuentas();
+        consultarCuentasPorPagar();
     }
 
     // ============================================================
@@ -1845,17 +1852,24 @@ public class FrmCobroCliente extends javax.swing.JDialog {
     // ============================================================
     private void limpiarFiltros() {
 
-        cmbClientes.setSelectedItem(null);
+        cmbProveedores.setSelectedItem(null);
+
+        javax.swing.JTextField editor
+                = (javax.swing.JTextField) cmbProveedores
+                        .getEditor()
+                        .getEditorComponent();
+
+        editor.setText("");
 
         cmbEstado.setSelectedItem(
-                "Todos"
+                "Pendiente"
         );
 
         jdcDesdeFecha.setDate(null);
 
         jdcHastaFecha.setDate(null);
 
-        consultarCuentas();
+        consultarCuentasPorPagar();
     }
 
     // ============================================================
@@ -1868,26 +1882,26 @@ public class FrmCobroCliente extends javax.swing.JDialog {
 
         if (cantidad == 0) {
 
-            lblNCuentasCobrarFiltrosSeleccionados
+            lblNCuentasPagarFiltrosSeleccionados
                     .setText(
-                            "No hay cuentas por cobrar "
+                            "No hay cuentas por pagar "
                             + "para los filtros seleccionados"
                     );
 
         } else if (cantidad == 1) {
 
-            lblNCuentasCobrarFiltrosSeleccionados
+            lblNCuentasPagarFiltrosSeleccionados
                     .setText(
-                            "1 cuenta por cobrar "
+                            "1 cuenta por pagar "
                             + "para los filtros seleccionados"
                     );
 
         } else {
 
-            lblNCuentasCobrarFiltrosSeleccionados
+            lblNCuentasPagarFiltrosSeleccionados
                     .setText(
                             cantidad
-                            + " cuentas por cobrar "
+                            + " cuentas por pagar "
                             + "para los filtros seleccionados"
                     );
         }
@@ -1985,15 +1999,15 @@ public class FrmCobroCliente extends javax.swing.JDialog {
     private void initComponents() {
 
         pnlSuperior = new javax.swing.JPanel();
-        lblRegistroCobroCliente = new javax.swing.JLabel();
-        lblAplicarCobroSobreCuentaCobrarExistente = new javax.swing.JLabel();
+        lblRegistroPagoProveedor = new javax.swing.JLabel();
+        lblAplicarCobroSobreCuentaPagarExistente = new javax.swing.JLabel();
         lblNombreApellidoUsuario = new javax.swing.JLabel();
         lblFechaActual = new javax.swing.JLabel();
         lblHoraActual = new javax.swing.JLabel();
         lblUsuario = new javax.swing.JLabel();
-        pnlCuentasCobrar = new javax.swing.JPanel();
-        lblCliente = new javax.swing.JLabel();
-        cmbClientes = new javax.swing.JComboBox<>();
+        pnlCuentasPagar = new javax.swing.JPanel();
+        lblProveedor = new javax.swing.JLabel();
+        cmbProveedores = new javax.swing.JComboBox<>();
         cmbEstado = new javax.swing.JComboBox<>();
         lblEstado = new javax.swing.JLabel();
         lblDesde = new javax.swing.JLabel();
@@ -2002,24 +2016,24 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         jdcHastaFecha = new com.toedter.calendar.JDateChooser();
         btnConsultar = new javax.swing.JButton();
         btnLimpiar = new javax.swing.JButton();
-        spnlTblDetalleCuentasCobrar = new javax.swing.JScrollPane();
-        tblDetalleCuentasCobrar = new javax.swing.JTable();
+        spnlTblDetalleCuentasPagar = new javax.swing.JScrollPane();
+        tblDetalleCuentasPagar = new javax.swing.JTable();
         jSeparator1 = new javax.swing.JSeparator();
-        lblNCuentasCobrarFiltrosSeleccionados = new javax.swing.JLabel();
+        lblNCuentasPagarFiltrosSeleccionados = new javax.swing.JLabel();
         spnlAcomodador = new javax.swing.JScrollPane();
         pnlCuentaSeleccionada = new javax.swing.JPanel();
         lblNombreEmpresaYTipoEmpresa = new javax.swing.JLabel();
-        txtEstadoCuentaCobrar = new javax.swing.JTextField();
+        txtEstadoCuentaPagar = new javax.swing.JTextField();
         lblRucNroRuc = new javax.swing.JLabel();
-        lblVenta = new javax.swing.JLabel();
-        lblFechaVenta = new javax.swing.JLabel();
+        lblCompra = new javax.swing.JLabel();
+        lblFechaCompra = new javax.swing.JLabel();
         lblVencimiento = new javax.swing.JLabel();
-        lblValorCodigoVenta = new javax.swing.JLabel();
-        lblValorFechaVenta = new javax.swing.JLabel();
+        lblValorCodigoCompra = new javax.swing.JLabel();
+        lblValorFechaCompra = new javax.swing.JLabel();
         lblValorFechaVencimiento = new javax.swing.JLabel();
-        pnlSaldosCuentaCobrar = new javax.swing.JPanel();
+        pnlSaldosCuentaPagar = new javax.swing.JPanel();
         lblTotal = new javax.swing.JLabel();
-        lblCobrado = new javax.swing.JLabel();
+        lblPagado = new javax.swing.JLabel();
         lblSaldoPend = new javax.swing.JLabel();
         lblCaracter1erPnlSNro1 = new javax.swing.JLabel();
         lblCaracter1erPnlSNro2 = new javax.swing.JLabel();
@@ -2028,11 +2042,11 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         lblValorSaldoPend = new javax.swing.JLabel();
         lblSaldoCobrado = new javax.swing.JLabel();
         jSeparator2 = new javax.swing.JSeparator();
-        pnlRegistrarCobro = new javax.swing.JPanel();
-        lblMontoACobrar = new javax.swing.JLabel();
-        txtValorMontoACobrar = new javax.swing.JTextField();
+        pnlRegistrarPago = new javax.swing.JPanel();
+        lblMontoAPagar = new javax.swing.JLabel();
+        txtValorMontoAPagar = new javax.swing.JTextField();
         lblMensajeNoPuedeExcederSaldoPendienteValorSaldoPendiente = new javax.swing.JLabel();
-        pnlSaldosRegistrarCobro = new javax.swing.JPanel();
+        pnlSaldosRegistrarPago = new javax.swing.JPanel();
         lblCaracter2doPnlSNro1 = new javax.swing.JLabel();
         lblCaracter2doPnlSNro2 = new javax.swing.JLabel();
         lblCaracter2doPnlSNro3 = new javax.swing.JLabel();
@@ -2041,13 +2055,13 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         lblValorMontoACobrar = new javax.swing.JLabel();
         jSeparator5 = new javax.swing.JSeparator();
         lblSaldo_Pend = new javax.swing.JLabel();
-        lblMontoA_Cobrar = new javax.swing.JLabel();
+        lblMontoA_Pagar = new javax.swing.JLabel();
         lblNuevo_Saldo = new javax.swing.JLabel();
         lblPend_Saldo = new javax.swing.JLabel();
-        lblCobrar_MontoA = new javax.swing.JLabel();
+        lblPagar_MontoA = new javax.swing.JLabel();
         lblSaldo_Nuevo = new javax.swing.JLabel();
-        txtEstadoCobro = new javax.swing.JTextField();
-        lblMedioCobro = new javax.swing.JLabel();
+        txtEstadoPago = new javax.swing.JTextField();
+        lblMedioPago = new javax.swing.JLabel();
         btnEfectivo = new javax.swing.JButton();
         btnBanco = new javax.swing.JButton();
         pnlDatosCaja = new javax.swing.JPanel();
@@ -2055,10 +2069,10 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         lblCajaPrincipal = new javax.swing.JLabel();
         lblSaldoActual = new javax.swing.JLabel();
         lblValorSaldoActual = new javax.swing.JLabel();
-        lblFechaCobro = new javax.swing.JLabel();
-        txtFechaYHoraCobro = new javax.swing.JTextField();
+        lblFechaPago = new javax.swing.JLabel();
+        txtFechaYHoraPago = new javax.swing.JTextField();
         jSeparator6 = new javax.swing.JSeparator();
-        btnRegistrarCobro = new javax.swing.JButton();
+        btnRegistrarPago = new javax.swing.JButton();
         btnCancelar = new javax.swing.JButton();
         pnlSelectorCtaBancaria = new javax.swing.JPanel();
 
@@ -2066,11 +2080,11 @@ public class FrmCobroCliente extends javax.swing.JDialog {
 
         pnlSuperior.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
 
-        lblRegistroCobroCliente.setFont(new java.awt.Font("Segoe UI Historic", 0, 18)); // NOI18N
-        lblRegistroCobroCliente.setText("REGISTRO DE COBRO A CLIENTE");
+        lblRegistroPagoProveedor.setFont(new java.awt.Font("Segoe UI Historic", 0, 18)); // NOI18N
+        lblRegistroPagoProveedor.setText("REGISTRO DE PAGO A PROVEEDOR");
 
-        lblAplicarCobroSobreCuentaCobrarExistente.setFont(new java.awt.Font("Consolas", 0, 10)); // NOI18N
-        lblAplicarCobroSobreCuentaCobrarExistente.setText("Aplicar un cobro sobre una cuenta por cobrar existente ");
+        lblAplicarCobroSobreCuentaPagarExistente.setFont(new java.awt.Font("Consolas", 0, 10)); // NOI18N
+        lblAplicarCobroSobreCuentaPagarExistente.setText("Aplicar un pago sobre una cuenta por pagar existente ");
 
         lblNombreApellidoUsuario.setText("Nombre Apellido");
 
@@ -2087,8 +2101,8 @@ public class FrmCobroCliente extends javax.swing.JDialog {
             .addGroup(pnlSuperiorLayout.createSequentialGroup()
                 .addGap(20, 20, 20)
                 .addGroup(pnlSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(lblAplicarCobroSobreCuentaCobrarExistente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(lblRegistroCobroCliente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(lblAplicarCobroSobreCuentaPagarExistente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblRegistroPagoProveedor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(pnlSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(pnlSuperiorLayout.createSequentialGroup()
@@ -2106,21 +2120,21 @@ public class FrmCobroCliente extends javax.swing.JDialog {
             .addGroup(pnlSuperiorLayout.createSequentialGroup()
                 .addGap(7, 7, 7)
                 .addGroup(pnlSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblRegistroCobroCliente)
+                    .addComponent(lblRegistroPagoProveedor)
                     .addComponent(lblNombreApellidoUsuario)
                     .addComponent(lblUsuario))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(pnlSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblAplicarCobroSobreCuentaCobrarExistente, javax.swing.GroupLayout.PREFERRED_SIZE, 13, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblAplicarCobroSobreCuentaPagarExistente, javax.swing.GroupLayout.PREFERRED_SIZE, 13, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblFechaActual)
                     .addComponent(lblHoraActual, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(7, Short.MAX_VALUE))
         );
 
-        pnlCuentasCobrar.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "01. CUENTAS POR COBRAR", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlCuentasPagar.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "01. CUENTAS POR PAGAR", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
-        lblCliente.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
-        lblCliente.setText("CLIENTE");
+        lblProveedor.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
+        lblProveedor.setText("PROVEEDOR");
 
         lblEstado.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         lblEstado.setText("ESTADO");
@@ -2147,61 +2161,59 @@ public class FrmCobroCliente extends javax.swing.JDialog {
             }
         });
 
-        javax.swing.GroupLayout pnlCuentasCobrarLayout = new javax.swing.GroupLayout(pnlCuentasCobrar);
-        pnlCuentasCobrar.setLayout(pnlCuentasCobrarLayout);
-        pnlCuentasCobrarLayout.setHorizontalGroup(
-            pnlCuentasCobrarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlCuentasCobrarLayout.createSequentialGroup()
+        javax.swing.GroupLayout pnlCuentasPagarLayout = new javax.swing.GroupLayout(pnlCuentasPagar);
+        pnlCuentasPagar.setLayout(pnlCuentasPagarLayout);
+        pnlCuentasPagarLayout.setHorizontalGroup(
+            pnlCuentasPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlCuentasPagarLayout.createSequentialGroup()
                 .addGap(15, 15, 15)
-                .addGroup(pnlCuentasCobrarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblCliente)
-                    .addComponent(cmbClientes, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
-                .addGroup(pnlCuentasCobrarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(pnlCuentasCobrarLayout.createSequentialGroup()
-                        .addComponent(cmbEstado, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jdcDesdeFecha, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
-                        .addComponent(jdcHastaFecha, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(pnlCuentasCobrarLayout.createSequentialGroup()
-                        .addComponent(lblEstado)
-                        .addGap(87, 87, 87)
-                        .addComponent(lblDesde, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(91, 91, 91)
-                        .addComponent(lblHasta, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(pnlCuentasCobrarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(btnConsultar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnLimpiar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(10, 10, 10))
-        );
-        pnlCuentasCobrarLayout.setVerticalGroup(
-            pnlCuentasCobrarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlCuentasCobrarLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(pnlCuentasCobrarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(pnlCuentasCobrarLayout.createSequentialGroup()
+                .addGroup(pnlCuentasPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblProveedor)
+                    .addComponent(cmbProveedores, javax.swing.GroupLayout.PREFERRED_SIZE, 286, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(pnlCuentasPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblEstado)
+                    .addComponent(cmbEstado, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(pnlCuentasPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jdcDesdeFecha, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblDesde, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(pnlCuentasPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblHasta, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(pnlCuentasPagarLayout.createSequentialGroup()
+                        .addComponent(jdcHastaFecha, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addComponent(btnConsultar)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnLimpiar))
-                    .addGroup(pnlCuentasCobrarLayout.createSequentialGroup()
-                        .addGroup(pnlCuentasCobrarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(lblCliente)
-                            .addComponent(lblDesde)
-                            .addComponent(lblEstado)
-                            .addComponent(lblHasta))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(pnlCuentasCobrarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(pnlCuentasCobrarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(cmbClientes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(cmbEstado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jdcDesdeFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jdcHastaFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addComponent(btnLimpiar, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+        pnlCuentasPagarLayout.setVerticalGroup(
+            pnlCuentasPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlCuentasPagarLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(pnlCuentasPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(pnlCuentasPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnConsultar)
+                        .addComponent(btnLimpiar))
+                    .addGroup(pnlCuentasPagarLayout.createSequentialGroup()
+                        .addGroup(pnlCuentasPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblProveedor)
+                            .addComponent(lblEstado)
+                            .addComponent(lblDesde)
+                            .addComponent(lblHasta))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(pnlCuentasPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(pnlCuentasPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(cmbProveedores, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(cmbEstado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jdcHastaFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jdcDesdeFecha, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(26, Short.MAX_VALUE))
+        );
 
-        tblDetalleCuentasCobrar.setModel(new javax.swing.table.DefaultTableModel(
+        tblDetalleCuentasPagar.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null, null, null},
                 {null, null, null, null, null, null, null, null},
@@ -2209,7 +2221,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                 {null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "VENTA", "CLIENTE", "FECHA VENTA", "VENCIMIENTO", "TOTAL", "COBRADO", "SALDO", "ESTADO"
+                "COMPRA", "PROVEEDOR", "FECHA COMPRA", "VENCIMIENTO", "TOTAL", "PAGADO", "SALDO", "ESTADO"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -2220,53 +2232,53 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                 return canEdit [columnIndex];
             }
         });
-        spnlTblDetalleCuentasCobrar.setViewportView(tblDetalleCuentasCobrar);
+        spnlTblDetalleCuentasPagar.setViewportView(tblDetalleCuentasPagar);
 
-        lblNCuentasCobrarFiltrosSeleccionados.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
-        lblNCuentasCobrarFiltrosSeleccionados.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblNCuentasCobrarFiltrosSeleccionados.setText("3 cuentas por cobrar para los filtros seleccionados ");
-        lblNCuentasCobrarFiltrosSeleccionados.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        lblNCuentasPagarFiltrosSeleccionados.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
+        lblNCuentasPagarFiltrosSeleccionados.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblNCuentasPagarFiltrosSeleccionados.setText("3 cuentas por pagar para los filtros seleccionados ");
+        lblNCuentasPagarFiltrosSeleccionados.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         pnlCuentaSeleccionada.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "02. CUENTA SELECCIONADA", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         lblNombreEmpresaYTipoEmpresa.setText("Corporación Ferretera del Norte S.A.C. ");
 
-        txtEstadoCuentaCobrar.setEditable(false);
-        txtEstadoCuentaCobrar.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
-        txtEstadoCuentaCobrar.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txtEstadoCuentaCobrar.setText("• Pendiente");
+        txtEstadoCuentaPagar.setEditable(false);
+        txtEstadoCuentaPagar.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
+        txtEstadoCuentaPagar.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtEstadoCuentaPagar.setText("• Pendiente");
 
         lblRucNroRuc.setFont(new java.awt.Font("Consolas", 0, 10)); // NOI18N
         lblRucNroRuc.setText("RUC 20456789123 ");
 
-        lblVenta.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
-        lblVenta.setText("Venta");
+        lblCompra.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
+        lblCompra.setText("Compra");
 
-        lblFechaVenta.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
-        lblFechaVenta.setText("Fecha de venta");
+        lblFechaCompra.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
+        lblFechaCompra.setText("Fecha de compra");
 
         lblVencimiento.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         lblVencimiento.setText("Vencimiento");
 
-        lblValorCodigoVenta.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
-        lblValorCodigoVenta.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        lblValorCodigoVenta.setText("#341");
+        lblValorCodigoCompra.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
+        lblValorCodigoCompra.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        lblValorCodigoCompra.setText("#341");
 
-        lblValorFechaVenta.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
-        lblValorFechaVenta.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        lblValorFechaVenta.setText("05/08/2026");
+        lblValorFechaCompra.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
+        lblValorFechaCompra.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        lblValorFechaCompra.setText("05/08/2026");
 
         lblValorFechaVencimiento.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         lblValorFechaVencimiento.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         lblValorFechaVencimiento.setText("04/09/2026");
 
-        pnlSaldosCuentaCobrar.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
+        pnlSaldosCuentaPagar.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
 
         lblTotal.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         lblTotal.setText("TOTAL");
 
-        lblCobrado.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
-        lblCobrado.setText("COBRADO");
+        lblPagado.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
+        lblPagado.setText("PAGADO");
 
         lblSaldoPend.setFont(new java.awt.Font("Segoe UI", 1, 10)); // NOI18N
         lblSaldoPend.setForeground(new java.awt.Color(255, 153, 51));
@@ -2292,78 +2304,78 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         lblSaldoCobrado.setFont(new java.awt.Font("Consolas", 0, 12)); // NOI18N
         lblSaldoCobrado.setText("1,500.00");
 
-        javax.swing.GroupLayout pnlSaldosCuentaCobrarLayout = new javax.swing.GroupLayout(pnlSaldosCuentaCobrar);
-        pnlSaldosCuentaCobrar.setLayout(pnlSaldosCuentaCobrarLayout);
-        pnlSaldosCuentaCobrarLayout.setHorizontalGroup(
-            pnlSaldosCuentaCobrarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlSaldosCuentaCobrarLayout.createSequentialGroup()
+        javax.swing.GroupLayout pnlSaldosCuentaPagarLayout = new javax.swing.GroupLayout(pnlSaldosCuentaPagar);
+        pnlSaldosCuentaPagar.setLayout(pnlSaldosCuentaPagarLayout);
+        pnlSaldosCuentaPagarLayout.setHorizontalGroup(
+            pnlSaldosCuentaPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlSaldosCuentaPagarLayout.createSequentialGroup()
                 .addGap(24, 24, 24)
-                .addGroup(pnlSaldosCuentaCobrarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(pnlSaldosCuentaCobrarLayout.createSequentialGroup()
+                .addGroup(pnlSaldosCuentaPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnlSaldosCuentaPagarLayout.createSequentialGroup()
                         .addComponent(lblSaldoTotal)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlSaldosCuentaCobrarLayout.createSequentialGroup()
-                        .addGroup(pnlSaldosCuentaCobrarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlSaldosCuentaPagarLayout.createSequentialGroup()
+                        .addGroup(pnlSaldosCuentaPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jSeparator2, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(pnlSaldosCuentaCobrarLayout.createSequentialGroup()
-                                .addGroup(pnlSaldosCuentaCobrarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(pnlSaldosCuentaPagarLayout.createSequentialGroup()
+                                .addGroup(pnlSaldosCuentaPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                     .addComponent(lblCaracter1erPnlSNro1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(lblTotal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addGroup(pnlSaldosCuentaCobrarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(pnlSaldosCuentaCobrarLayout.createSequentialGroup()
+                                .addGroup(pnlSaldosCuentaPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(pnlSaldosCuentaPagarLayout.createSequentialGroup()
                                         .addGap(62, 62, 62)
-                                        .addGroup(pnlSaldosCuentaCobrarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(pnlSaldosCuentaPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addComponent(lblSaldoCobrado)
                                             .addComponent(lblCaracter1erPnlSNro2, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
                                         .addGap(35, 35, 35)
-                                        .addGroup(pnlSaldosCuentaCobrarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(pnlSaldosCuentaPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addComponent(lblCaracter1erPnlSNro3, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
                                             .addComponent(lblValorSaldoPend, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE))
                                         .addGap(0, 3, Short.MAX_VALUE))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlSaldosCuentaCobrarLayout.createSequentialGroup()
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlSaldosCuentaPagarLayout.createSequentialGroup()
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(lblCobrado)
+                                        .addComponent(lblPagado)
                                         .addGap(33, 33, 33)
                                         .addComponent(lblSaldoPend)))))
                         .addGap(17, 17, 17))))
         );
-        pnlSaldosCuentaCobrarLayout.setVerticalGroup(
-            pnlSaldosCuentaCobrarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlSaldosCuentaCobrarLayout.createSequentialGroup()
+        pnlSaldosCuentaPagarLayout.setVerticalGroup(
+            pnlSaldosCuentaPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlSaldosCuentaPagarLayout.createSequentialGroup()
                 .addGap(12, 12, 12)
-                .addGroup(pnlSaldosCuentaCobrarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(pnlSaldosCuentaPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblTotal)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlSaldosCuentaCobrarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(lblCobrado)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlSaldosCuentaPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(lblPagado)
                         .addComponent(lblSaldoPend)))
                 .addGap(2, 2, 2)
                 .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(2, 2, 2)
-                .addGroup(pnlSaldosCuentaCobrarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(pnlSaldosCuentaPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblCaracter1erPnlSNro2)
                     .addComponent(lblCaracter1erPnlSNro1)
                     .addComponent(lblCaracter1erPnlSNro3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(pnlSaldosCuentaCobrarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(pnlSaldosCuentaPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblSaldoTotal)
                     .addComponent(lblValorSaldoPend)
                     .addComponent(lblSaldoCobrado))
                 .addContainerGap(12, Short.MAX_VALUE))
         );
 
-        pnlRegistrarCobro.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "03. REGISTRAR COBRO", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlRegistrarPago.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "03. REGISTRAR PAGO", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
-        lblMontoACobrar.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
-        lblMontoACobrar.setText("MONTO A COBRAR");
+        lblMontoAPagar.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
+        lblMontoAPagar.setText("MONTO A PAGAR");
 
-        txtValorMontoACobrar.setFont(new java.awt.Font("Consolas", 0, 14)); // NOI18N
-        txtValorMontoACobrar.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txtValorMontoACobrar.setText("1,200.00");
+        txtValorMontoAPagar.setFont(new java.awt.Font("Consolas", 0, 14)); // NOI18N
+        txtValorMontoAPagar.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtValorMontoAPagar.setText("1,200.00");
 
         lblMensajeNoPuedeExcederSaldoPendienteValorSaldoPendiente.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         lblMensajeNoPuedeExcederSaldoPendienteValorSaldoPendiente.setText("No puede exceder el saldo pendiente (S/ 2,750.00) ");
 
-        pnlSaldosRegistrarCobro.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
+        pnlSaldosRegistrarPago.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
 
         lblCaracter2doPnlSNro1.setFont(new java.awt.Font("Consolas", 0, 14)); // NOI18N
         lblCaracter2doPnlSNro1.setText("S/");
@@ -2388,8 +2400,8 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         lblSaldo_Pend.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         lblSaldo_Pend.setText("SALDO");
 
-        lblMontoA_Cobrar.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
-        lblMontoA_Cobrar.setText("MONTO A");
+        lblMontoA_Pagar.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
+        lblMontoA_Pagar.setText("MONTO A");
 
         lblNuevo_Saldo.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         lblNuevo_Saldo.setText("NUEVO");
@@ -2397,87 +2409,87 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         lblPend_Saldo.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         lblPend_Saldo.setText("PEND.");
 
-        lblCobrar_MontoA.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
-        lblCobrar_MontoA.setText("COBRAR");
+        lblPagar_MontoA.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
+        lblPagar_MontoA.setText("PAGAR");
 
         lblSaldo_Nuevo.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         lblSaldo_Nuevo.setText("SALDO");
 
-        javax.swing.GroupLayout pnlSaldosRegistrarCobroLayout = new javax.swing.GroupLayout(pnlSaldosRegistrarCobro);
-        pnlSaldosRegistrarCobro.setLayout(pnlSaldosRegistrarCobroLayout);
-        pnlSaldosRegistrarCobroLayout.setHorizontalGroup(
-            pnlSaldosRegistrarCobroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlSaldosRegistrarCobroLayout.createSequentialGroup()
+        javax.swing.GroupLayout pnlSaldosRegistrarPagoLayout = new javax.swing.GroupLayout(pnlSaldosRegistrarPago);
+        pnlSaldosRegistrarPago.setLayout(pnlSaldosRegistrarPagoLayout);
+        pnlSaldosRegistrarPagoLayout.setHorizontalGroup(
+            pnlSaldosRegistrarPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlSaldosRegistrarPagoLayout.createSequentialGroup()
                 .addGap(24, 24, 24)
-                .addGroup(pnlSaldosRegistrarCobroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlSaldosRegistrarCobroLayout.createSequentialGroup()
-                        .addGroup(pnlSaldosRegistrarCobroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(pnlSaldosRegistrarPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlSaldosRegistrarPagoLayout.createSequentialGroup()
+                        .addGroup(pnlSaldosRegistrarPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jSeparator5, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(pnlSaldosRegistrarCobroLayout.createSequentialGroup()
+                            .addGroup(pnlSaldosRegistrarPagoLayout.createSequentialGroup()
                                 .addComponent(lblCaracter2doPnlSNro1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(62, 62, 62)
-                                .addGroup(pnlSaldosRegistrarCobroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(pnlSaldosRegistrarPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(lblValorMontoACobrar)
                                     .addComponent(lblCaracter2doPnlSNro2, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(35, 35, 35)
-                                .addGroup(pnlSaldosRegistrarCobroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(pnlSaldosRegistrarPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(lblCaracter2doPnlSNro3, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(lblValorNuevoSaldo, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(0, 0, Short.MAX_VALUE)))
                         .addGap(17, 17, 17))
-                    .addGroup(pnlSaldosRegistrarCobroLayout.createSequentialGroup()
-                        .addGroup(pnlSaldosRegistrarCobroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnlSaldosRegistrarPagoLayout.createSequentialGroup()
+                        .addGroup(pnlSaldosRegistrarPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lblValorSaldoPendiente)
-                            .addGroup(pnlSaldosRegistrarCobroLayout.createSequentialGroup()
+                            .addGroup(pnlSaldosRegistrarPagoLayout.createSequentialGroup()
                                 .addGap(6, 6, 6)
-                                .addGroup(pnlSaldosRegistrarCobroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addGroup(pnlSaldosRegistrarPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(lblPend_Saldo, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(lblSaldo_Pend, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(36, 36, 36)
-                                .addGroup(pnlSaldosRegistrarCobroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(lblMontoA_Cobrar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(lblCobrar_MontoA, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGroup(pnlSaldosRegistrarPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(lblMontoA_Pagar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(lblPagar_MontoA, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                 .addGap(43, 43, 43)
-                                .addGroup(pnlSaldosRegistrarCobroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(pnlSaldosRegistrarPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(lblNuevo_Saldo)
                                     .addComponent(lblSaldo_Nuevo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                         .addGap(28, 28, 28))))
         );
-        pnlSaldosRegistrarCobroLayout.setVerticalGroup(
-            pnlSaldosRegistrarCobroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlSaldosRegistrarCobroLayout.createSequentialGroup()
+        pnlSaldosRegistrarPagoLayout.setVerticalGroup(
+            pnlSaldosRegistrarPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlSaldosRegistrarPagoLayout.createSequentialGroup()
                 .addContainerGap(11, Short.MAX_VALUE)
-                .addGroup(pnlSaldosRegistrarCobroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(pnlSaldosRegistrarPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblSaldo_Pend)
-                    .addComponent(lblMontoA_Cobrar)
+                    .addComponent(lblMontoA_Pagar)
                     .addComponent(lblNuevo_Saldo))
                 .addGap(4, 4, 4)
-                .addGroup(pnlSaldosRegistrarCobroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(pnlSaldosRegistrarPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblPend_Saldo)
-                    .addComponent(lblCobrar_MontoA)
+                    .addComponent(lblPagar_MontoA)
                     .addComponent(lblSaldo_Nuevo))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator5, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(4, 4, 4)
-                .addGroup(pnlSaldosRegistrarCobroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(pnlSaldosRegistrarPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblCaracter2doPnlSNro2)
                     .addComponent(lblCaracter2doPnlSNro1)
                     .addComponent(lblCaracter2doPnlSNro3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(pnlSaldosRegistrarCobroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(pnlSaldosRegistrarPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblValorSaldoPendiente)
                     .addComponent(lblValorNuevoSaldo)
                     .addComponent(lblValorMontoACobrar))
                 .addGap(12, 12, 12))
         );
 
-        txtEstadoCobro.setEditable(false);
-        txtEstadoCobro.setFont(new java.awt.Font("Consolas", 0, 10)); // NOI18N
-        txtEstadoCobro.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txtEstadoCobro.setText("COBRO PARCIAL");
+        txtEstadoPago.setEditable(false);
+        txtEstadoPago.setFont(new java.awt.Font("Consolas", 0, 10)); // NOI18N
+        txtEstadoPago.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtEstadoPago.setText("PAGO PARCIAL");
 
-        lblMedioCobro.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
-        lblMedioCobro.setText("MEDIO DE COBRO");
+        lblMedioPago.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
+        lblMedioPago.setText("MEDIO DE PAGO");
 
         btnEfectivo.setText("💵 Efectivo");
 
@@ -2525,18 +2537,18 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                 .addContainerGap(11, Short.MAX_VALUE))
         );
 
-        lblFechaCobro.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
-        lblFechaCobro.setText("FECHA DEL COBRO");
+        lblFechaPago.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
+        lblFechaPago.setText("FECHA DEL PAGO");
 
-        txtFechaYHoraCobro.setFont(new java.awt.Font("Consolas", 0, 14)); // NOI18N
-        txtFechaYHoraCobro.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txtFechaYHoraCobro.setText("21/08/2026 10:40");
+        txtFechaYHoraPago.setFont(new java.awt.Font("Consolas", 0, 14)); // NOI18N
+        txtFechaYHoraPago.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtFechaYHoraPago.setText("21/08/2026 10:40");
 
-        btnRegistrarCobro.setBackground(new java.awt.Color(153, 51, 0));
-        btnRegistrarCobro.setText("Registrar Cobro");
-        btnRegistrarCobro.addActionListener(new java.awt.event.ActionListener() {
+        btnRegistrarPago.setBackground(new java.awt.Color(153, 51, 0));
+        btnRegistrarPago.setText("Registrar Pago");
+        btnRegistrarPago.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRegistrarCobroActionPerformed(evt);
+                btnRegistrarPagoActionPerformed(evt);
             }
         });
 
@@ -2552,85 +2564,83 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         pnlSelectorCtaBancaria.setLayout(pnlSelectorCtaBancariaLayout);
         pnlSelectorCtaBancariaLayout.setHorizontalGroup(
             pnlSelectorCtaBancariaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGap(0, 276, Short.MAX_VALUE)
         );
         pnlSelectorCtaBancariaLayout.setVerticalGroup(
             pnlSelectorCtaBancariaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 13, Short.MAX_VALUE)
+            .addGap(0, 12, Short.MAX_VALUE)
         );
 
-        javax.swing.GroupLayout pnlRegistrarCobroLayout = new javax.swing.GroupLayout(pnlRegistrarCobro);
-        pnlRegistrarCobro.setLayout(pnlRegistrarCobroLayout);
-        pnlRegistrarCobroLayout.setHorizontalGroup(
-            pnlRegistrarCobroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlRegistrarCobroLayout.createSequentialGroup()
+        javax.swing.GroupLayout pnlRegistrarPagoLayout = new javax.swing.GroupLayout(pnlRegistrarPago);
+        pnlRegistrarPago.setLayout(pnlRegistrarPagoLayout);
+        pnlRegistrarPagoLayout.setHorizontalGroup(
+            pnlRegistrarPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlRegistrarPagoLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(txtEstadoCobro, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txtEstadoPago, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(102, 102, 102))
-            .addGroup(pnlRegistrarCobroLayout.createSequentialGroup()
+            .addGroup(pnlRegistrarPagoLayout.createSequentialGroup()
                 .addGap(18, 18, 18)
-                .addGroup(pnlRegistrarCobroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(pnlRegistrarCobroLayout.createSequentialGroup()
+                .addGroup(pnlRegistrarPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(pnlSelectorCtaBancaria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(pnlRegistrarPagoLayout.createSequentialGroup()
                         .addComponent(btnCancelar)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnRegistrarCobro))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, pnlRegistrarCobroLayout.createSequentialGroup()
-                        .addComponent(lblFechaCobro)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(txtFechaYHoraCobro))
-                    .addComponent(lblMedioCobro, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblMensajeNoPuedeExcederSaldoPendienteValorSaldoPendiente, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, pnlRegistrarCobroLayout.createSequentialGroup()
-                        .addComponent(lblMontoACobrar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(txtValorMontoACobrar, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(pnlSaldosRegistrarCobro, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, pnlRegistrarCobroLayout.createSequentialGroup()
-                        .addComponent(btnEfectivo, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnBanco, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(pnlDatosCaja, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jSeparator6, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(pnlSelectorCtaBancaria, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(11, Short.MAX_VALUE))
+                        .addComponent(btnRegistrarPago))
+                    .addGroup(pnlRegistrarPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(pnlRegistrarPagoLayout.createSequentialGroup()
+                            .addComponent(lblFechaPago)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(txtFechaYHoraPago))
+                        .addComponent(lblMedioPago)
+                        .addComponent(lblMensajeNoPuedeExcederSaldoPendienteValorSaldoPendiente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(pnlRegistrarPagoLayout.createSequentialGroup()
+                            .addComponent(lblMontoAPagar)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(txtValorMontoAPagar, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(pnlSaldosRegistrarPago, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addGroup(pnlRegistrarPagoLayout.createSequentialGroup()
+                            .addComponent(btnEfectivo, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(btnBanco, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(pnlDatosCaja, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jSeparator6)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        pnlRegistrarCobroLayout.setVerticalGroup(
-            pnlRegistrarCobroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlRegistrarCobroLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(pnlRegistrarCobroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(txtValorMontoACobrar)
-                    .addComponent(lblMontoACobrar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        pnlRegistrarPagoLayout.setVerticalGroup(
+            pnlRegistrarPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlRegistrarPagoLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(pnlRegistrarPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(txtValorMontoAPagar)
+                    .addComponent(lblMontoAPagar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lblMensajeNoPuedeExcederSaldoPendienteValorSaldoPendiente)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(pnlSaldosRegistrarCobro, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(pnlSaldosRegistrarPago, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtEstadoCobro, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txtEstadoPago, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(pnlRegistrarCobroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(pnlRegistrarCobroLayout.createSequentialGroup()
-                        .addComponent(lblMedioCobro)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(pnlRegistrarCobroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btnEfectivo)
-                            .addComponent(btnBanco))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(pnlDatosCaja, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(pnlSelectorCtaBancaria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(12, 12, 12)
-                        .addGroup(pnlRegistrarCobroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(lblFechaCobro)
-                            .addComponent(txtFechaYHoraCobro, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jSeparator6, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(33, 33, 33))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlRegistrarCobroLayout.createSequentialGroup()
-                        .addGroup(pnlRegistrarCobroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btnRegistrarCobro)
-                            .addComponent(btnCancelar))
-                        .addContainerGap())))
+                .addComponent(lblMedioPago)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnlRegistrarPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnEfectivo)
+                    .addComponent(btnBanco))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(pnlDatosCaja, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(pnlSelectorCtaBancaria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(pnlRegistrarPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblFechaPago)
+                    .addComponent(txtFechaYHoraPago, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator6, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnlRegistrarPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnRegistrarPago)
+                    .addComponent(btnCancelar))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout pnlCuentaSeleccionadaLayout = new javax.swing.GroupLayout(pnlCuentaSeleccionada);
@@ -2643,29 +2653,33 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlCuentaSeleccionadaLayout.createSequentialGroup()
                         .addGap(0, 18, Short.MAX_VALUE)
                         .addGroup(pnlCuentaSeleccionadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlCuentaSeleccionadaLayout.createSequentialGroup()
-                                .addGroup(pnlCuentaSeleccionadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, pnlCuentaSeleccionadaLayout.createSequentialGroup()
-                                        .addGroup(pnlCuentaSeleccionadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                            .addComponent(lblVenta, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(lblVencimiento, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(lblFechaVenta, javax.swing.GroupLayout.Alignment.LEADING))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addGroup(pnlCuentaSeleccionadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(lblValorCodigoVenta, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(lblValorFechaVenta, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(lblValorFechaVencimiento, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                    .addGroup(pnlCuentaSeleccionadaLayout.createSequentialGroup()
-                                        .addComponent(lblNombreEmpresaYTipoEmpresa)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(txtEstadoCuentaCobrar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(14, 14, 14))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlCuentaSeleccionadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(pnlCuentaSeleccionadaLayout.createSequentialGroup()
+                                    .addGroup(pnlCuentaSeleccionadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                        .addComponent(lblCompra, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(lblVencimiento, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(lblFechaCompra, javax.swing.GroupLayout.Alignment.LEADING))
+                                    .addGroup(pnlCuentaSeleccionadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addGroup(pnlCuentaSeleccionadaLayout.createSequentialGroup()
+                                            .addGap(12, 12, 12)
+                                            .addComponent(lblValorFechaCompra, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(pnlCuentaSeleccionadaLayout.createSequentialGroup()
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(lblValorCodigoCompra, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                    .addGap(12, 12, 12))
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlCuentaSeleccionadaLayout.createSequentialGroup()
+                                    .addComponent(lblNombreEmpresaYTipoEmpresa)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(txtEstadoCuentaPagar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(14, 14, 14)))
                             .addGroup(pnlCuentaSeleccionadaLayout.createSequentialGroup()
-                                .addGroup(pnlCuentaSeleccionadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(lblRucNroRuc)
-                                    .addComponent(pnlSaldosCuentaCobrar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(pnlCuentaSeleccionadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(lblValorFechaVencimiento, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(pnlCuentaSeleccionadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(lblRucNroRuc)
+                                        .addComponent(pnlSaldosCuentaPagar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                 .addContainerGap())))
-                    .addComponent(pnlRegistrarCobro, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(pnlRegistrarPago, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         pnlCuentaSeleccionadaLayout.setVerticalGroup(
             pnlCuentaSeleccionadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2673,26 +2687,26 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                 .addGroup(pnlCuentaSeleccionadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(pnlCuentaSeleccionadaLayout.createSequentialGroup()
                         .addGroup(pnlCuentaSeleccionadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txtEstadoCuentaCobrar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtEstadoCuentaPagar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(lblNombreEmpresaYTipoEmpresa))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(lblRucNroRuc)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(pnlCuentaSeleccionadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(lblVenta)
-                            .addComponent(lblValorCodigoVenta))
+                            .addComponent(lblCompra)
+                            .addComponent(lblValorCodigoCompra))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lblFechaVenta))
-                    .addComponent(lblValorFechaVenta, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(lblFechaCompra))
+                    .addComponent(lblValorFechaCompra, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(pnlCuentaSeleccionadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblVencimiento)
                     .addComponent(lblValorFechaVencimiento, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(pnlSaldosCuentaCobrar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(pnlSaldosCuentaPagar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(pnlRegistrarCobro, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 12, Short.MAX_VALUE))
+                .addComponent(pnlRegistrarPago, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         spnlAcomodador.setViewportView(pnlCuentaSeleccionada);
@@ -2704,16 +2718,15 @@ public class FrmCobroCliente extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(pnlSuperior, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(pnlSuperior, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(spnlTblDetalleCuentasCobrar, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(pnlCuentasCobrar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(lblNCuentasCobrarFiltrosSeleccionados, javax.swing.GroupLayout.PREFERRED_SIZE, 257, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(jSeparator1)
+                                .addComponent(pnlCuentasPagar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(spnlTblDetalleCuentasPagar, javax.swing.GroupLayout.Alignment.LEADING))
+                            .addComponent(lblNCuentasPagarFiltrosSeleccionados, javax.swing.GroupLayout.PREFERRED_SIZE, 257, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(spnlAcomodador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
@@ -2722,17 +2735,19 @@ public class FrmCobroCliente extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(pnlSuperior, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(pnlCuentasCobrar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(pnlCuentasPagar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(spnlTblDetalleCuentasCobrar, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(spnlTblDetalleCuentasPagar, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lblNCuentasCobrarFiltrosSeleccionados, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(spnlAcomodador, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                        .addComponent(lblNCuentasPagarFiltrosSeleccionados, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(spnlAcomodador, javax.swing.GroupLayout.PREFERRED_SIZE, 395, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -2741,7 +2756,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
 
     private void btnConsultarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConsultarActionPerformed
         // TODO add your handling code here:
-        consultarCuentas();
+        consultarCuentasPorPagar();
     }//GEN-LAST:event_btnConsultarActionPerformed
 
     private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
@@ -2754,10 +2769,10 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         dispose();
     }//GEN-LAST:event_btnCancelarActionPerformed
 
-    private void btnRegistrarCobroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrarCobroActionPerformed
+    private void btnRegistrarPagoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrarPagoActionPerformed
         // TODO add your handling code here:
-        registrarCobro();
-    }//GEN-LAST:event_btnRegistrarCobroActionPerformed
+        registrarPago();
+    }//GEN-LAST:event_btnRegistrarPagoActionPerformed
 
     /**
      * @param args the command line arguments
@@ -2776,20 +2791,21 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(FrmCobroCliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmPagoProveedor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(FrmCobroCliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmPagoProveedor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(FrmCobroCliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmPagoProveedor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(FrmCobroCliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmPagoProveedor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                FrmCobroCliente dialog = new FrmCobroCliente(new javax.swing.JFrame(), true);
+                FrmPagoProveedor dialog = new FrmPagoProveedor(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -2807,16 +2823,16 @@ public class FrmCobroCliente extends javax.swing.JDialog {
     private javax.swing.JButton btnConsultar;
     private javax.swing.JButton btnEfectivo;
     private javax.swing.JButton btnLimpiar;
-    private javax.swing.JButton btnRegistrarCobro;
-    private javax.swing.JComboBox<Cliente> cmbClientes;
+    private javax.swing.JButton btnRegistrarPago;
     private javax.swing.JComboBox<String> cmbEstado;
+    private javax.swing.JComboBox<Proveedor> cmbProveedores;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator5;
     private javax.swing.JSeparator jSeparator6;
     private com.toedter.calendar.JDateChooser jdcDesdeFecha;
     private com.toedter.calendar.JDateChooser jdcHastaFecha;
-    private javax.swing.JLabel lblAplicarCobroSobreCuentaCobrarExistente;
+    private javax.swing.JLabel lblAplicarCobroSobreCuentaPagarExistente;
     private javax.swing.JLabel lblCajaAbierta;
     private javax.swing.JLabel lblCajaPrincipal;
     private javax.swing.JLabel lblCaracter1erPnlSNro1;
@@ -2825,26 +2841,27 @@ public class FrmCobroCliente extends javax.swing.JDialog {
     private javax.swing.JLabel lblCaracter2doPnlSNro1;
     private javax.swing.JLabel lblCaracter2doPnlSNro2;
     private javax.swing.JLabel lblCaracter2doPnlSNro3;
-    private javax.swing.JLabel lblCliente;
-    private javax.swing.JLabel lblCobrado;
-    private javax.swing.JLabel lblCobrar_MontoA;
+    private javax.swing.JLabel lblCompra;
     private javax.swing.JLabel lblDesde;
     private javax.swing.JLabel lblEstado;
     private javax.swing.JLabel lblFechaActual;
-    private javax.swing.JLabel lblFechaCobro;
-    private javax.swing.JLabel lblFechaVenta;
+    private javax.swing.JLabel lblFechaCompra;
+    private javax.swing.JLabel lblFechaPago;
     private javax.swing.JLabel lblHasta;
     private javax.swing.JLabel lblHoraActual;
-    private javax.swing.JLabel lblMedioCobro;
+    private javax.swing.JLabel lblMedioPago;
     private javax.swing.JLabel lblMensajeNoPuedeExcederSaldoPendienteValorSaldoPendiente;
-    private javax.swing.JLabel lblMontoACobrar;
-    private javax.swing.JLabel lblMontoA_Cobrar;
-    private javax.swing.JLabel lblNCuentasCobrarFiltrosSeleccionados;
+    private javax.swing.JLabel lblMontoAPagar;
+    private javax.swing.JLabel lblMontoA_Pagar;
+    private javax.swing.JLabel lblNCuentasPagarFiltrosSeleccionados;
     private javax.swing.JLabel lblNombreApellidoUsuario;
     private javax.swing.JLabel lblNombreEmpresaYTipoEmpresa;
     private javax.swing.JLabel lblNuevo_Saldo;
+    private javax.swing.JLabel lblPagado;
+    private javax.swing.JLabel lblPagar_MontoA;
     private javax.swing.JLabel lblPend_Saldo;
-    private javax.swing.JLabel lblRegistroCobroCliente;
+    private javax.swing.JLabel lblProveedor;
+    private javax.swing.JLabel lblRegistroPagoProveedor;
     private javax.swing.JLabel lblRucNroRuc;
     private javax.swing.JLabel lblSaldoActual;
     private javax.swing.JLabel lblSaldoCobrado;
@@ -2854,30 +2871,29 @@ public class FrmCobroCliente extends javax.swing.JDialog {
     private javax.swing.JLabel lblSaldo_Pend;
     private javax.swing.JLabel lblTotal;
     private javax.swing.JLabel lblUsuario;
-    private javax.swing.JLabel lblValorCodigoVenta;
+    private javax.swing.JLabel lblValorCodigoCompra;
+    private javax.swing.JLabel lblValorFechaCompra;
     private javax.swing.JLabel lblValorFechaVencimiento;
-    private javax.swing.JLabel lblValorFechaVenta;
     private javax.swing.JLabel lblValorMontoACobrar;
     private javax.swing.JLabel lblValorNuevoSaldo;
     private javax.swing.JLabel lblValorSaldoActual;
     private javax.swing.JLabel lblValorSaldoPend;
     private javax.swing.JLabel lblValorSaldoPendiente;
     private javax.swing.JLabel lblVencimiento;
-    private javax.swing.JLabel lblVenta;
     private javax.swing.JPanel pnlCuentaSeleccionada;
-    private javax.swing.JPanel pnlCuentasCobrar;
+    private javax.swing.JPanel pnlCuentasPagar;
     private javax.swing.JPanel pnlDatosCaja;
-    private javax.swing.JPanel pnlRegistrarCobro;
-    private javax.swing.JPanel pnlSaldosCuentaCobrar;
-    private javax.swing.JPanel pnlSaldosRegistrarCobro;
+    private javax.swing.JPanel pnlRegistrarPago;
+    private javax.swing.JPanel pnlSaldosCuentaPagar;
+    private javax.swing.JPanel pnlSaldosRegistrarPago;
     private javax.swing.JPanel pnlSelectorCtaBancaria;
     private javax.swing.JPanel pnlSuperior;
     private javax.swing.JScrollPane spnlAcomodador;
-    private javax.swing.JScrollPane spnlTblDetalleCuentasCobrar;
-    private javax.swing.JTable tblDetalleCuentasCobrar;
-    private javax.swing.JTextField txtEstadoCobro;
-    private javax.swing.JTextField txtEstadoCuentaCobrar;
-    private javax.swing.JTextField txtFechaYHoraCobro;
-    private javax.swing.JTextField txtValorMontoACobrar;
+    private javax.swing.JScrollPane spnlTblDetalleCuentasPagar;
+    private javax.swing.JTable tblDetalleCuentasPagar;
+    private javax.swing.JTextField txtEstadoCuentaPagar;
+    private javax.swing.JTextField txtEstadoPago;
+    private javax.swing.JTextField txtFechaYHoraPago;
+    private javax.swing.JTextField txtValorMontoAPagar;
     // End of variables declaration//GEN-END:variables
 }

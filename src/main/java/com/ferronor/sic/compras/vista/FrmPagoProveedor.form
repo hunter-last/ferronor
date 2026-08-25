@@ -26,18 +26,17 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="pnlSuperior" alignment="1" max="32767" attributes="0"/>
+                  <Component id="pnlSuperior" max="32767" attributes="0"/>
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="spnlTblDetalleCuentasCobrar" alignment="0" max="32767" attributes="0"/>
-                          <Component id="jSeparator1" alignment="0" max="32767" attributes="0"/>
-                          <Component id="pnlCuentasCobrar" alignment="0" max="32767" attributes="0"/>
-                          <Group type="102" alignment="1" attributes="0">
-                              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                              <Component id="lblNCuentasCobrarFiltrosSeleccionados" min="-2" pref="257" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                              <Component id="jSeparator1" max="32767" attributes="0"/>
+                              <Component id="pnlCuentasPagar" alignment="0" max="32767" attributes="0"/>
+                              <Component id="spnlTblDetalleCuentasPagar" alignment="0" max="32767" attributes="0"/>
                           </Group>
+                          <Component id="lblNCuentasPagarFiltrosSeleccionados" min="-2" pref="257" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
                       <Component id="spnlAcomodador" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -50,18 +49,21 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Component id="pnlSuperior" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+              <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
-                      <Component id="pnlCuentasCobrar" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                      <Component id="pnlCuentasPagar" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="spnlTblDetalleCuentasCobrar" min="-2" pref="210" max="-2" attributes="0"/>
+                      <Component id="spnlTblDetalleCuentasPagar" min="-2" pref="210" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jSeparator1" min="-2" pref="10" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="lblNCuentasCobrarFiltrosSeleccionados" min="-2" pref="38" max="-2" attributes="0"/>
+                      <Component id="lblNCuentasPagarFiltrosSeleccionados" min="-2" pref="57" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="spnlAcomodador" pref="0" max="32767" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="spnlAcomodador" min="-2" pref="395" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
@@ -84,8 +86,8 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                      <Component id="lblAplicarCobroSobreCuentaCobrarExistente" alignment="0" max="32767" attributes="0"/>
-                      <Component id="lblRegistroCobroCliente" alignment="0" max="32767" attributes="0"/>
+                      <Component id="lblAplicarCobroSobreCuentaPagarExistente" alignment="0" max="32767" attributes="0"/>
+                      <Component id="lblRegistroPagoProveedor" alignment="0" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
@@ -109,13 +111,13 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace min="-2" pref="7" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="lblRegistroCobroCliente" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="lblRegistroPagoProveedor" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="lblNombreApellidoUsuario" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="lblUsuario" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="lblAplicarCobroSobreCuentaCobrarExistente" alignment="3" min="-2" pref="13" max="-2" attributes="0"/>
+                      <Component id="lblAplicarCobroSobreCuentaPagarExistente" alignment="3" min="-2" pref="13" max="-2" attributes="0"/>
                       <Component id="lblFechaActual" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="lblHoraActual" alignment="3" min="-2" pref="16" max="-2" attributes="0"/>
                   </Group>
@@ -125,20 +127,20 @@
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Component class="javax.swing.JLabel" name="lblRegistroCobroCliente">
+        <Component class="javax.swing.JLabel" name="lblRegistroPagoProveedor">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Segoe UI Historic" size="18" style="0"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="REGISTRO DE COBRO A CLIENTE"/>
+            <Property name="text" type="java.lang.String" value="REGISTRO DE PAGO A PROVEEDOR"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="lblAplicarCobroSobreCuentaCobrarExistente">
+        <Component class="javax.swing.JLabel" name="lblAplicarCobroSobreCuentaPagarExistente">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Consolas" size="10" style="0"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="Aplicar un cobro sobre una cuenta por cobrar existente "/>
+            <Property name="text" type="java.lang.String" value="Aplicar un pago sobre una cuenta por pagar existente "/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="lblNombreApellidoUsuario">
@@ -163,11 +165,11 @@
         </Component>
       </SubComponents>
     </Container>
-    <Container class="javax.swing.JPanel" name="pnlCuentasCobrar">
+    <Container class="javax.swing.JPanel" name="pnlCuentasPagar">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-            <TitledBorder title="01. CUENTAS POR COBRAR">
+            <TitledBorder title="01. CUENTAS POR PAGAR">
               <Font PropertyName="font" name="Consolas" size="12" style="0"/>
             </TitledBorder>
           </Border>
@@ -180,85 +182,83 @@
               <Group type="102" attributes="0">
                   <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="lblCliente" alignment="0" min="-2" max="-2" attributes="0"/>
-                      <Component id="cmbClientes" alignment="0" min="-2" pref="230" max="-2" attributes="0"/>
+                      <Component id="lblProveedor" min="-2" max="-2" attributes="0"/>
+                      <Component id="cmbProveedores" min="-2" pref="286" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="27" max="32767" attributes="0"/>
+                  <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
-                          <Component id="cmbEstado" min="-2" pref="111" max="-2" attributes="0"/>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Component id="jdcDesdeFecha" min="-2" pref="118" max="-2" attributes="0"/>
-                          <EmptySpace pref="28" max="32767" attributes="0"/>
-                          <Component id="jdcHastaFecha" min="-2" pref="118" max="-2" attributes="0"/>
-                      </Group>
-                      <Group type="102" attributes="0">
-                          <Component id="lblEstado" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="87" max="-2" attributes="0"/>
-                          <Component id="lblDesde" min="-2" pref="37" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="91" max="-2" attributes="0"/>
-                          <Component id="lblHasta" min="-2" pref="37" max="-2" attributes="0"/>
-                      </Group>
+                      <Component id="lblEstado" min="-2" max="-2" attributes="0"/>
+                      <Component id="cmbEstado" min="-2" pref="111" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                      <Component id="btnConsultar" max="32767" attributes="0"/>
-                      <Component id="btnLimpiar" max="32767" attributes="0"/>
-                  </Group>
-                  <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
-              </Group>
-          </Group>
-        </DimensionLayout>
-        <DimensionLayout dim="1">
-          <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="0" attributes="0">
-                  <EmptySpace max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
+                      <Component id="jdcDesdeFecha" alignment="0" min="-2" pref="148" max="-2" attributes="0"/>
+                      <Component id="lblDesde" alignment="0" min="-2" pref="37" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="lblHasta" min="-2" pref="37" max="-2" attributes="0"/>
+                      <Group type="102" attributes="0">
+                          <Component id="jdcHastaFecha" min="-2" pref="147" max="-2" attributes="0"/>
+                          <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Component id="btnConsultar" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="btnLimpiar" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <Group type="102" alignment="0" attributes="0">
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="lblCliente" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="lblDesde" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="lblEstado" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="lblHasta" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="cmbClientes" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="cmbEstado" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <Component id="jdcDesdeFecha" min="-2" max="-2" attributes="0"/>
-                              <Component id="jdcHastaFecha" min="-2" max="-2" attributes="0"/>
-                          </Group>
+                          <Component id="btnLimpiar" min="-2" pref="84" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
+        <DimensionLayout dim="1">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" attributes="0">
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="1" attributes="0">
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="btnConsultar" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnLimpiar" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="102" attributes="0">
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="lblProveedor" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblEstado" alignment="1" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblDesde" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblHasta" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="cmbProveedores" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="cmbEstado" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <Component id="jdcHastaFecha" min="-2" max="-2" attributes="0"/>
+                              <Component id="jdcDesdeFecha" alignment="0" min="-2" pref="26" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                  </Group>
+                  <EmptySpace pref="26" max="32767" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Component class="javax.swing.JLabel" name="lblCliente">
+        <Component class="javax.swing.JLabel" name="lblProveedor">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Segoe UI" size="10" style="0"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="CLIENTE"/>
+            <Property name="text" type="java.lang.String" value="PROVEEDOR"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JComboBox" name="cmbClientes">
+        <Component class="javax.swing.JComboBox" name="cmbProveedores">
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
               <StringArray count="0"/>
             </Property>
           </Properties>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;Cliente&gt;"/>
+            <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;Proveedor&gt;"/>
           </AuxValues>
         </Component>
         <Component class="javax.swing.JComboBox" name="cmbEstado">
@@ -323,20 +323,20 @@
         </Component>
       </SubComponents>
     </Container>
-    <Container class="javax.swing.JScrollPane" name="spnlTblDetalleCuentasCobrar">
+    <Container class="javax.swing.JScrollPane" name="spnlTblDetalleCuentasPagar">
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="javax.swing.JTable" name="tblDetalleCuentasCobrar">
+        <Component class="javax.swing.JTable" name="tblDetalleCuentasPagar">
           <Properties>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
               <Table columnCount="8" rowCount="4">
-                <Column editable="false" title="VENTA" type="java.lang.Object"/>
-                <Column editable="false" title="CLIENTE" type="java.lang.Object"/>
-                <Column editable="false" title="FECHA VENTA" type="java.lang.Object"/>
+                <Column editable="false" title="COMPRA" type="java.lang.Object"/>
+                <Column editable="false" title="PROVEEDOR" type="java.lang.Object"/>
+                <Column editable="false" title="FECHA COMPRA" type="java.lang.Object"/>
                 <Column editable="false" title="VENCIMIENTO" type="java.lang.Object"/>
                 <Column editable="false" title="TOTAL" type="java.lang.Object"/>
-                <Column editable="false" title="COBRADO" type="java.lang.Object"/>
+                <Column editable="false" title="PAGADO" type="java.lang.Object"/>
                 <Column editable="false" title="SALDO" type="java.lang.Object"/>
                 <Column editable="false" title="ESTADO" type="java.lang.Object"/>
               </Table>
@@ -347,13 +347,13 @@
     </Container>
     <Component class="javax.swing.JSeparator" name="jSeparator1">
     </Component>
-    <Component class="javax.swing.JLabel" name="lblNCuentasCobrarFiltrosSeleccionados">
+    <Component class="javax.swing.JLabel" name="lblNCuentasPagarFiltrosSeleccionados">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Segoe UI" size="10" style="0"/>
         </Property>
         <Property name="horizontalAlignment" type="int" value="0"/>
-        <Property name="text" type="java.lang.String" value="3 cuentas por cobrar para los filtros seleccionados "/>
+        <Property name="text" type="java.lang.String" value="3 cuentas por pagar para los filtros seleccionados "/>
         <Property name="verticalAlignment" type="int" value="1"/>
       </Properties>
     </Component>
@@ -381,39 +381,45 @@
                           <Group type="102" alignment="1" attributes="0">
                               <EmptySpace min="0" pref="18" max="32767" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Group type="102" alignment="1" attributes="0">
-                                      <Group type="103" groupAlignment="1" attributes="0">
-                                          <Group type="102" alignment="0" attributes="0">
-                                              <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                                                  <Component id="lblVenta" alignment="0" min="-2" pref="70" max="-2" attributes="0"/>
-                                                  <Component id="lblVencimiento" alignment="0" min="-2" pref="70" max="-2" attributes="0"/>
-                                                  <Component id="lblFechaVenta" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Group type="103" alignment="1" groupAlignment="0" attributes="0">
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                                              <Component id="lblCompra" alignment="0" min="-2" pref="70" max="-2" attributes="0"/>
+                                              <Component id="lblVencimiento" alignment="0" min="-2" pref="70" max="-2" attributes="0"/>
+                                              <Component id="lblFechaCompra" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          </Group>
+                                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                              <Group type="102" attributes="0">
+                                                  <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
+                                                  <Component id="lblValorFechaCompra" min="-2" pref="190" max="-2" attributes="0"/>
                                               </Group>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                                  <Component id="lblValorCodigoVenta" min="-2" pref="207" max="-2" attributes="0"/>
-                                                  <Component id="lblValorFechaVenta" min="-2" pref="207" max="-2" attributes="0"/>
-                                                  <Component id="lblValorFechaVencimiento" alignment="0" min="-2" pref="207" max="-2" attributes="0"/>
+                                              <Group type="102" attributes="0">
+                                                  <EmptySpace max="-2" attributes="0"/>
+                                                  <Component id="lblValorCodigoCompra" max="32767" attributes="0"/>
                                               </Group>
                                           </Group>
-                                          <Group type="102" attributes="0">
-                                              <Component id="lblNombreEmpresaYTipoEmpresa" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="txtEstadoCuentaCobrar" min="-2" max="-2" attributes="0"/>
-                                          </Group>
+                                          <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                                       </Group>
-                                      <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
+                                      <Group type="102" alignment="1" attributes="0">
+                                          <Component id="lblNombreEmpresaYTipoEmpresa" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="txtEstadoCuentaPagar" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
+                                      </Group>
                                   </Group>
-                                  <Group type="102" attributes="0">
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="lblRucNroRuc" min="-2" max="-2" attributes="0"/>
-                                          <Component id="pnlSaldosCuentaCobrar" min="-2" max="-2" attributes="0"/>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Group type="103" groupAlignment="1" attributes="0">
+                                          <Component id="lblValorFechaVencimiento" alignment="1" min="-2" pref="196" max="-2" attributes="0"/>
+                                          <Group type="103" groupAlignment="0" attributes="0">
+                                              <Component id="lblRucNroRuc" min="-2" max="-2" attributes="0"/>
+                                              <Component id="pnlSaldosCuentaPagar" min="-2" max="-2" attributes="0"/>
+                                          </Group>
                                       </Group>
                                       <EmptySpace max="-2" attributes="0"/>
                                   </Group>
                               </Group>
                           </Group>
-                          <Component id="pnlRegistrarCobro" alignment="1" max="32767" attributes="0"/>
+                          <Component id="pnlRegistrarPago" max="32767" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
@@ -424,20 +430,20 @@
                       <Group type="103" groupAlignment="1" attributes="0">
                           <Group type="102" attributes="0">
                               <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="txtEstadoCuentaCobrar" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="txtEstadoCuentaPagar" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="lblNombreEmpresaYTipoEmpresa" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="lblRucNroRuc" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="unrelated" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="lblVenta" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="lblValorCodigoVenta" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="lblCompra" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="lblValorCodigoCompra" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="lblFechaVenta" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblFechaCompra" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="lblValorFechaVenta" min="-2" pref="14" max="-2" attributes="0"/>
+                          <Component id="lblValorFechaCompra" min="-2" pref="14" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
@@ -445,10 +451,10 @@
                           <Component id="lblValorFechaVencimiento" alignment="3" min="-2" pref="14" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="pnlSaldosCuentaCobrar" min="-2" max="-2" attributes="0"/>
+                      <Component id="pnlSaldosCuentaPagar" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="pnlRegistrarCobro" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="0" pref="12" max="32767" attributes="0"/>
+                      <Component id="pnlRegistrarPago" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -459,7 +465,7 @@
                 <Property name="text" type="java.lang.String" value="Corporaci&#xf3;n Ferretera del Norte S.A.C. "/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JTextField" name="txtEstadoCuentaCobrar">
+            <Component class="javax.swing.JTextField" name="txtEstadoCuentaPagar">
               <Properties>
                 <Property name="editable" type="boolean" value="false"/>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
@@ -477,20 +483,20 @@
                 <Property name="text" type="java.lang.String" value="RUC 20456789123 "/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JLabel" name="lblVenta">
+            <Component class="javax.swing.JLabel" name="lblCompra">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Segoe UI" size="10" style="0"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Venta"/>
+                <Property name="text" type="java.lang.String" value="Compra"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JLabel" name="lblFechaVenta">
+            <Component class="javax.swing.JLabel" name="lblFechaCompra">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Segoe UI" size="10" style="0"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Fecha de venta"/>
+                <Property name="text" type="java.lang.String" value="Fecha de compra"/>
               </Properties>
             </Component>
             <Component class="javax.swing.JLabel" name="lblVencimiento">
@@ -501,7 +507,7 @@
                 <Property name="text" type="java.lang.String" value="Vencimiento"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JLabel" name="lblValorCodigoVenta">
+            <Component class="javax.swing.JLabel" name="lblValorCodigoCompra">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Segoe UI" size="10" style="0"/>
@@ -510,7 +516,7 @@
                 <Property name="text" type="java.lang.String" value="#341"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JLabel" name="lblValorFechaVenta">
+            <Component class="javax.swing.JLabel" name="lblValorFechaCompra">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Segoe UI" size="10" style="0"/>
@@ -528,7 +534,7 @@
                 <Property name="text" type="java.lang.String" value="04/09/2026"/>
               </Properties>
             </Component>
-            <Container class="javax.swing.JPanel" name="pnlSaldosCuentaCobrar">
+            <Container class="javax.swing.JPanel" name="pnlSaldosCuentaPagar">
               <Properties>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
@@ -571,7 +577,7 @@
                                               </Group>
                                               <Group type="102" alignment="1" attributes="0">
                                                   <EmptySpace max="32767" attributes="0"/>
-                                                  <Component id="lblCobrado" min="-2" max="-2" attributes="0"/>
+                                                  <Component id="lblPagado" min="-2" max="-2" attributes="0"/>
                                                   <EmptySpace min="-2" pref="33" max="-2" attributes="0"/>
                                                   <Component id="lblSaldoPend" min="-2" max="-2" attributes="0"/>
                                               </Group>
@@ -591,7 +597,7 @@
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="lblTotal" min="-2" max="-2" attributes="0"/>
                               <Group type="103" alignment="1" groupAlignment="3" attributes="0">
-                                  <Component id="lblCobrado" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="lblPagado" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="lblSaldoPend" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
@@ -623,12 +629,12 @@
                     <Property name="text" type="java.lang.String" value="TOTAL"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JLabel" name="lblCobrado">
+                <Component class="javax.swing.JLabel" name="lblPagado">
                   <Properties>
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Segoe UI" size="10" style="0"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="COBRADO"/>
+                    <Property name="text" type="java.lang.String" value="PAGADO"/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JLabel" name="lblSaldoPend">
@@ -700,11 +706,11 @@
                 </Component>
               </SubComponents>
             </Container>
-            <Container class="javax.swing.JPanel" name="pnlRegistrarCobro">
+            <Container class="javax.swing.JPanel" name="pnlRegistrarPago">
               <Properties>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                    <TitledBorder title="03. REGISTRAR COBRO">
+                    <TitledBorder title="03. REGISTRAR PAGO">
                       <Font PropertyName="font" name="Consolas" size="12" style="0"/>
                     </TitledBorder>
                   </Border>
@@ -716,101 +722,97 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="1" attributes="0">
                           <EmptySpace max="32767" attributes="0"/>
-                          <Component id="txtEstadoCobro" min="-2" max="-2" attributes="0"/>
+                          <Component id="txtEstadoPago" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="102" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Group type="103" groupAlignment="1" attributes="0">
+                              <Component id="pnlSelectorCtaBancaria" alignment="1" min="-2" max="-2" attributes="0"/>
                               <Group type="102" attributes="0">
                                   <Component id="btnCancelar" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="btnRegistrarCobro" min="-2" max="-2" attributes="0"/>
+                                  <Component id="btnRegistrarPago" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Component id="lblFechaCobro" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                  <Component id="txtFechaYHoraCobro" max="32767" attributes="0"/>
+                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                  <Group type="102" attributes="0">
+                                      <Component id="lblFechaPago" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                      <Component id="txtFechaYHoraPago" max="32767" attributes="0"/>
+                                  </Group>
+                                  <Component id="lblMedioPago" min="-2" max="-2" attributes="0"/>
+                                  <Component id="lblMensajeNoPuedeExcederSaldoPendienteValorSaldoPendiente" max="32767" attributes="0"/>
+                                  <Group type="102" attributes="0">
+                                      <Component id="lblMontoAPagar" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                      <Component id="txtValorMontoAPagar" min="-2" pref="173" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Component id="pnlSaldosRegistrarPago" pref="0" max="32767" attributes="0"/>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="btnEfectivo" min="-2" pref="137" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="btnBanco" min="-2" pref="133" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Component id="pnlDatosCaja" alignment="1" max="32767" attributes="0"/>
+                                  <Component id="jSeparator6" max="32767" attributes="0"/>
                               </Group>
-                              <Component id="lblMedioCobro" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="lblMensajeNoPuedeExcederSaldoPendienteValorSaldoPendiente" alignment="0" max="32767" attributes="0"/>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Component id="lblMontoACobrar" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                  <Component id="txtValorMontoACobrar" min="-2" pref="173" max="-2" attributes="0"/>
-                              </Group>
-                              <Component id="pnlSaldosRegistrarCobro" alignment="0" pref="0" max="32767" attributes="0"/>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Component id="btnEfectivo" min="-2" pref="137" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="btnBanco" min="-2" pref="133" max="-2" attributes="0"/>
-                              </Group>
-                              <Component id="pnlDatosCaja" alignment="1" max="32767" attributes="0"/>
-                              <Component id="jSeparator6" alignment="0" max="32767" attributes="0"/>
-                              <Component id="pnlSelectorCtaBancaria" alignment="0" max="32767" attributes="0"/>
                           </Group>
-                          <EmptySpace pref="11" max="32767" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace max="32767" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                              <Component id="txtValorMontoACobrar" max="32767" attributes="0"/>
-                              <Component id="lblMontoACobrar" max="32767" attributes="0"/>
+                              <Component id="txtValorMontoAPagar" max="32767" attributes="0"/>
+                              <Component id="lblMontoAPagar" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="lblMensajeNoPuedeExcederSaldoPendienteValorSaldoPendiente" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Component id="pnlSaldosRegistrarCobro" min="-2" max="-2" attributes="0"/>
+                          <Component id="pnlSaldosRegistrarPago" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="txtEstadoCobro" min="-2" max="-2" attributes="0"/>
+                          <Component id="txtEstadoPago" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="102" attributes="0">
-                                  <Component id="lblMedioCobro" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Group type="103" groupAlignment="3" attributes="0">
-                                      <Component id="btnEfectivo" alignment="3" min="-2" max="-2" attributes="0"/>
-                                      <Component id="btnBanco" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="pnlDatosCaja" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                  <Component id="pnlSelectorCtaBancaria" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
-                                  <Group type="103" groupAlignment="3" attributes="0">
-                                      <Component id="lblFechaCobro" alignment="3" min="-2" max="-2" attributes="0"/>
-                                      <Component id="txtFechaYHoraCobro" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="jSeparator6" min="-2" pref="10" max="-2" attributes="0"/>
-                                  <EmptySpace min="-2" pref="33" max="-2" attributes="0"/>
-                              </Group>
-                              <Group type="102" alignment="1" attributes="0">
-                                  <Group type="103" groupAlignment="3" attributes="0">
-                                      <Component id="btnRegistrarCobro" alignment="3" min="-2" max="-2" attributes="0"/>
-                                      <Component id="btnCancelar" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                                  <EmptySpace max="-2" attributes="0"/>
-                              </Group>
+                          <Component id="lblMedioPago" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="btnEfectivo" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="btnBanco" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="pnlDatosCaja" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="pnlSelectorCtaBancaria" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="lblFechaPago" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="txtFechaYHoraPago" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="jSeparator6" min="-2" pref="10" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="btnRegistrarPago" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="btnCancelar" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="javax.swing.JLabel" name="lblMontoACobrar">
+                <Component class="javax.swing.JLabel" name="lblMontoAPagar">
                   <Properties>
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Segoe UI" size="10" style="0"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="MONTO A COBRAR"/>
+                    <Property name="text" type="java.lang.String" value="MONTO A PAGAR"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JTextField" name="txtValorMontoACobrar">
+                <Component class="javax.swing.JTextField" name="txtValorMontoAPagar">
                   <Properties>
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Consolas" size="14" style="0"/>
@@ -827,7 +829,7 @@
                     <Property name="text" type="java.lang.String" value="No puede exceder el saldo pendiente (S/ 2,750.00) "/>
                   </Properties>
                 </Component>
-                <Container class="javax.swing.JPanel" name="pnlSaldosRegistrarCobro">
+                <Container class="javax.swing.JPanel" name="pnlSaldosRegistrarPago">
                   <Properties>
                     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                       <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
@@ -873,8 +875,8 @@
                                               </Group>
                                               <EmptySpace min="-2" pref="36" max="-2" attributes="0"/>
                                               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                                  <Component id="lblMontoA_Cobrar" max="32767" attributes="0"/>
-                                                  <Component id="lblCobrar_MontoA" max="32767" attributes="0"/>
+                                                  <Component id="lblMontoA_Pagar" max="32767" attributes="0"/>
+                                                  <Component id="lblPagar_MontoA" max="32767" attributes="0"/>
                                               </Group>
                                               <EmptySpace min="-2" pref="43" max="-2" attributes="0"/>
                                               <Group type="103" groupAlignment="0" attributes="0">
@@ -895,13 +897,13 @@
                               <EmptySpace pref="11" max="32767" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
                                   <Component id="lblSaldo_Pend" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="lblMontoA_Cobrar" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="lblMontoA_Pagar" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="lblNuevo_Saldo" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
                                   <Component id="lblPend_Saldo" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="lblCobrar_MontoA" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="lblPagar_MontoA" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="lblSaldo_Nuevo" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
@@ -988,7 +990,7 @@
                         <Property name="text" type="java.lang.String" value="SALDO"/>
                       </Properties>
                     </Component>
-                    <Component class="javax.swing.JLabel" name="lblMontoA_Cobrar">
+                    <Component class="javax.swing.JLabel" name="lblMontoA_Pagar">
                       <Properties>
                         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                           <Font name="Segoe UI" size="10" style="0"/>
@@ -1012,12 +1014,12 @@
                         <Property name="text" type="java.lang.String" value="PEND."/>
                       </Properties>
                     </Component>
-                    <Component class="javax.swing.JLabel" name="lblCobrar_MontoA">
+                    <Component class="javax.swing.JLabel" name="lblPagar_MontoA">
                       <Properties>
                         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                           <Font name="Segoe UI" size="10" style="0"/>
                         </Property>
-                        <Property name="text" type="java.lang.String" value="COBRAR"/>
+                        <Property name="text" type="java.lang.String" value="PAGAR"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="lblSaldo_Nuevo">
@@ -1030,22 +1032,22 @@
                     </Component>
                   </SubComponents>
                 </Container>
-                <Component class="javax.swing.JTextField" name="txtEstadoCobro">
+                <Component class="javax.swing.JTextField" name="txtEstadoPago">
                   <Properties>
                     <Property name="editable" type="boolean" value="false"/>
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Consolas" size="10" style="0"/>
                     </Property>
                     <Property name="horizontalAlignment" type="int" value="0"/>
-                    <Property name="text" type="java.lang.String" value="COBRO PARCIAL"/>
+                    <Property name="text" type="java.lang.String" value="PAGO PARCIAL"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JLabel" name="lblMedioCobro">
+                <Component class="javax.swing.JLabel" name="lblMedioPago">
                   <Properties>
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Segoe UI" size="10" style="0"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="MEDIO DE COBRO"/>
+                    <Property name="text" type="java.lang.String" value="MEDIO DE PAGO"/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JButton" name="btnEfectivo">
@@ -1134,15 +1136,15 @@
                     </Component>
                   </SubComponents>
                 </Container>
-                <Component class="javax.swing.JLabel" name="lblFechaCobro">
+                <Component class="javax.swing.JLabel" name="lblFechaPago">
                   <Properties>
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Segoe UI" size="10" style="0"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="FECHA DEL COBRO"/>
+                    <Property name="text" type="java.lang.String" value="FECHA DEL PAGO"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JTextField" name="txtFechaYHoraCobro">
+                <Component class="javax.swing.JTextField" name="txtFechaYHoraPago">
                   <Properties>
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Consolas" size="14" style="0"/>
@@ -1153,15 +1155,15 @@
                 </Component>
                 <Component class="javax.swing.JSeparator" name="jSeparator6">
                 </Component>
-                <Component class="javax.swing.JButton" name="btnRegistrarCobro">
+                <Component class="javax.swing.JButton" name="btnRegistrarPago">
                   <Properties>
                     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="0" green="33" red="99" type="rgb"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="Registrar Cobro"/>
+                    <Property name="text" type="java.lang.String" value="Registrar Pago"/>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnRegistrarCobroActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnRegistrarPagoActionPerformed"/>
                   </Events>
                 </Component>
                 <Component class="javax.swing.JButton" name="btnCancelar">
@@ -1180,12 +1182,12 @@
                   <Layout>
                     <DimensionLayout dim="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                          <EmptySpace min="0" pref="276" max="32767" attributes="0"/>
                       </Group>
                     </DimensionLayout>
                     <DimensionLayout dim="1">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <EmptySpace min="0" pref="13" max="32767" attributes="0"/>
+                          <EmptySpace min="0" pref="12" max="32767" attributes="0"/>
                       </Group>
                     </DimensionLayout>
                   </Layout>
