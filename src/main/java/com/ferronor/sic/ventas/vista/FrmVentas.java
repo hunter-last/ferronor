@@ -493,7 +493,7 @@ public class FrmVentas extends FrmBase {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        pnlCliente.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "01. CLIENTE", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlCliente.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "01. CLIENTE", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         pnlClienteBuscado.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
 
@@ -531,6 +531,12 @@ public class FrmVentas extends FrmBase {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
+        cmbClientes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmbClientesActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout pnlClienteLayout = new javax.swing.GroupLayout(pnlCliente);
         pnlCliente.setLayout(pnlClienteLayout);
         pnlClienteLayout.setHorizontalGroup(
@@ -553,7 +559,7 @@ public class FrmVentas extends FrmBase {
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
-        pnlDetalleProducto.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "02. DETALLE DEL PRODUCTO", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlDetalleProducto.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "02. DETALLE DEL PRODUCTO", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         tblDetProducto.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         tblDetProducto.setModel(new javax.swing.table.DefaultTableModel(
@@ -630,7 +636,7 @@ public class FrmVentas extends FrmBase {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        pnlValidaciones.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "03. VALIDACIONES", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlValidaciones.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "03. VALIDACIONES", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         javax.swing.GroupLayout pnlValidacionesLayout = new javax.swing.GroupLayout(pnlValidaciones);
         pnlValidaciones.setLayout(pnlValidacionesLayout);
@@ -656,7 +662,7 @@ public class FrmVentas extends FrmBase {
                 .addContainerGap())
         );
 
-        pnlComprobante.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "COMPROBANTE", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlComprobante.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "COMPROBANTE", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         lblTipo.setFont(new java.awt.Font("Consolas", 0, 10)); // NOI18N
         lblTipo.setText("TIPO:");
@@ -667,7 +673,7 @@ public class FrmVentas extends FrmBase {
         lblNroComprobante.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         lblNroComprobante.setText("B00-00124");
 
-        pnlFormaPago.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "FORMA DE PAGO", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlFormaPago.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "FORMA DE PAGO", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         javax.swing.GroupLayout pnlFormaPagoLayout = new javax.swing.GroupLayout(pnlFormaPago);
         pnlFormaPago.setLayout(pnlFormaPagoLayout);
@@ -717,7 +723,7 @@ public class FrmVentas extends FrmBase {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        pnlTotales.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "TOTALES", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlTotales.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "TOTALES", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         lblSubtotal.setText("Subtotal:");
 
@@ -907,6 +913,10 @@ public class FrmVentas extends FrmBase {
         // TODO add your handling code here:
         agregarProducto();
     }//GEN-LAST:event_btnAgregarProductoActionPerformed
+
+    private void cmbClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbClientesActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cmbClientesActionPerformed
 
     /**
      * @param args the command line arguments
