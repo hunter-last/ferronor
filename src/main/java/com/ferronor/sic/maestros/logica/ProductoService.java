@@ -14,6 +14,8 @@ public interface ProductoService {
 
     RespuestaOperacion<Void> activar(int idProducto);
 
+    List<Producto> listar();
+
     List<Producto> listarActivos();
 
     Producto buscarPorId(int idProducto);
