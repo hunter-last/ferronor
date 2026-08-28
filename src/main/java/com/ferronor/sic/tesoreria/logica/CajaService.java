@@ -27,4 +27,6 @@ public interface CajaService {
 
     List<MovimientoCaja> listarMovimientosPorCaja(
             int idCaja);
+    
+    List<Caja> listarCajas();
 }

@@ -39,4 +39,6 @@ public interface TesoreriaService {
 
     List<MovimientoCaja> listarMovimientosCajaPorCaja(
             int idCaja);
+
+    List<Caja> listarCajas();
 }

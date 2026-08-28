@@ -37,7 +37,14 @@ public interface ContabilidadService {
 
     List<BalanceComprobacionItem> obtenerBalanceComprobacion(LocalDate hasta);
 
-    EstadoResultadosDTO obtenerEstadoResultados(LocalDate hasta);
-    
+    EstadoResultadosDTO obtenerEstadoResultados(
+            LocalDate hasta
+    );
+
+    EstadoResultadosDTO obtenerEstadoResultados(
+            LocalDate desde,
+            LocalDate hasta
+    );
+
     BalanceGeneralDTO obtenerBalanceGeneral(LocalDate fechaCorte);
 }

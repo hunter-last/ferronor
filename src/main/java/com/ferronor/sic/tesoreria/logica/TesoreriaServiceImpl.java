@@ -120,4 +120,9 @@ public class TesoreriaServiceImpl implements TesoreriaService {
 
         return cajaService.listarMovimientosPorCaja(idCaja);
     }
+
+    @Override
+    public List<Caja> listarCajas() {
+        return cajaService.listarCajas();
+    }
 }
