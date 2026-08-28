@@ -38,32 +38,29 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-public class FrmEstadoDeResultado extends javax.swing.JDialog {
+public class FrmEstadoDeResultados extends javax.swing.JDialog {
 
     // ============================================================
     // SERVICIO
     // ============================================================
-
     private final ContabilidadService contabilidadService
             = ServiceFactory.contabilidadService();
 
     // ============================================================
     // COMPONENTE CREADO FUERA DEL .FORM
     // ============================================================
+    private JDateChooser jdcFechaCorte;
 
-    private final JDateChooser jdcFechaCorte
-            = new JDateChooser();
+    private javax.swing.JLabel lblFechaCorte;
 
     // ============================================================
     // ESTADO
     // ============================================================
-
     private EstadoResultadosDTO resultadoActual;
 
     // ============================================================
     // FORMATOS
     // ============================================================
-
     private static final DateTimeFormatter FORMATO_FECHA
             = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -93,7 +90,6 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
     // ============================================================
     // COLORES
     // ============================================================
-
     private static final Color COLOR_UTILIDAD
             = new Color(63, 125, 82);
 
@@ -109,8 +105,7 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
     // ============================================================
     // CONSTRUCTOR
     // ============================================================
-
-    public FrmEstadoDeResultado(
+    public FrmEstadoDeResultados(
             java.awt.Frame parent,
             boolean modal) {
 
@@ -124,7 +119,6 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
     // ============================================================
     // CONFIGURACIÓN GENERAL
     // ============================================================
-
     private void configurarFormulario() {
 
         configurarCabecera();
@@ -147,7 +141,6 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
     // ============================================================
     // CABECERA
     // ============================================================
-
     private void configurarCabecera() {
 
         try {
@@ -192,7 +185,6 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
     // ============================================================
     // MODO DE CONSULTA
     // ============================================================
-
     private void configurarModo() {
 
         /*
@@ -236,7 +228,6 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
     // ============================================================
     // PANEL DINÁMICO DEL MODO
     // ============================================================
-
     private void configurarPanelModoConsulta() {
 
         /*
@@ -321,6 +312,25 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
                 "POR FECHA DE CORTE"
         );
 
+        // ========================================================
+        // CREAR COMPONENTES DINÁMICOS DEL MODO FECHA DE CORTE
+        // ========================================================
+        lblFechaCorte = new javax.swing.JLabel();
+
+        lblFechaCorte.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        10
+                )
+        );
+
+        lblFechaCorte.setText(
+                "FECHA DE CORTE"
+        );
+
+        jdcFechaCorte = new JDateChooser();
+
         jdcFechaCorte.setDateFormatString(
                 "dd/MM/yyyy"
         );
@@ -332,6 +342,9 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
                 )
         );
 
+        // ========================================================
+        // POSICIONAR COMPONENTES
+        // ========================================================
         GridBagConstraints gbc
                 = new GridBagConstraints();
 
@@ -350,7 +363,7 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
                 = GridBagConstraints.WEST;
 
         pnlModoConsulta.add(
-                lblFechaDeCorte,
+                lblFechaCorte,
                 gbc
         );
 
@@ -368,8 +381,7 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
     private void cambiarTituloPanelModo(
             String titulo) {
 
-        if (pnlModoConsulta.getBorder()
-                instanceof javax.swing.border.TitledBorder border) {
+        if (pnlModoConsulta.getBorder() instanceof javax.swing.border.TitledBorder border) {
 
             border.setTitle(titulo);
 
@@ -382,21 +394,17 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
     // ============================================================
     // FECHA DE CORTE
     // ============================================================
-
     private void configurarFechaCorte() {
 
-        jdcFechaCorte.setDate(
-                null
-        );
+        jdcFechaCorte = null;
 
-        jdcFechaCorte.setDateFormatString(
-                "dd/MM/yyyy"
-        );
+        lblFechaCorte = null;
     }
 
     private LocalDate obtenerFechaCorte() {
 
-        if (jdcFechaCorte.getDate() == null) {
+        if (jdcFechaCorte == null
+                || jdcFechaCorte.getDate() == null) {
 
             return null;
         }
@@ -412,7 +420,6 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
     // ============================================================
     // COMBOS DE PERÍODO
     // ============================================================
-
     private void configurarCombosPeriodo() {
 
         cargarAnios();
@@ -474,15 +481,13 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
                         new Locale("es", "PE")
                 );
 
-        return nombre.substring(0, 1).toUpperCase(
-        )
+        return nombre.substring(0, 1).toUpperCase()
                 + nombre.substring(1);
     }
 
     // ============================================================
     // CONVERTIR PERÍODO
     // ============================================================
-
     private LocalDate[] obtenerPeriodoSeleccionado() {
 
         Object valorAnio
@@ -560,7 +565,6 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
     // ============================================================
     // MENSAJES
     // ============================================================
-
     private void configurarMensajes() {
 
         pnlAdvertenciaFechaCorteInvalida
@@ -634,7 +638,6 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
     // ============================================================
     // ESTADO DE RESULTADOS
     // ============================================================
-
     private void configurarEstadoResultado() {
 
         txtUtilidadOPerdida.setEditable(
@@ -776,7 +779,6 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
     // ============================================================
     // UTILIDAD / PÉRDIDA
     // ============================================================
-
     private void actualizarEstadoUtilidadPerdida(
             EstadoResultadosDTO resultado) {
 
@@ -844,7 +846,6 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
     // ============================================================
     // CONSULTA
     // ============================================================
-
     private void consultar() {
 
         limpiarMensajes();
@@ -971,7 +972,6 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
     // ============================================================
     // LIMPIAR
     // ============================================================
-
     private void limpiar() {
 
         limpiarMensajes();
@@ -980,9 +980,12 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
 
         if (modoFechaCorte()) {
 
-            jdcFechaCorte.setDate(
-                    null
-            );
+            if (jdcFechaCorte != null) {
+
+                jdcFechaCorte.setDate(
+                        null
+                );
+            }
 
         } else {
 
@@ -1005,7 +1008,6 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
     // ============================================================
     // ESTADO INICIAL
     // ============================================================
-
     private void configurarEstadoInicial() {
 
         /*
@@ -1024,7 +1026,6 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
     // ============================================================
     // FORMATEO
     // ============================================================
-
     private String formatearMoneda(
             BigDecimal valor) {
 
@@ -1067,7 +1068,6 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
     // ============================================================
     // TEXTO
     // ============================================================
-
     private String valorTexto(
             String valor) {
 
@@ -1083,7 +1083,6 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
     // ============================================================
     // ERRORES
     // ============================================================
-
     private String obtenerMensajeError(
             RuntimeException ex) {
 
@@ -1107,8 +1106,6 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
     // ============================================================
     // EVENTOS GENERADOS POR NETBEANS
     // ============================================================
-
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -1212,9 +1209,9 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(lblSistemaGestionComercialContable, javax.swing.GroupLayout.PREFERRED_SIZE, 13, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(pnlSuperiorLayout.createSequentialGroup()
-                        .addGroup(pnlSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(lblNombreApellidoUsuario)
-                            .addComponent(lblUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(pnlSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblUsuario, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblNombreApellidoUsuario))
                         .addGap(18, 18, 18)
                         .addGroup(pnlSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(lblHoraActual, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1559,10 +1556,9 @@ public class FrmEstadoDeResultado extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(pnlSuperior, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(pnlEstadoDeResultados, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(pnlConsultaFechaBalanzaComprobacion, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(pnlEstadoDeResultados, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(pnlConsultaFechaBalanzaComprobacion, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
