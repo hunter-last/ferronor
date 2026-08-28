@@ -3,7 +3,6 @@ package com.ferronor.sic.compras.vista;
 import com.ferronor.sic.compras.logica.OrdenCompraService;
 import com.ferronor.sic.compras.modelo.Compra;
 import com.ferronor.sic.compras.modelo.DetalleCompra;
-import com.ferronor.sic.compras.modelo.EstadoOrdenCompra;
 import com.ferronor.sic.compras.modelo.OrdenCompra;
 import com.ferronor.sic.maestros.logica.FormaPagoService;
 import com.ferronor.sic.maestros.logica.ProductoService;
@@ -12,7 +11,6 @@ import com.ferronor.sic.maestros.modelo.FormaPago;
 import com.ferronor.sic.maestros.modelo.Producto;
 import com.ferronor.sic.maestros.modelo.Proveedor;
 import com.ferronor.sic.procesos.ProcesoCompra;
-import com.ferronor.sic.shared.FrmBase;
 import com.ferronor.sic.shared.RespuestaOperacion;
 import com.ferronor.sic.shared.ServiceFactory;
 import com.ferronor.sic.shared.SesionUsuario;
@@ -927,9 +925,7 @@ public class FrmCompras extends javax.swing.JFrame {
     private void configurarComboOrdenCompra() {
 
         ordenesAprobadas
-                = ordenCompraService.listarPorEstado(
-                        EstadoOrdenCompra.APROBADA
-                );
+                = ordenCompraService.listarDisponiblesParaCompra();
 
         DefaultComboBoxModel<OrdenCompra> modelo
                 = new DefaultComboBoxModel<>();
@@ -1206,16 +1202,40 @@ public class FrmCompras extends javax.swing.JFrame {
         );
     }
 
-    private void actualizarOrdenesDelProveedor(Proveedor proveedor) {
-        DefaultComboBoxModel<OrdenCompra> modelo = new DefaultComboBoxModel<>();
-        modelo.addElement(null); // "— Compra directa, sin orden previa —"
+    private void actualizarOrdenesDelProveedor(
+            Proveedor proveedor
+    ) {
+        DefaultComboBoxModel<OrdenCompra> modelo
+                = new DefaultComboBoxModel<>();
+
+        modelo.addElement(null);
+
+        int cantidadDisponibles = 0;
+
         for (OrdenCompra orden : ordenesAprobadas) {
-            if (orden.getIdProveedor() == proveedor.getIdProveedor()) {
+
+            if (orden.getIdProveedor()
+                    == proveedor.getIdProveedor()) {
+
                 modelo.addElement(orden);
+                cantidadDisponibles++;
             }
         }
+
         cmbOrdenCompra.setModel(modelo);
         cmbOrdenCompra.setSelectedItem(null);
+
+        if (cantidadDisponibles == 0) {
+            cmbOrdenCompra.setToolTipText(
+                    "Este proveedor no tiene órdenes de compra "
+                    + "aprobadas disponibles."
+            );
+        } else {
+            cmbOrdenCompra.setToolTipText(
+                    "Seleccione una orden de compra aprobada "
+                    + "o registre una compra directa."
+            );
+        }
     }
 
     // cmbProductos: editable + ComboAutoFiltro sobre
