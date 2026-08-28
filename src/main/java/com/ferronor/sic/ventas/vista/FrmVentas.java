@@ -77,6 +77,10 @@ public class FrmVentas extends FrmBase {
     public FrmVentas() {
         super("VENTAS");
         initComponents();
+        setDefaultCloseOperation(
+                javax.swing.WindowConstants.DISPOSE_ON_CLOSE
+        );
+
         configurarComponentes();
     }
 
@@ -105,9 +109,6 @@ public class FrmVentas extends FrmBase {
         txtPrecioUnitario.setEditable(false);
         lblNroComprobante.setText("Se genera automáticamente al confirmar");
 
-        btnAgregarProducto.addActionListener(e -> agregarProducto());
-        btnRegistrarVenta.addActionListener(e -> registrarVenta());
-        btnCancelar.addActionListener(e -> dispose());
     }
 
     // Caja abierta y cuenta bancaria activa se obtienen una sola vez al abrir el

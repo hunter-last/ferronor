@@ -86,6 +86,10 @@ public class FrmCompras extends javax.swing.JFrame {
     public FrmCompras() {
         super("COMPRAS");
         initComponents();
+        setDefaultCloseOperation(
+                javax.swing.WindowConstants.DISPOSE_ON_CLOSE
+        );
+
         configurarComponentes();
     }
 
