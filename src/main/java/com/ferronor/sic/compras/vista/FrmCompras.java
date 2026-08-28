@@ -39,6 +39,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import com.ferronor.sic.compras.modelo.DetalleOrdenCompra;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JList;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.event.TableModelEvent;
+import javax.swing.table.DefaultTableCellRenderer;
 
 /**
  *
@@ -56,10 +63,16 @@ public class FrmCompras extends javax.swing.JFrame {
 
     private final List<DetalleCompra> detalles = new ArrayList<>();
     private final DefaultTableModel modeloDetalle = new DefaultTableModel(
-            new Object[]{"PRODUCTO", "CANTIDAD", "COSTO UNIT. (SIN IGV)", "SUBTOTAL"}, 0) {
+            new Object[]{
+                "PRODUCTO",
+                "CANTIDAD",
+                "COSTO UNIT. (SIN IGV)",
+                "SUBTOTAL"
+            }, 0) {
+
         @Override
         public boolean isCellEditable(int fila, int columna) {
-            return false;
+            return columna == 2;
         }
     };
 
@@ -651,9 +664,6 @@ public class FrmCompras extends javax.swing.JFrame {
         // precioVenta), así que lo captura el usuario en cada compra.
         txtPrecioUnitario.setEditable(true);
 
-        btnAgregarProducto.addActionListener(e -> agregarProducto());
-        btnRegistrarVenta.addActionListener(e -> registrarCompra());
-        btnCancelar.addActionListener(e -> dispose());
     }
 
     // Caja abierta y cuenta bancaria activa, igual que en FrmVentas.
@@ -694,7 +704,170 @@ public class FrmCompras extends javax.swing.JFrame {
     }
 
     private void configurarTabla() {
+
         tblDetProducto.setModel(modeloDetalle);
+
+        // ==========================================================
+        // RENDERER GENERAL DE LA TABLA
+        // ==========================================================
+        DefaultTableCellRenderer rendererProducto
+                = new DefaultTableCellRenderer() {
+
+            @Override
+            public java.awt.Component getTableCellRendererComponent(
+                    JTable table,
+                    Object value,
+                    boolean isSelected,
+                    boolean hasFocus,
+                    int row,
+                    int column) {
+
+                String texto = "";
+
+                if (value instanceof Producto producto) {
+                    texto = producto.getCodigo()
+                            + " - "
+                            + producto.getNombre();
+                } else if (value != null) {
+                    texto = value.toString();
+                }
+
+                return super.getTableCellRendererComponent(
+                        table,
+                        texto,
+                        isSelected,
+                        hasFocus,
+                        row,
+                        column
+                );
+            }
+        };
+
+        tblDetProducto.getColumnModel()
+                .getColumn(0)
+                .setCellRenderer(rendererProducto);
+
+        // ==========================================================
+        // RENDERER DE CANTIDAD
+        // ==========================================================
+        DefaultTableCellRenderer rendererCantidad
+                = new DefaultTableCellRenderer() {
+
+            {
+                setHorizontalAlignment(SwingConstants.RIGHT);
+            }
+
+            @Override
+            public java.awt.Component getTableCellRendererComponent(
+                    JTable table,
+                    Object value,
+                    boolean isSelected,
+                    boolean hasFocus,
+                    int row,
+                    int column) {
+
+                String texto = "";
+
+                if (value instanceof BigDecimal cantidad) {
+                    texto = cantidad.stripTrailingZeros()
+                            .toPlainString();
+                } else if (value != null) {
+                    texto = value.toString();
+                }
+
+                return super.getTableCellRendererComponent(
+                        table,
+                        texto,
+                        isSelected,
+                        hasFocus,
+                        row,
+                        column
+                );
+            }
+        };
+
+        tblDetProducto.getColumnModel()
+                .getColumn(1)
+                .setCellRenderer(rendererCantidad);
+
+        // ==========================================================
+        // RENDERER DE MONEDA
+        // ==========================================================
+        DefaultTableCellRenderer rendererMoneda
+                = new DefaultTableCellRenderer() {
+
+            {
+                setHorizontalAlignment(SwingConstants.RIGHT);
+            }
+
+            @Override
+            public java.awt.Component getTableCellRendererComponent(
+                    JTable table,
+                    Object value,
+                    boolean isSelected,
+                    boolean hasFocus,
+                    int row,
+                    int column) {
+
+                String texto = "";
+
+                if (value instanceof BigDecimal monto) {
+
+                    texto = "S/ "
+                            + FORMATO_MONEDA.format(monto);
+
+                } else if (value != null) {
+
+                    try {
+
+                        BigDecimal monto
+                                = new BigDecimal(
+                                        value.toString()
+                                                .replace("S/", "")
+                                                .replace(",", "")
+                                                .trim()
+                                );
+
+                        texto = "S/ "
+                                + FORMATO_MONEDA.format(monto);
+
+                    } catch (NumberFormatException ex) {
+
+                        texto = value.toString();
+                    }
+                }
+
+                return super.getTableCellRendererComponent(
+                        table,
+                        texto,
+                        isSelected,
+                        hasFocus,
+                        row,
+                        column
+                );
+            }
+        };
+
+        tblDetProducto.getColumnModel()
+                .getColumn(2)
+                .setCellRenderer(rendererMoneda);
+
+        tblDetProducto.getColumnModel()
+                .getColumn(3)
+                .setCellRenderer(rendererMoneda);
+
+        // ==========================================================
+        // ACTUALIZAR SUBTOTALES AL EDITAR COSTO
+        // ==========================================================
+        modeloDetalle.addTableModelListener(e -> {
+
+            if (e.getType() == TableModelEvent.UPDATE
+                    && (e.getColumn() == 2
+                    || e.getColumn() == TableModelEvent.ALL_COLUMNS)) {
+
+                actualizarSubtotalesDesdeTabla();
+            }
+        });
     }
 
     private void configurarSpinnerCantidad() {
@@ -752,18 +925,285 @@ public class FrmCompras extends javax.swing.JFrame {
     // pertenece a un proveedor puntual). Siempre incluye la opción "sin
     // orden" (compra directa), que es el caso más común.
     private void configurarComboOrdenCompra() {
-        ordenesAprobadas = ordenCompraService.listarPorEstado(EstadoOrdenCompra.APROBADA);
-        cmbOrdenCompra.setModel(new DefaultComboBoxModel<>());
-        cmbOrdenCompra.addItem(null);
+
+        ordenesAprobadas
+                = ordenCompraService.listarPorEstado(
+                        EstadoOrdenCompra.APROBADA
+                );
+
+        DefaultComboBoxModel<OrdenCompra> modelo
+                = new DefaultComboBoxModel<>();
+
+        modelo.addElement(null);
+
+        for (OrdenCompra orden : ordenesAprobadas) {
+            modelo.addElement(orden);
+        }
+
+        cmbOrdenCompra.setModel(modelo);
+
         cmbOrdenCompra.setSelectedItem(null);
-        cmbOrdenCompra.setRenderer(new javax.swing.DefaultListCellRenderer() {
+
+        cmbOrdenCompra.setRenderer(
+                new DefaultListCellRenderer() {
+
             @Override
-            public java.awt.Component getListCellRendererComponent(javax.swing.JList<?> list, Object value,
-                    int index, boolean isSelected, boolean cellHasFocus) {
-                Object mostrado = (value == null) ? "— Compra directa, sin orden previa —" : value;
-                return super.getListCellRendererComponent(list, mostrado, index, isSelected, cellHasFocus);
+            public java.awt.Component getListCellRendererComponent(
+                    JList<?> list,
+                    Object value,
+                    int index,
+                    boolean isSelected,
+                    boolean cellHasFocus) {
+
+                Object mostrado
+                        = value == null
+                                ? "— Compra directa, sin orden previa —"
+                                : value;
+
+                return super.getListCellRendererComponent(
+                        list,
+                        mostrado,
+                        index,
+                        isSelected,
+                        cellHasFocus
+                );
+            }
+        }
+        );
+
+        cmbOrdenCompra.addItemListener(e -> {
+
+            if (e.getStateChange() != ItemEvent.SELECTED) {
+                return;
+            }
+
+            Object seleccionado = e.getItem();
+
+            if (seleccionado instanceof OrdenCompra orden) {
+
+                cargarDetallesDeOrdenCompra(orden);
+
+                cmbProductos.setEnabled(false);
+                spnCantidad.setEnabled(false);
+                txtPrecioUnitario.setEnabled(false);
+                btnAgregarProducto.setEnabled(false);
+
+            } else {
+
+                limpiarDetallesCompra();
+
+                cmbProductos.setEnabled(true);
+                spnCantidad.setEnabled(true);
+                txtPrecioUnitario.setEnabled(true);
+                btnAgregarProducto.setEnabled(true);
             }
         });
+    }
+
+    private void cargarDetallesDeOrdenCompra(OrdenCompra orden) {
+
+        limpiarValidaciones();
+        limpiarDetallesCompra();
+
+        List<DetalleOrdenCompra> detallesOrden
+                = orden.getDetalles();
+
+        if (detallesOrden == null
+                || detallesOrden.isEmpty()) {
+
+            mostrarValidacion(
+                    "La orden de compra seleccionada "
+                    + "no contiene productos."
+            );
+
+            return;
+        }
+
+        for (DetalleOrdenCompra detalleOrden : detallesOrden) {
+
+            Producto producto
+                    = productoService.buscarPorId(
+                            detalleOrden.getIdProducto()
+                    );
+
+            if (producto == null) {
+
+                mostrarValidacion(
+                        "No se encontró el producto "
+                        + detalleOrden.getIdProducto()
+                        + " asociado a la orden de compra."
+                );
+
+                limpiarDetallesCompra();
+
+                return;
+            }
+
+            modeloDetalle.addRow(
+                    new Object[]{
+                        producto,
+                        detalleOrden.getCantidad(),
+                        null,
+                        null
+                    }
+            );
+        }
+
+        recalcularTotalesDesdeTabla();
+    }
+
+    private void limpiarDetallesCompra() {
+
+        detalles.clear();
+
+        modeloDetalle.setRowCount(0);
+
+        recalcularTotales();
+    }
+
+    private void actualizarSubtotalesDesdeTabla() {
+
+        for (int fila = 0;
+                fila < modeloDetalle.getRowCount();
+                fila++) {
+
+            Object cantidadObj
+                    = modeloDetalle.getValueAt(fila, 1);
+
+            Object costoObj
+                    = modeloDetalle.getValueAt(fila, 2);
+
+            if (cantidadObj == null
+                    || costoObj == null
+                    || costoObj.toString().trim().isEmpty()) {
+
+                modeloDetalle.setValueAt(
+                        null,
+                        fila,
+                        3
+                );
+
+                continue;
+            }
+
+            try {
+
+                BigDecimal cantidad
+                        = new BigDecimal(
+                                cantidadObj.toString()
+                        );
+
+                BigDecimal costo
+                        = new BigDecimal(
+                                costoObj.toString()
+                                        .replace("S/", "")
+                                        .replace(",", "")
+                                        .trim()
+                        );
+
+                if (costo.compareTo(BigDecimal.ZERO) < 0) {
+
+                    modeloDetalle.setValueAt(
+                            null,
+                            fila,
+                            3
+                    );
+
+                    continue;
+                }
+
+                BigDecimal subtotal
+                        = cantidad.multiply(costo)
+                                .setScale(
+                                        2,
+                                        RoundingMode.HALF_UP
+                                );
+
+                modeloDetalle.setValueAt(
+                        subtotal,
+                        fila,
+                        3
+                );
+
+            } catch (NumberFormatException ex) {
+
+                modeloDetalle.setValueAt(
+                        null,
+                        fila,
+                        3
+                );
+            }
+        }
+
+        recalcularTotalesDesdeTabla();
+    }
+
+    private void recalcularTotalesDesdeTabla() {
+
+        BigDecimal subtotal = BigDecimal.ZERO;
+
+        for (int fila = 0;
+                fila < modeloDetalle.getRowCount();
+                fila++) {
+
+            Object subtotalObj
+                    = modeloDetalle.getValueAt(fila, 3);
+
+            if (subtotalObj == null) {
+                continue;
+            }
+
+            try {
+
+                BigDecimal valor
+                        = new BigDecimal(
+                                subtotalObj.toString()
+                                        .replace("S/", "")
+                                        .replace(",", "")
+                                        .trim()
+                        );
+
+                subtotal = subtotal.add(valor);
+
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
+        subtotal
+                = subtotal.setScale(
+                        2,
+                        RoundingMode.HALF_UP
+                );
+
+        BigDecimal igv
+                = subtotal.compareTo(BigDecimal.ZERO) == 0
+                ? BigDecimal.ZERO.setScale(
+                        2,
+                        RoundingMode.HALF_UP
+                )
+                : CalculadoraImpuestos
+                        .calcularIGVDesdeSubtotal(subtotal);
+
+        BigDecimal total
+                = subtotal.compareTo(BigDecimal.ZERO) == 0
+                ? BigDecimal.ZERO.setScale(
+                        2,
+                        RoundingMode.HALF_UP
+                )
+                : CalculadoraImpuestos
+                        .calcularTotalConIgv(subtotal);
+
+        lblCantSubTotal.setText(
+                "S/ " + FORMATO_MONEDA.format(subtotal)
+        );
+
+        lblCantIGV.setText(
+                "S/ " + FORMATO_MONEDA.format(igv)
+        );
+
+        lblCantTotal.setText(
+                "S/ " + FORMATO_MONEDA.format(total)
+        );
     }
 
     private void actualizarOrdenesDelProveedor(Proveedor proveedor) {
@@ -825,47 +1265,185 @@ public class FrmCompras extends javax.swing.JFrame {
     // Detalle de productos en memoria
     // ------------------------------------------------------------------
     private void agregarProducto() {
+
         limpiarValidaciones();
 
-        Object seleccion = cmbProductos.getSelectedItem();
-        if (!(seleccion instanceof Producto producto)) {
-            mostrarValidacion("Selecciona un producto del listado.");
+        if (cmbOrdenCompra.getSelectedItem() instanceof OrdenCompra) {
+
+            mostrarValidacion(
+                    "La compra está asociada a una orden. "
+                    + "Los productos ya fueron cargados desde la orden."
+            );
+
             return;
         }
 
-        Object valorSpinner = spnCantidad.getValue();
-        BigDecimal cantidad = new BigDecimal(valorSpinner.toString());
+        Object seleccion
+                = cmbProductos.getSelectedItem();
+
+        if (!(seleccion instanceof Producto producto)) {
+
+            mostrarValidacion(
+                    "Selecciona un producto del listado."
+            );
+
+            return;
+        }
+
+        BigDecimal cantidad;
+
+        try {
+
+            cantidad
+                    = new BigDecimal(
+                            spnCantidad
+                                    .getValue()
+                                    .toString()
+                    );
+
+        } catch (NumberFormatException ex) {
+
+            mostrarValidacion(
+                    "La cantidad es inválida."
+            );
+
+            return;
+        }
+
         if (cantidad.compareTo(BigDecimal.ZERO) <= 0) {
-            mostrarValidacion("La cantidad debe ser mayor a cero.");
+
+            mostrarValidacion(
+                    "La cantidad debe ser mayor a cero."
+            );
+
             return;
         }
 
         BigDecimal costoUnitario;
+
         try {
-            costoUnitario = new BigDecimal(txtPrecioUnitario.getText().trim().replace(",", ""));
-        } catch (NumberFormatException | NullPointerException ex) {
-            mostrarValidacion("El costo unitario es inválido.");
+
+            costoUnitario
+                    = new BigDecimal(
+                            txtPrecioUnitario
+                                    .getText()
+                                    .trim()
+                                    .replace(",", "")
+                    );
+
+        } catch (NumberFormatException
+                | NullPointerException ex) {
+
+            mostrarValidacion(
+                    "El costo unitario es inválido."
+            );
+
             return;
         }
+
         if (costoUnitario.compareTo(BigDecimal.ZERO) < 0) {
-            mostrarValidacion("El costo unitario es inválido.");
+
+            mostrarValidacion(
+                    "El costo unitario es inválido."
+            );
+
             return;
         }
 
-        DetalleCompra detalle = new DetalleCompra(producto.getIdProducto(), cantidad, costoUnitario);
-        detalles.add(detalle);
-        modeloDetalle.addRow(new Object[]{
-            producto,
-            cantidad.toPlainString(),
-            "S/ " + FORMATO_MONEDA.format(costoUnitario),
-            "S/ " + FORMATO_MONEDA.format(detalle.getSubtotal())
-        });
+        BigDecimal subtotal
+                = cantidad.multiply(costoUnitario)
+                        .setScale(
+                                2,
+                                RoundingMode.HALF_UP
+                        );
 
-        recalcularTotales();
+        modeloDetalle.addRow(
+                new Object[]{
+                    producto,
+                    cantidad,
+                    costoUnitario,
+                    subtotal
+                }
+        );
+
+        recalcularDetallesDesdeTabla();
+        recalcularTotalesDesdeTabla();
 
         cmbProductos.setSelectedItem(null);
         txtPrecioUnitario.setText("");
         spnCantidad.setValue(1);
+    }
+
+    private boolean recalcularDetallesDesdeTabla() {
+
+        detalles.clear();
+
+        boolean valido = true;
+
+        for (int fila = 0;
+                fila < modeloDetalle.getRowCount();
+                fila++) {
+
+            Object productoObj
+                    = modeloDetalle.getValueAt(fila, 0);
+
+            Object cantidadObj
+                    = modeloDetalle.getValueAt(fila, 1);
+
+            Object costoObj
+                    = modeloDetalle.getValueAt(fila, 2);
+
+            if (!(productoObj instanceof Producto producto)) {
+
+                valido = false;
+                continue;
+            }
+
+            if (cantidadObj == null
+                    || costoObj == null
+                    || costoObj.toString().trim().isEmpty()) {
+
+                valido = false;
+                continue;
+            }
+
+            try {
+
+                BigDecimal cantidad
+                        = new BigDecimal(
+                                cantidadObj.toString()
+                        );
+
+                BigDecimal costo
+                        = new BigDecimal(
+                                costoObj.toString()
+                                        .replace("S/", "")
+                                        .replace(",", "")
+                                        .trim()
+                        );
+
+                if (cantidad.compareTo(BigDecimal.ZERO) <= 0
+                        || costo.compareTo(BigDecimal.ZERO) < 0) {
+
+                    valido = false;
+                    continue;
+                }
+
+                detalles.add(
+                        new DetalleCompra(
+                                producto.getIdProducto(),
+                                cantidad,
+                                costo
+                        )
+                );
+
+            } catch (NumberFormatException ex) {
+
+                valido = false;
+            }
+        }
+
+        return valido;
     }
 
     // El costo unitario NO incluye IGV (al revés que Ventas): se usa
@@ -907,8 +1485,23 @@ public class FrmCompras extends javax.swing.JFrame {
             return;
         }
 
-        if (detalles.isEmpty()) {
-            mostrarValidacion("La compra debe tener al menos un producto.");
+        if (modeloDetalle.getRowCount() == 0) {
+
+            mostrarValidacion(
+                    "La compra debe tener al menos un producto."
+            );
+
+            return;
+        }
+
+        if (!recalcularDetallesDesdeTabla()
+                || detalles.size() != modeloDetalle.getRowCount()) {
+
+            mostrarValidacion(
+                    "Completa correctamente el costo unitario "
+                    + "de todos los productos."
+            );
+
             return;
         }
 
