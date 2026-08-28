@@ -91,4 +91,15 @@ public class ContabilidadServiceImpl implements ContabilidadService {
     public BalanceGeneralDTO obtenerBalanceGeneral(LocalDate fechaCorte) {
         return balanceGeneralService.obtenerBalanceGeneral(fechaCorte);
     }
+
+    @Override
+    public EstadoResultadosDTO obtenerEstadoResultados(
+            LocalDate desde,
+            LocalDate hasta) {
+
+        return estadoResultadosService.obtenerEstadoResultados(
+                desde,
+                hasta
+        );
+    }
 }
