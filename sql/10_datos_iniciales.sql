@@ -207,25 +207,3 @@ INSERT INTO cuenta_bancaria (banco, alias, numero_cuenta, moneda) VALUES
 ('BCP','Cuenta Corriente BCP','19312345678012','PEN'),
 ('BBVA','Cuenta Corriente BBVA','00112345670015','PEN');
 
-
-
--- CREACION DE UN USUSARIO ADMINISTRADOR
-INSERT INTO usuario (
-    nombres,
-    apellidos,
-    usuario_login,
-    password_hash,
-    id_rol,
-    activo
-)
-SELECT
-    'Administrador',
-    'Sistema',
-    'admin',
-    '$2a$10$CVpd.DShhesSwKw0.IyeDuqF/H8qqimwScABwpoWUXknztFkamIN.',
-    r.id_rol,
-    TRUE
-FROM rol r
-WHERE r.nombre = 'Administrador'
-ON CONFLICT (usuario_login) DO NOTHING;
-
