@@ -2592,7 +2592,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                     .addComponent(pnlDatosCaja, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jSeparator6, javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(pnlSelectorCtaBancaria, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(11, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         pnlRegistrarCobroLayout.setVerticalGroup(
             pnlRegistrarCobroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2640,8 +2640,8 @@ public class FrmCobroCliente extends javax.swing.JDialog {
             .addGroup(pnlCuentaSeleccionadaLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(pnlCuentaSeleccionadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlCuentaSeleccionadaLayout.createSequentialGroup()
-                        .addGap(0, 18, Short.MAX_VALUE)
+                    .addGroup(pnlCuentaSeleccionadaLayout.createSequentialGroup()
+                        .addGap(0, 17, Short.MAX_VALUE)
                         .addGroup(pnlCuentaSeleccionadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlCuentaSeleccionadaLayout.createSequentialGroup()
                                 .addGroup(pnlCuentaSeleccionadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -2659,13 +2659,15 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                                         .addComponent(lblNombreEmpresaYTipoEmpresa)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(txtEstadoCuentaCobrar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(14, 14, 14))
+                                .addGap(18, 18, 18))
                             .addGroup(pnlCuentaSeleccionadaLayout.createSequentialGroup()
                                 .addGroup(pnlCuentaSeleccionadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(lblRucNroRuc)
                                     .addComponent(pnlSaldosCuentaCobrar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addContainerGap())))
-                    .addComponent(pnlRegistrarCobro, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                .addGap(0, 0, 0))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlCuentaSeleccionadaLayout.createSequentialGroup()
+                        .addComponent(pnlRegistrarCobro, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap())))
         );
         pnlCuentaSeleccionadaLayout.setVerticalGroup(
             pnlCuentaSeleccionadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2704,7 +2706,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(pnlSuperior, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(pnlSuperior, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(spnlTblDetalleCuentasCobrar, javax.swing.GroupLayout.Alignment.LEADING)
@@ -2714,7 +2716,7 @@ public class FrmCobroCliente extends javax.swing.JDialog {
                                 .addGap(0, 0, Short.MAX_VALUE)
                                 .addComponent(lblNCuentasCobrarFiltrosSeleccionados, javax.swing.GroupLayout.PREFERRED_SIZE, 257, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(spnlAcomodador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(spnlAcomodador, javax.swing.GroupLayout.PREFERRED_SIZE, 352, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(

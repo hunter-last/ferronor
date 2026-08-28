@@ -12,7 +12,6 @@ import com.ferronor.sic.tesoreria.modelo.EstadoCaja;
 import com.ferronor.sic.tesoreria.modelo.MovimientoCaja;
 import com.ferronor.sic.tesoreria.modelo.TipoMovimientoCaja;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
