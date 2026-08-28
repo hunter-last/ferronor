@@ -20,4 +20,6 @@ public interface OrdenCompraService {
     List<OrdenCompra> listar();
 
     List<OrdenCompra> listarPorEstado(EstadoOrdenCompra estado);
+    
+    List<OrdenCompra> listarDisponiblesParaCompra();
 }

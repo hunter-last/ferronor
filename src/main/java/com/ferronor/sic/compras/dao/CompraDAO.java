@@ -8,4 +8,6 @@ import com.ferronor.sic.shared.IHistoricoDAO;
 public interface CompraDAO extends IHistoricoDAO<Compra, Integer> {
 
     Compra buscarPorNumeroFactura(int idProveedor, String numeroFactura);
+    
+    Compra buscarPorOrdenCompra(int idOrdenCompra);
 }

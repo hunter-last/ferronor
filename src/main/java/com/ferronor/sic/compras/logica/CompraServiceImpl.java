@@ -102,12 +102,32 @@ public class CompraServiceImpl implements CompraService {
             return RespuestaOperacion.error("Ya existe una compra con ese número de factura para este proveedor");
         }
         if (compra.getIdOrdenCompra() != null) {
-            OrdenCompra orden = ordenCompraDAO.buscarPorId(compra.getIdOrdenCompra());
+
+            int idOrdenCompra = compra.getIdOrdenCompra();
+
+            OrdenCompra orden
+                    = ordenCompraDAO.buscarPorId(idOrdenCompra);
+
             if (orden == null) {
-                return RespuestaOperacion.error("La orden de compra referenciada no existe");
+                return RespuestaOperacion.error(
+                        "La orden de compra referenciada no existe"
+                );
             }
+
             if (orden.getEstado() != EstadoOrdenCompra.APROBADA) {
-                return RespuestaOperacion.error("La orden de compra referenciada no está aprobada");
+                return RespuestaOperacion.error(
+                        "La orden de compra referenciada no está aprobada"
+                );
+            }
+
+            Compra compraExistente
+                    = compraDAO.buscarPorOrdenCompra(idOrdenCompra);
+
+            if (compraExistente != null) {
+                return RespuestaOperacion.error(
+                        "La orden de compra ya fue utilizada en la compra "
+                        + compraExistente.getIdCompra()
+                );
             }
         }
         if (compra.getDetalles().isEmpty()) {

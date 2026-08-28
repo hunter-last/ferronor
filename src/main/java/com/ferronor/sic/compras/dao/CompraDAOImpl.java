@@ -92,6 +92,33 @@ public class CompraDAOImpl extends AbstractDAO implements CompraDAO {
     }
 
     @Override
+    public Compra buscarPorOrdenCompra(int idOrdenCompra) {
+
+        String sql = "SELECT " + COLUMNAS
+                + " FROM " + TABLA
+                + " WHERE id_orden_compra = ?";
+
+        Connection cn = obtenerConexion();
+
+        try (PreparedStatement ps = cn.prepareStatement(sql)) {
+
+            ps.setInt(1, idOrdenCompra);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? mapear(rs) : null;
+            }
+
+        } catch (SQLException e) {
+            throw error(
+                    "Error al buscar compra por orden de compra",
+                    e
+            );
+        } finally {
+            cerrar(cn);
+        }
+    }
+
+    @Override
     public List<Compra> listar() {
         Connection cn = obtenerConexion();
         List<Compra> resultado = new ArrayList<>();
