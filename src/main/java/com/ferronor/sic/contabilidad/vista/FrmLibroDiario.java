@@ -3,6 +3,8 @@ package com.ferronor.sic.contabilidad.vista;
 import com.ferronor.sic.contabilidad.logica.ContabilidadService;
 import com.ferronor.sic.contabilidad.modelo.AsientoContable;
 import com.ferronor.sic.contabilidad.modelo.DetalleAsiento;
+import com.ferronor.sic.maestros.logica.PlanCuentaService;
+import com.ferronor.sic.maestros.modelo.PlanCuenta;
 import com.ferronor.sic.shared.ServiceFactory;
 import com.ferronor.sic.shared.SesionUsuario;
 
@@ -24,8 +26,10 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -55,6 +59,12 @@ import javax.swing.table.DefaultTableModel;
  * La vista NO accede directamente a DAO ni a LibroDiarioService.
  */
 public class FrmLibroDiario extends javax.swing.JDialog {
+
+    private final PlanCuentaService planCuentaService
+            = ServiceFactory.planCuentaService();
+
+    private Map<Integer, PlanCuenta> mapaCuentasPorId
+            = new HashMap<>();
 
     // ============================================================
     // SERVICIO
@@ -524,6 +534,11 @@ public class FrmLibroDiario extends javax.swing.JDialog {
     private void cargarReporte(
             List<AsientoContable> asientos) {
 
+        mapaCuentasPorId = new HashMap<>();
+        for (PlanCuenta cuenta : planCuentaService.listar()) {
+            mapaCuentasPorId.put(cuenta.getIdCuenta(), cuenta);
+        }
+
         pnlAcomodador.removeAll();
 
         if (asientos == null
@@ -925,7 +940,7 @@ public class FrmLibroDiario extends javax.swing.JDialog {
         DefaultTableModel modelo
                 = new DefaultTableModel(
                         new Object[]{
-                            "ID CUENTA",
+                            "Nº CUENTA",
                             "DEBE",
                             "HABER"
                         },
@@ -979,21 +994,17 @@ public class FrmLibroDiario extends javax.swing.JDialog {
                                 haber
                         );
 
+                PlanCuenta plan = mapaCuentasPorId.get(detalle.getIdCuenta());
+
+                String codigoCuenta = (plan != null)
+                        ? plan.getCodigo() + " - " + plan.getNombreCuenta()
+                        : "Cuenta #" + detalle.getIdCuenta();
+
                 modelo.addRow(
                         new Object[]{
-                            String.valueOf(
-                                    detalle.getIdCuenta()
-                            ),
-                            debe.signum() == 0
-                            ? ""
-                            : formatearMoneda(
-                                    debe
-                            ),
-                            haber.signum() == 0
-                            ? ""
-                            : formatearMoneda(
-                                    haber
-                            )
+                            codigoCuenta,
+                            debe.signum() == 0 ? "" : formatearMoneda(debe),
+                            haber.signum() == 0 ? "" : formatearMoneda(haber)
                         }
                 );
             }

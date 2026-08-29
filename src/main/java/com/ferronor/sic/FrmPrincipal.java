@@ -4,14 +4,17 @@ import com.ferronor.sic.compras.vista.FrmCompras;
 import com.ferronor.sic.compras.vista.FrmDevolucionProveedor;
 import com.ferronor.sic.compras.vista.FrmOrdenCompra;
 import com.ferronor.sic.compras.vista.FrmPagoProveedor;
+import com.ferronor.sic.contabilidad.vista.FrmBalanceGeneral;
+import com.ferronor.sic.contabilidad.vista.FrmEstadoDeResultados;
 import com.ferronor.sic.contabilidad.vista.FrmLibroDiario;
 import com.ferronor.sic.contabilidad.vista.FrmLibroMayor;
 import com.ferronor.sic.inventario.vista.FrmAjusteInventario;
 import com.ferronor.sic.inventario.vista.FrmConsultarStock;
 import com.ferronor.sic.inventario.vista.FrmKardex;
-import com.ferronor.sic.maestros.vista.FrmCategoria;
+import com.ferronor.sic.maestros.vista.FrmGestionCategorias;
 import com.ferronor.sic.seguridad.vista.FrmLogin;
 import com.ferronor.sic.shared.SesionUsuario;
+import com.ferronor.sic.tesoreria.vista.FrmAbrirCaja;
 import com.ferronor.sic.tesoreria.vista.FrmCierreCaja;
 import com.ferronor.sic.tesoreria.vista.FrmCuentasCobrar;
 import com.ferronor.sic.tesoreria.vista.FrmCuentasPagar;
@@ -80,7 +83,7 @@ public class FrmPrincipal extends JFrame {
     private JMenu crearMenuMaestros() {
         JMenu menu = new JMenu("Maestros");
         menu.add(crearItem("Categorías", e -> {
-            new FrmCategoria().setVisible(true);
+            new FrmGestionCategorias().setVisible(true);
         }));
         return menu;
     }
@@ -154,9 +157,11 @@ public class FrmPrincipal extends JFrame {
     private JMenu crearMenuTesoreria() {
         JMenu menu = new JMenu("Tesorería");
 
-        // Operación diaria de caja: el Cajero la necesita (permiso CAJA)
-        // aunque no tenga el permiso general TESORERIA.
         if (SesionUsuario.puedeAcceder("CAJA")) {
+            menu.add(crearItem("Abrir Caja", e -> {
+                new FrmAbrirCaja(this, true).setVisible(true);
+            }));
+
             menu.add(crearItem("Cobro a Cliente", e -> {
                 new FrmCobroCliente(this, true).setVisible(true);
             }));
@@ -170,8 +175,6 @@ public class FrmPrincipal extends JFrame {
             }));
         }
 
-        // Control de tesorería propiamente dicho: valida liquidaciones,
-        // paga, deposita, consulta cuentas — permiso TESORERIA.
         if (SesionUsuario.puedeAcceder("TESORERIA")) {
             if (menu.getItemCount() > 0) {
                 menu.addSeparator();
@@ -195,7 +198,7 @@ public class FrmPrincipal extends JFrame {
         }
 
         return menu;
-    }
+    } 
 
     private JMenu crearMenuContabilidad() {
         JMenu menu = new JMenu("Contabilidad");
@@ -208,12 +211,20 @@ public class FrmPrincipal extends JFrame {
             new FrmLibroMayor(this, true).setVisible(true);
         }));
 
-        // Balance de Comprobación, Estado de Resultados y Balance
-        // General se agregan cuando existan sus FrmX reales.
+        menu.add(crearItem("Estado de Resultados", e -> {
+            new FrmEstadoDeResultados(this, true).setVisible(true);
+        }));
+
+        menu.add(crearItem("Balance General", e -> {
+            new FrmBalanceGeneral(this, true).setVisible(true);
+        }));
+
+        // Balance de Comprobación: el backend ya existe
+        // (BalanceComprobacionService/DAO), pero falta el FrmX.
         return menu;
     }
-    
-     private JMenu crearMenuSeguridad() {
+
+    private JMenu crearMenuSeguridad() {
         JMenu menu = new JMenu("Seguridad");
         if (SesionUsuario.puedeAcceder("ADMIN_USUARIOS")) {
             menu.add(crearItem("Usuarios", e -> {
@@ -223,7 +234,6 @@ public class FrmPrincipal extends JFrame {
         }
         return menu;
     }
-
 
     private JMenuItem crearItem(String texto, java.awt.event.ActionListener accion) {
         JMenuItem item = new JMenuItem(texto);
