@@ -4,6 +4,7 @@ import com.ferronor.sic.compras.vista.FrmCompras;
 import com.ferronor.sic.compras.vista.FrmDevolucionProveedor;
 import com.ferronor.sic.compras.vista.FrmOrdenCompra;
 import com.ferronor.sic.compras.vista.FrmPagoProveedor;
+import com.ferronor.sic.compras.vista.FrmAprobacionOrdenCompra;
 import com.ferronor.sic.contabilidad.vista.FrmBalanceGeneral;
 import com.ferronor.sic.contabilidad.vista.FrmBalanzaComprobacion;
 import com.ferronor.sic.contabilidad.vista.FrmEstadoDeResultados;
@@ -16,6 +17,9 @@ import com.ferronor.sic.maestros.vista.FrmGestionClientes;
 import com.ferronor.sic.maestros.vista.FrmGestionProductos;
 import com.ferronor.sic.maestros.vista.FrmGestionProveedores;
 import com.ferronor.sic.maestros.vista.FrmGestionCategorias;
+import com.ferronor.sic.maestros.vista.FrmGestionFormasPago;
+import com.ferronor.sic.maestros.vista.FrmGestionTiposComprobante;
+import com.ferronor.sic.maestros.vista.FrmGestionUnidadesMedida;
 import com.ferronor.sic.seguridad.vista.FrmLogin;
 import com.ferronor.sic.shared.SesionUsuario;
 import com.ferronor.sic.tesoreria.vista.FrmAbrirCaja;
@@ -103,6 +107,20 @@ public class FrmPrincipal extends JFrame {
             new FrmGestionProveedores().setVisible(true);
         }));
 
+        menu.addSeparator();
+
+        menu.add(crearItem("Unidades de medida", e -> {
+            new FrmGestionUnidadesMedida().setVisible(true);
+        }));
+
+        menu.add(crearItem("Formas de pago", e -> {
+            new FrmGestionFormasPago().setVisible(true);
+        }));
+
+        menu.add(crearItem("Tipos de comprobante", e -> {
+            new FrmGestionTiposComprobante().setVisible(true);
+        }));
+
         return menu;
     }
 
@@ -161,14 +179,15 @@ public class FrmPrincipal extends JFrame {
                 new FrmOrdenCompra(this, true).setVisible(true);
             }));
 
+            menu.add(crearItem("Aprobación de Orden de Compra", e -> {
+                new FrmAprobacionOrdenCompra(this, true).setVisible(true);
+            }));
+
             menu.add(crearItem("Devolución a Proveedor", e -> {
                 new FrmDevolucionProveedor(this, true).setVisible(true);
             }));
         }
 
-        // Cuentas por Pagar y Pago a Proveedor viven en el menú
-        // Tesorería (ver crearMenuTesoreria), no aquí — mismo criterio
-        // de paquetes ya definido en el informe (Compras→Tesorería).
         return menu;
     }
 
