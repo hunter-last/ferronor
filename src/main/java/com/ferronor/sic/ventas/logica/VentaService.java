@@ -2,6 +2,7 @@ package com.ferronor.sic.ventas.logica;
 
 import com.ferronor.sic.shared.RespuestaOperacion;
 import com.ferronor.sic.ventas.modelo.CobroCliente;
+import com.ferronor.sic.ventas.modelo.Comprobante;
 import com.ferronor.sic.ventas.modelo.CuentaCobrar;
 import com.ferronor.sic.ventas.modelo.EstadoCuenta;
 import com.ferronor.sic.ventas.modelo.Venta;
@@ -35,7 +36,9 @@ public interface VentaService {
     List<CuentaCobrar> listarCuentasPorCobrarPendientes();
 
     List<CuentaCobrar> listarCuentasPorCobrarVencidas();
-    
+
     List<CuentaCobrarConsulta> consultarCuentasPorCobrar(EstadoCuenta estado, Integer idCliente,
             LocalDate fechaDesde, LocalDate fechaHasta);
+    
+    Comprobante buscarComprobantePorVenta(int idVenta);
 }

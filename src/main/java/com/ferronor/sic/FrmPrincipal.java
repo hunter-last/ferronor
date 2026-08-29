@@ -179,12 +179,14 @@ public class FrmPrincipal extends JFrame {
                 new FrmOrdenCompra(this, true).setVisible(true);
             }));
 
-            menu.add(crearItem("Aprobación de Orden de Compra", e -> {
-                new FrmAprobacionOrdenCompra(this, true).setVisible(true);
-            }));
-
             menu.add(crearItem("Devolución a Proveedor", e -> {
                 new FrmDevolucionProveedor(this, true).setVisible(true);
+            }));
+        }
+
+        if (SesionUsuario.puedeAcceder("ADMIN_USUARIOS")) {
+            menu.add(crearItem("Aprobación de Orden de Compra", e -> {
+                new FrmAprobacionOrdenCompra(this, true).setVisible(true);
             }));
         }
 
@@ -247,7 +249,7 @@ public class FrmPrincipal extends JFrame {
         menu.add(crearItem("Libro Mayor", e -> {
             new FrmLibroMayor(this, true).setVisible(true);
         }));
-        
+
         menu.add(crearItem("Balanza de comprobacion", e -> {
             new FrmBalanzaComprobacion(this, true).setVisible(true);
         }));
@@ -259,9 +261,7 @@ public class FrmPrincipal extends JFrame {
         menu.add(crearItem("Balance General", e -> {
             new FrmBalanceGeneral(this, true).setVisible(true);
         }));
-
-        // Balance de Comprobación: el backend ya existe
-        // (BalanceComprobacionService/DAO), pero falta el FrmX.
+        
         return menu;
     }
 

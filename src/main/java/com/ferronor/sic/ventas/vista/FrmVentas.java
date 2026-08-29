@@ -22,6 +22,9 @@ import com.ferronor.sic.tesoreria.logica.TesoreriaService;
 import com.ferronor.sic.tesoreria.modelo.Caja;
 import com.ferronor.sic.tesoreria.modelo.CuentaBancaria;
 import com.ferronor.sic.util.CalculadoraImpuestos;
+import com.ferronor.sic.util.ExportadorPDF;
+import com.ferronor.sic.ventas.logica.VentaService;
+import com.ferronor.sic.ventas.modelo.Comprobante;
 import com.ferronor.sic.ventas.modelo.DetalleVenta;
 import com.ferronor.sic.ventas.modelo.Venta;
 
@@ -31,6 +34,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.event.ItemEvent;
+import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -39,6 +43,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import javax.swing.JFileChooser;
 
 /**
  *
@@ -54,6 +59,7 @@ public class FrmVentas extends FrmBase {
     private final TipoComprobanteService tipoComprobanteService = ServiceFactory.tipoComprobanteService();
     private final TesoreriaService tesoreriaService = ServiceFactory.tesoreriaService();
     private final ProcesoVenta procesoVenta = ServiceFactory.procesoVenta();
+    private final VentaService ventaService = ServiceFactory.ventaService();
 
     // Colección de DetalleVenta en memoria: se va llenando con "Agregar producto"
     // y recién se envía completa al confirmar la venta.
@@ -65,6 +71,12 @@ public class FrmVentas extends FrmBase {
             return false;
         }
     };
+
+    private Integer idUltimaVentaRegistrada;
+    private Cliente clienteUltimaVenta;
+    private TipoComprobante tipoComprobanteUltimaVenta;
+    private Venta ventaUltimaRegistrada;
+    private List<ExportadorPDF.ItemComprobante> itemsUltimaVenta;
 
     private Caja cajaAbierta;
     private CuentaBancaria cuentaBancariaActiva;
@@ -82,6 +94,7 @@ public class FrmVentas extends FrmBase {
         );
 
         configurarComponentes();
+        btnGenerarPdf.setEnabled(false);
     }
 
     // ============================================================
@@ -354,8 +367,80 @@ public class FrmVentas extends FrmBase {
             return;
         }
 
-        JOptionPane.showMessageDialog(this, "Venta N° " + resultado.getResultado() + " registrada correctamente.");
+        idUltimaVentaRegistrada = resultado.getResultado();
+        clienteUltimaVenta = cliente;
+        tipoComprobanteUltimaVenta = tipoComprobante;
+        ventaUltimaRegistrada = venta;
+        itemsUltimaVenta = construirItemsComprobante();
+
+        btnGenerarPdf.setEnabled(true);
+
+        JOptionPane.showMessageDialog(this, "Venta N° " + idUltimaVentaRegistrada + " registrada correctamente.");
         limpiarFormularioTrasRegistro();
+    }
+
+    private List<ExportadorPDF.ItemComprobante> construirItemsComprobante() {
+
+        List<ExportadorPDF.ItemComprobante> items = new ArrayList<>();
+
+        for (int fila = 0; fila < modeloDetalle.getRowCount(); fila++) {
+
+            Object productoObj = modeloDetalle.getValueAt(fila, 0);
+            DetalleVenta detalle = detalles.get(fila);
+
+            if (productoObj instanceof Producto producto) {
+                items.add(new ExportadorPDF.ItemComprobante(
+                        producto.getNombre(),
+                        detalle.getCantidad(),
+                        detalle.getPrecioUnitario(),
+                        detalle.getSubtotal()
+                ));
+            }
+        }
+
+        return items;
+    }
+
+    private void generarComprobantePdf() {
+
+        if (idUltimaVentaRegistrada == null) {
+            mostrarValidacion("Primero registra una venta para poder generar su comprobante.");
+            return;
+        }
+
+        Comprobante comprobante = ventaService.buscarComprobantePorVenta(idUltimaVentaRegistrada);
+
+        if (comprobante == null) {
+            mostrarValidacion("No se pudo recuperar el comprobante de esa venta.");
+            return;
+        }
+
+        JFileChooser selector = new JFileChooser();
+        selector.setSelectedFile(new File(
+                comprobante.getSerie() + "-" + comprobante.getNumero() + ".pdf"
+        ));
+
+        if (selector.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        try {
+            ExportadorPDF.exportarComprobante(
+                    selector.getSelectedFile().getAbsolutePath(),
+                    tipoComprobanteUltimaVenta.getNombre(),
+                    comprobante.getSerie(),
+                    comprobante.getNumero(),
+                    comprobante.getFechaEmision().toLocalDate(),
+                    clienteUltimaVenta.getNombreRazonSocial(),
+                    clienteUltimaVenta.getNumeroDocumento(),
+                    itemsUltimaVenta,
+                    ventaUltimaRegistrada.getSubtotal(),
+                    ventaUltimaRegistrada.getIgv(),
+                    ventaUltimaRegistrada.getTotal()
+            );
+        } catch (Exception ex) {
+            mostrarValidacion("Falló la generación del PDF: " + ex.getMessage());
+        }
     }
 
     private void limpiarFormularioTrasRegistro() {
@@ -367,6 +452,7 @@ public class FrmVentas extends FrmBase {
         cmbFormasPago.setSelectedItem(null);
         cmbTipoComprobante.setSelectedItem(null);
         actualizarVisibilidadPago();
+
     }
 
     // ------------------------------------------------------------------
@@ -438,8 +524,9 @@ public class FrmVentas extends FrmBase {
         lblTotal = new javax.swing.JLabel();
         lblCantTotal = new javax.swing.JLabel();
         btnRegistrarVenta = new javax.swing.JButton();
-        btnCancelar = new javax.swing.JButton();
+        btnGenerarPdf = new javax.swing.JButton();
         pnlAvisoCtaCobrar = new javax.swing.JPanel();
+        btnCancelar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -791,11 +878,11 @@ public class FrmVentas extends FrmBase {
             }
         });
 
-        btnCancelar.setBackground(new java.awt.Color(102, 51, 0));
-        btnCancelar.setText("CANCELAR");
-        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
+        btnGenerarPdf.setBackground(new java.awt.Color(102, 51, 0));
+        btnGenerarPdf.setText("GENERAR COMPROBANTE");
+        btnGenerarPdf.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnCancelarActionPerformed(evt);
+                btnGenerarPdfActionPerformed(evt);
             }
         });
 
@@ -810,6 +897,14 @@ public class FrmVentas extends FrmBase {
             .addGap(0, 12, Short.MAX_VALUE)
         );
 
+        btnCancelar.setBackground(new java.awt.Color(102, 51, 0));
+        btnCancelar.setText("CANCELAR");
+        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelarActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout pnlComprobanteLayout = new javax.swing.GroupLayout(pnlComprobante);
         pnlComprobante.setLayout(pnlComprobanteLayout);
         pnlComprobanteLayout.setHorizontalGroup(
@@ -822,7 +917,7 @@ public class FrmVentas extends FrmBase {
                     .addComponent(pnlDestinoPago, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(pnlTotales, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnRegistrarVenta, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnCancelar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnGenerarPdf, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(pnlComprobanteLayout.createSequentialGroup()
                         .addComponent(lblSerie_Nro)
                         .addGap(45, 45, 45)
@@ -830,7 +925,8 @@ public class FrmVentas extends FrmBase {
                     .addGroup(pnlComprobanteLayout.createSequentialGroup()
                         .addComponent(lblTipo, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(pnlAvisoCtaCobrar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(pnlAvisoCtaCobrar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnCancelar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         pnlComprobanteLayout.setVerticalGroup(
@@ -854,9 +950,11 @@ public class FrmVentas extends FrmBase {
                 .addComponent(pnlTotales, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnRegistrarVenta)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnCancelar)
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnGenerarPdf)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -883,7 +981,7 @@ public class FrmVentas extends FrmBase {
                 .addContainerGap()
                 .addComponent(pnlSuperior, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(pnlCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -892,7 +990,7 @@ public class FrmVentas extends FrmBase {
                         .addComponent(pnlAgregarProducto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(pnlValidaciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(pnlComprobante, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(pnlComprobante, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -904,10 +1002,18 @@ public class FrmVentas extends FrmBase {
         registrarVenta();
     }//GEN-LAST:event_btnRegistrarVentaActionPerformed
 
-    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+    private void btnGenerarPdfActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerarPdfActionPerformed
         // TODO add your handling code here:
-        dispose();
-    }//GEN-LAST:event_btnCancelarActionPerformed
+        generarComprobantePdf();
+
+        btnGenerarPdf.setEnabled(false);
+        idUltimaVentaRegistrada = null;
+        clienteUltimaVenta = null;
+        tipoComprobanteUltimaVenta = null;
+        ventaUltimaRegistrada = null;
+        itemsUltimaVenta = null;
+
+    }//GEN-LAST:event_btnGenerarPdfActionPerformed
 
     private void btnAgregarProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarProductoActionPerformed
         // TODO add your handling code here:
@@ -917,6 +1023,11 @@ public class FrmVentas extends FrmBase {
     private void cmbClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbClientesActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_cmbClientesActionPerformed
+
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        // TODO add your handling code here:
+        dispose();
+    }//GEN-LAST:event_btnCancelarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -956,6 +1067,7 @@ public class FrmVentas extends FrmBase {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAgregarProducto;
     private javax.swing.JButton btnCancelar;
+    private javax.swing.JButton btnGenerarPdf;
     private javax.swing.JButton btnRegistrarVenta;
     private javax.swing.JComboBox<Cliente> cmbClientes;
     private javax.swing.JComboBox<FormaPago> cmbFormasPago;

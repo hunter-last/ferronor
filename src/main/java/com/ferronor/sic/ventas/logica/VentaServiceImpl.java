@@ -206,6 +206,11 @@ public class VentaServiceImpl implements VentaService {
     }
 
     @Override
+    public Comprobante buscarComprobantePorVenta(int idVenta) {
+        return comprobanteDAO.buscarPorVenta(idVenta);
+    }
+
+    @Override
     public List<CuentaCobrar> listarCuentasPorCobrarPendientes() {
         return cuentaCobrarDAO.listarPorEstado(EstadoCuenta.PENDIENTE);
     }
