@@ -105,6 +105,17 @@ public class OrdenCompraServiceImpl implements OrdenCompraService {
         return ordenes;
     }
 
+    @Override
+    public List<OrdenCompra> listarDisponiblesParaCompra() {
+
+        List<OrdenCompra> ordenes
+                = ordenCompraDAO.listarDisponiblesParaCompra();
+
+        ordenes.forEach(this::cargarDetalles);
+
+        return ordenes;
+    }
+
     private void cargarDetalles(OrdenCompra orden) {
         for (DetalleOrdenCompra detalle : detalleOrdenCompraDAO.listarPorOrdenCompra(orden.getIdOrdenCompra())) {
             orden.agregarDetalle(detalle);

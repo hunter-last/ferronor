@@ -10,4 +10,6 @@ public interface OrdenCompraDAO extends IGeneralDAO<OrdenCompra, Integer> {
     List<OrdenCompra> listarPorEstado(EstadoOrdenCompra estado);
 
     void cambiarEstado(int idOrdenCompra, EstadoOrdenCompra estado, int idUsuarioAprueba);
+    
+    List<OrdenCompra> listarDisponiblesParaCompra();
 }

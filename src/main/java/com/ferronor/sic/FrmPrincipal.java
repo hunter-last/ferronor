@@ -1,8 +1,30 @@
 package com.ferronor.sic;
 
-import com.ferronor.sic.maestros.vista.FrmCategoria;
+import com.ferronor.sic.compras.vista.FrmCompras;
+import com.ferronor.sic.compras.vista.FrmDevolucionProveedor;
+import com.ferronor.sic.compras.vista.FrmOrdenCompra;
+import com.ferronor.sic.compras.vista.FrmPagoProveedor;
+import com.ferronor.sic.contabilidad.vista.FrmBalanceGeneral;
+import com.ferronor.sic.contabilidad.vista.FrmEstadoDeResultados;
+import com.ferronor.sic.contabilidad.vista.FrmLibroDiario;
+import com.ferronor.sic.contabilidad.vista.FrmLibroMayor;
+import com.ferronor.sic.inventario.vista.FrmAjusteInventario;
+import com.ferronor.sic.inventario.vista.FrmConsultarStock;
+import com.ferronor.sic.inventario.vista.FrmKardex;
+import com.ferronor.sic.maestros.vista.FrmGestionCategorias;
+import com.ferronor.sic.maestros.vista.FrmGestionClientes;
+import com.ferronor.sic.maestros.vista.FrmGestionProductos;
+import com.ferronor.sic.maestros.vista.FrmGestionProveedores;
 import com.ferronor.sic.seguridad.vista.FrmLogin;
 import com.ferronor.sic.shared.SesionUsuario;
+import com.ferronor.sic.tesoreria.vista.FrmAbrirCaja;
+import com.ferronor.sic.tesoreria.vista.FrmCierreCaja;
+import com.ferronor.sic.tesoreria.vista.FrmCuentasCobrar;
+import com.ferronor.sic.tesoreria.vista.FrmCuentasPagar;
+import com.ferronor.sic.tesoreria.vista.FrmMovsBancarios;
+import com.ferronor.sic.tesoreria.vista.FrmMovsCaja;
+import com.ferronor.sic.ventas.vista.FrmCobroCliente;
+import com.ferronor.sic.ventas.vista.FrmDevolucionCliente;
 import com.ferronor.sic.ventas.vista.FrmVentas;
 
 import javax.swing.*;
@@ -22,6 +44,7 @@ public class FrmPrincipal extends JFrame {
         setLocationRelativeTo(null);
 
         JMenuBar menuBar = new JMenuBar();
+
         if (sesion.tienePermiso("MAESTROS")) {
             menuBar.add(crearMenuMaestros());
         }
@@ -34,15 +57,18 @@ public class FrmPrincipal extends JFrame {
         if (sesion.tienePermiso("COMPRAS")) {
             menuBar.add(crearMenuCompras());
         }
-        if (sesion.tienePermiso("TESORERIA")) {
-            menuBar.add(new JMenu("Tesorería"));
+        // Tesorería debe aparecer para Cajero (permiso CAJA) o para
+        // Tesorería (permiso TESORERIA) — son operaciones distintas
+        // del mismo módulo, no la misma audiencia.
+        if (sesion.tienePermiso("TESORERIA") || sesion.tienePermiso("CAJA")) {
+            menuBar.add(crearMenuTesoreria());
         }
         if (sesion.tienePermiso("CONTABILIDAD")) {
             menuBar.add(crearMenuContabilidad());
         }
-        if (sesion.tienePermiso("SEGURIDAD")) {
-            menuBar.add(crearMenuSeguridad());
-        }
+        // Seguridad: FrmUsuarios/FrmRoles todavía no existen como
+        // pantallas — no se agrega el menú hasta tener algo funcional
+        // que mostrar (evita ítems "aún no implementado").
 
         JMenu menuSesion = new JMenu("Sesión");
         menuSesion.add(crearItem("Cerrar sesión", e -> cerrarSesion()));
@@ -60,21 +86,37 @@ public class FrmPrincipal extends JFrame {
     private JMenu crearMenuMaestros() {
         JMenu menu = new JMenu("Maestros");
         menu.add(crearItem("Categorías", e -> {
-            new FrmCategoria().setVisible(true);
+            new FrmGestionCategorias().setVisible(true);
+        }));
+        menu.add(crearItem("Clientes", e -> {
+            new FrmGestionClientes().setVisible(true);
+        }));
+        menu.add(crearItem("Productos", e -> {
+            new FrmGestionProductos().setVisible(true);
+        }));
+        menu.add(crearItem("Proveedores", e -> {
+            new FrmGestionProveedores().setVisible(true);
         }));
         return menu;
     }
 
     private JMenu crearMenuInventario() {
         JMenu menu = new JMenu("Inventario");
-        menu.add(crearItem("Stock", e -> {
-            /* TODO */ }));
+
+        menu.add(crearItem("Consultar Stock", e -> {
+            new FrmConsultarStock(this, true).setVisible(true);
+        }));
+
         menu.add(crearItem("Kardex", e -> {
-            /* TODO */ }));
+            new FrmKardex(this, true).setVisible(true);
+        }));
+
         if (SesionUsuario.puedeAcceder("AJUSTAR_STOCK")) {
             menu.add(crearItem("Ajustes de Inventario", e -> {
-                /* TODO */ }));
+                new FrmAjusteInventario(this, true).setVisible(true);
+            }));
         }
+
         return menu;
     }
 
@@ -87,24 +129,110 @@ public class FrmPrincipal extends JFrame {
             }));
         }
 
+        if (SesionUsuario.puedeAcceder("VENTAS")) {
+            menu.add(crearItem("Devolución de Cliente", e -> {
+                new FrmDevolucionCliente(this, true).setVisible(true);
+            }));
+        }
+
+        // Cuentas por Cobrar vive en el menú Tesorería (ver
+        // crearMenuTesoreria), no aquí — mismo criterio de paquetes
+        // ya definido en el informe (Ventas→Tesorería).
         return menu;
     }
 
     private JMenu crearMenuCompras() {
         JMenu menu = new JMenu("Compras");
+
         if (SesionUsuario.puedeAcceder("REGISTRAR_COMPRA")) {
             menu.add(crearItem("Registrar Compra", e -> {
-                /* TODO */ }));
+                new FrmCompras().setVisible(true);
+            }));
         }
+
+        if (SesionUsuario.puedeAcceder("COMPRAS")) {
+            menu.add(crearItem("Solicitar Orden de Compra", e -> {
+                new FrmOrdenCompra(this, true).setVisible(true);
+            }));
+
+            menu.add(crearItem("Devolución a Proveedor", e -> {
+                new FrmDevolucionProveedor(this, true).setVisible(true);
+            }));
+        }
+
+        // Cuentas por Pagar y Pago a Proveedor viven en el menú
+        // Tesorería (ver crearMenuTesoreria), no aquí — mismo criterio
+        // de paquetes ya definido en el informe (Compras→Tesorería).
         return menu;
     }
 
+    private JMenu crearMenuTesoreria() {
+        JMenu menu = new JMenu("Tesorería");
+
+        if (SesionUsuario.puedeAcceder("CAJA")) {
+            menu.add(crearItem("Abrir Caja", e -> {
+                new FrmAbrirCaja(this, true).setVisible(true);
+            }));
+
+            menu.add(crearItem("Cobro a Cliente", e -> {
+                new FrmCobroCliente(this, true).setVisible(true);
+            }));
+
+            menu.add(crearItem("Movimientos de Caja", e -> {
+                new FrmMovsCaja(this, true).setVisible(true);
+            }));
+
+            menu.add(crearItem("Cierre de Caja", e -> {
+                new FrmCierreCaja(this, true).setVisible(true);
+            }));
+        }
+
+        if (SesionUsuario.puedeAcceder("TESORERIA")) {
+            if (menu.getItemCount() > 0) {
+                menu.addSeparator();
+            }
+
+            menu.add(crearItem("Cuentas por Pagar", e -> {
+                new FrmCuentasPagar(this, true).setVisible(true);
+            }));
+
+            menu.add(crearItem("Cuentas por Cobrar", e -> {
+                new FrmCuentasCobrar(this, true).setVisible(true);
+            }));
+
+            menu.add(crearItem("Pago a Proveedor", e -> {
+                new FrmPagoProveedor(this, true).setVisible(true);
+            }));
+
+            menu.add(crearItem("Movimientos Bancarios", e -> {
+                new FrmMovsBancarios(this, true).setVisible(true);
+            }));
+        }
+
+        return menu;
+    } 
+
     private JMenu crearMenuContabilidad() {
         JMenu menu = new JMenu("Contabilidad");
-        if (SesionUsuario.puedeAcceder("VER_BALANCE")) {
-            menu.add(crearItem("Balance", e -> {
-                /* TODO */ }));
-        }
+
+        menu.add(crearItem("Libro Diario", e -> {
+            new FrmLibroDiario(this, true).setVisible(true);
+        }));
+
+        menu.add(crearItem("Libro Mayor", e -> {
+            new FrmLibroMayor(this, true).setVisible(true);
+        }));
+
+        menu.add(crearItem("Estado de Resultados", e -> {
+            new FrmEstadoDeResultados(this, true).setVisible(true);
+        }));
+
+        menu.add(crearItem("Balance General", e -> {
+            new FrmBalanceGeneral(this, true).setVisible(true);
+        }));
+
+        // Balance de Comprobación: el backend ya existe
+        // (BalanceComprobacionService/DAO), pero falta el FrmX.
         return menu;
     }
 

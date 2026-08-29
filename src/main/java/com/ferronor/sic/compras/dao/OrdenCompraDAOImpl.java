@@ -71,6 +71,45 @@ public class OrdenCompraDAOImpl extends AbstractDAO implements OrdenCompraDAO {
     }
 
     @Override
+    public List<OrdenCompra> listarDisponiblesParaCompra() {
+
+        String sql = "SELECT " + COLUMNAS
+                + " FROM " + TABLA
+                + " WHERE estado = ? "
+                + "AND NOT EXISTS ("
+                + "    SELECT 1 "
+                + "    FROM compra c "
+                + "    WHERE c.id_orden_compra = orden_compra.id_orden_compra"
+                + ") "
+                + "ORDER BY fecha DESC";
+
+        Connection cn = obtenerConexion();
+        List<OrdenCompra> resultado = new ArrayList<>();
+
+        try (PreparedStatement ps = cn.prepareStatement(sql)) {
+
+            ps.setString(1, EstadoOrdenCompra.APROBADA.name());
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                while (rs.next()) {
+                    resultado.add(mapear(rs));
+                }
+            }
+
+            return resultado;
+
+        } catch (SQLException e) {
+            throw error(
+                    "Error al listar órdenes de compra disponibles para registrar compras",
+                    e
+            );
+        } finally {
+            cerrar(cn);
+        }
+    }
+
+    @Override
     public OrdenCompra buscarPorId(Integer idOrdenCompra) {
         String sql = "SELECT " + COLUMNAS + " FROM " + TABLA + " WHERE id_orden_compra = ?";
         Connection cn = obtenerConexion();
