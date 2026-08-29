@@ -67,6 +67,11 @@ public class FrmBalanceGeneral extends javax.swing.JDialog {
     // ============================================================
     // COLORES
     // ============================================================
+    
+    
+    private static final Color COLOR_BLANCO
+            = new Color(245, 246, 245);
+    
     private static final Color COLOR_TEXTO
             = new Color(43, 47, 46);
 
@@ -439,7 +444,7 @@ public class FrmBalanceGeneral extends javax.swing.JDialog {
         );
 
         renderer.setForeground(
-                COLOR_TEXTO_SECUNDARIO
+                COLOR_BLANCO
         );
 
         return renderer;
@@ -463,7 +468,7 @@ public class FrmBalanceGeneral extends javax.swing.JDialog {
         );
 
         renderer.setForeground(
-                COLOR_TEXTO
+                COLOR_BLANCO
         );
 
         return renderer;
@@ -487,7 +492,7 @@ public class FrmBalanceGeneral extends javax.swing.JDialog {
         );
 
         renderer.setForeground(
-                COLOR_TEXTO
+                COLOR_BLANCO
         );
 
         return renderer;

@@ -482,9 +482,6 @@
         <Component class="javax.swing.JTextField" name="txtResumenDiferencia">
           <Properties>
             <Property name="editable" type="boolean" value="false"/>
-            <Property name="document" type="javax.swing.text.Document" editor="org.netbeans.modules.form.ComponentChooserEditor">
-              <ComponentRef name="default"/>
-            </Property>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Consolas" size="12" style="1"/>
             </Property>
@@ -505,9 +502,6 @@
         <Component class="javax.swing.JTextField" name="txtResumenValorDiferencia">
           <Properties>
             <Property name="editable" type="boolean" value="false"/>
-            <Property name="document" type="javax.swing.text.Document" editor="org.netbeans.modules.form.ComponentChooserEditor">
-              <ComponentRef name="default"/>
-            </Property>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Consolas" size="14" style="1"/>
             </Property>

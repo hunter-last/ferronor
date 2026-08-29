@@ -1042,15 +1042,24 @@ public class FrmCompras extends javax.swing.JFrame {
                 return;
             }
 
+            BigDecimal cpp
+                    = inventarioService.obtenerCostoPromedioActual(
+                            producto.getIdProducto()
+                    );
+
+            Object costoReferencia = cpp.signum() == 0 ? null : cpp;
+
             modeloDetalle.addRow(
                     new Object[]{
                         producto,
                         detalleOrden.getCantidad(),
-                        null,
+                        costoReferencia,
                         null
                     }
             );
         }
+
+        actualizarSubtotalesDesdeTabla();
 
         recalcularTotalesDesdeTabla();
     }
@@ -1247,7 +1256,6 @@ public class FrmCompras extends javax.swing.JFrame {
 
     // cmbProductos: editable + ComboAutoFiltro sobre
     // ProductoService.buscarActivosPorNombreOCodigoParcial(texto).
-   
     // txtPrecioUnitario ahora se autocompleta con el último costo promedio
     // ponderado (CPP) registrado en stock, solo como referencia — el
     // usuario puede editarlo porque el costo real de esta compra puede

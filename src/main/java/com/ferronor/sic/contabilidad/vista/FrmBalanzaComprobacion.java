@@ -430,7 +430,7 @@ public class FrmBalanzaComprobacion extends javax.swing.JDialog {
         );
 
         rendererCodigo.setForeground(
-                COLOR_PETROLEO
+                COLOR_FONDO_CABECERA_TABLA
         );
 
         // --------------------------------------------------------
@@ -452,7 +452,7 @@ public class FrmBalanzaComprobacion extends javax.swing.JDialog {
         );
 
         rendererCuenta.setForeground(
-                COLOR_TEXTO
+                COLOR_FONDO_CABECERA_TABLA
         );
 
         // --------------------------------------------------------
@@ -492,7 +492,7 @@ public class FrmBalanzaComprobacion extends javax.swing.JDialog {
         );
 
         rendererSaldo.setForeground(
-                COLOR_PETROLEO
+                COLOR_FONDO_CABECERA_TABLA
         );
 
         // --------------------------------------------------------
@@ -1121,7 +1121,7 @@ public class FrmBalanzaComprobacion extends javax.swing.JDialog {
                 .addContainerGap(12, Short.MAX_VALUE))
         );
 
-        pnlConsultaFechaBalanzaComprobacion.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "01. CONSULTA DEL BALANCE DE COMPROBACIÓN ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlConsultaFechaBalanzaComprobacion.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "01. CONSULTA DEL BALANCE DE COMPROBACIÓN ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         lblFechaDeCorte.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         lblFechaDeCorte.setText("FECHA DE CORTE");
@@ -1225,7 +1225,7 @@ public class FrmBalanzaComprobacion extends javax.swing.JDialog {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        pnlBalanzaComprobacion.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "02. BALANZA DE COMPROBACIÓN", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlBalanzaComprobacion.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "02. BALANZA DE COMPROBACIÓN", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         tblBalanzaComprobacion.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -1248,7 +1248,7 @@ public class FrmBalanzaComprobacion extends javax.swing.JDialog {
         });
         pnlBalanzaComprobacion.setViewportView(tblBalanzaComprobacion);
 
-        pnlResumen.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "03. RESUMEN", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlResumen.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "03. RESUMEN", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         lblMovimientos.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         lblMovimientos.setText("MOVIMIENTOS");
@@ -1334,9 +1334,9 @@ public class FrmBalanzaComprobacion extends javax.swing.JDialog {
                                 .addComponent(lblMovimientos)
                                 .addComponent(lblTotalDebe, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addGroup(pnlResumenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(lblCantMovimientos)
-                                .addComponent(lblValorTotalDebe)))))
+                            .addGroup(pnlResumenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(lblValorTotalDebe)
+                                .addComponent(lblCantMovimientos)))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 

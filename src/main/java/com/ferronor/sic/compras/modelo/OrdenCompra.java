@@ -88,4 +88,9 @@ public class OrdenCompra {
     public void setFechaAprobacion(LocalDateTime fechaAprobacion) {
         this.fechaAprobacion = fechaAprobacion;
     }
+
+    @Override
+    public String toString() {
+        return String.format("OC-%04d", idOrdenCompra);
+    }
 }

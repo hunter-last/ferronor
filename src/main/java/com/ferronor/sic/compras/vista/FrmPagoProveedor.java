@@ -2131,7 +2131,7 @@ public class FrmPagoProveedor extends javax.swing.JDialog {
                 .addContainerGap(7, Short.MAX_VALUE))
         );
 
-        pnlCuentasPagar.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "01. CUENTAS POR PAGAR", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlCuentasPagar.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "01. CUENTAS POR PAGAR", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         lblProveedor.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         lblProveedor.setText("PROVEEDOR");
@@ -2198,11 +2198,12 @@ public class FrmPagoProveedor extends javax.swing.JDialog {
                         .addComponent(btnConsultar)
                         .addComponent(btnLimpiar))
                     .addGroup(pnlCuentasPagarLayout.createSequentialGroup()
-                        .addGroup(pnlCuentasPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(lblProveedor)
-                            .addComponent(lblEstado)
-                            .addComponent(lblDesde)
-                            .addComponent(lblHasta))
+                        .addGroup(pnlCuentasPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblEstado, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(pnlCuentasPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(lblProveedor)
+                                .addComponent(lblDesde)
+                                .addComponent(lblHasta)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(pnlCuentasPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(pnlCuentasPagarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -2239,7 +2240,7 @@ public class FrmPagoProveedor extends javax.swing.JDialog {
         lblNCuentasPagarFiltrosSeleccionados.setText("3 cuentas por pagar para los filtros seleccionados ");
         lblNCuentasPagarFiltrosSeleccionados.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
-        pnlCuentaSeleccionada.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "02. CUENTA SELECCIONADA", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlCuentaSeleccionada.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "02. CUENTA SELECCIONADA", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         lblNombreEmpresaYTipoEmpresa.setText("Corporación Ferretera del Norte S.A.C. ");
 
@@ -2363,7 +2364,7 @@ public class FrmPagoProveedor extends javax.swing.JDialog {
                 .addContainerGap(12, Short.MAX_VALUE))
         );
 
-        pnlRegistrarPago.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "03. REGISTRAR PAGO", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlRegistrarPago.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "03. REGISTRAR PAGO", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         lblMontoAPagar.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         lblMontoAPagar.setText("MONTO A PAGAR");

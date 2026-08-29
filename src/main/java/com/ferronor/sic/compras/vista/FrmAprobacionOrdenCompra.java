@@ -284,18 +284,6 @@ public class FrmAprobacionOrdenCompra extends javax.swing.JDialog {
 
                     seleccionarOrdenDesdeTabla();
                 });
-
-        btnAprobar.addActionListener(
-                e -> aprobarOrden()
-        );
-
-        btnRechazar.addActionListener(
-                e -> rechazarOrden()
-        );
-
-        btnCancelar.addActionListener(
-                e -> cancelar()
-        );
     }
 
     private void iniciarReloj() {

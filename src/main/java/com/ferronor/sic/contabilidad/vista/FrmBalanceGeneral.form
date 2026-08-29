@@ -78,7 +78,7 @@
                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
                       <Component id="lblHora" max="32767" attributes="0"/>
                       <Component id="lblFecha" alignment="1" max="32767" attributes="0"/>
-                      <Component id="lblUsuario" alignment="1" pref="43" max="32767" attributes="0"/>
+                      <Component id="lblUsuario" alignment="1" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="0" max="-2" attributes="0">

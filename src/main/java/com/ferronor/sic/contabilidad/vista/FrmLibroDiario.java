@@ -1299,7 +1299,7 @@ public class FrmLibroDiario extends javax.swing.JDialog {
                 if (row == filaTotal) {
 
                     label.setBackground(
-                            COLOR_FONDO_DETALLE 
+                            COLOR_FONDO_DETALLE
                     );
 
                     label.setFont(
@@ -1404,6 +1404,10 @@ public class FrmLibroDiario extends javax.swing.JDialog {
                                 );
 
                 label.setOpaque(true);
+
+                label.setForeground(
+                        Color.BLACK
+                );
 
                 label.setBorder(
                         BorderFactory.createEmptyBorder(

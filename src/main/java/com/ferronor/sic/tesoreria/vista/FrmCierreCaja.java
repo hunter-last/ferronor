@@ -189,13 +189,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
          * por NetBeans.
          */
 
-        btnCancelar.addActionListener(
-                e -> cancelar()
-        );
-
-        btnCerrarCaja.addActionListener(
-                e -> cerrarCaja()
-        );
     }
 
     // ============================================================
