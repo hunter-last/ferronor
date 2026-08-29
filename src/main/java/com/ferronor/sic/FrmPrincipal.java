@@ -15,7 +15,6 @@ import com.ferronor.sic.maestros.vista.FrmGestionCategorias;
 import com.ferronor.sic.maestros.vista.FrmGestionClientes;
 import com.ferronor.sic.maestros.vista.FrmGestionProductos;
 import com.ferronor.sic.maestros.vista.FrmGestionProveedores;
-import com.ferronor.sic.maestros.vista.FrmCategoria;
 import com.ferronor.sic.maestros.vista.FrmGestionCategorias;
 import com.ferronor.sic.seguridad.vista.FrmLogin;
 import com.ferronor.sic.shared.SesionUsuario;
@@ -87,19 +86,23 @@ public class FrmPrincipal extends JFrame {
 
     private JMenu crearMenuMaestros() {
         JMenu menu = new JMenu("Maestros");
+
         menu.add(crearItem("Categorías", e -> {
             new FrmGestionCategorias().setVisible(true);
         }));
+
         menu.add(crearItem("Clientes", e -> {
             new FrmGestionClientes().setVisible(true);
         }));
+
         menu.add(crearItem("Productos", e -> {
             new FrmGestionProductos().setVisible(true);
         }));
+
         menu.add(crearItem("Proveedores", e -> {
             new FrmGestionProveedores().setVisible(true);
-            new FrmGestionCategorias.setVisible(true);
         }));
+
         return menu;
     }
 
