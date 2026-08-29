@@ -11,11 +11,13 @@ import com.ferronor.sic.contabilidad.vista.FrmLibroMayor;
 import com.ferronor.sic.inventario.vista.FrmAjusteInventario;
 import com.ferronor.sic.inventario.vista.FrmConsultarStock;
 import com.ferronor.sic.inventario.vista.FrmKardex;
-import com.ferronor.sic.maestros.vista.FrmGestionCategorias;
 import com.ferronor.sic.maestros.vista.FrmGestionClientes;
 import com.ferronor.sic.maestros.vista.FrmGestionProductos;
 import com.ferronor.sic.maestros.vista.FrmGestionProveedores;
 import com.ferronor.sic.maestros.vista.FrmGestionCategorias;
+import com.ferronor.sic.maestros.vista.FrmGestionFormasPago;
+import com.ferronor.sic.maestros.vista.FrmGestionTiposComprobante;
+import com.ferronor.sic.maestros.vista.FrmGestionUnidadesMedida;
 import com.ferronor.sic.seguridad.vista.FrmLogin;
 import com.ferronor.sic.shared.SesionUsuario;
 import com.ferronor.sic.tesoreria.vista.FrmAbrirCaja;
@@ -101,6 +103,20 @@ public class FrmPrincipal extends JFrame {
 
         menu.add(crearItem("Proveedores", e -> {
             new FrmGestionProveedores().setVisible(true);
+        }));
+
+        menu.addSeparator();
+
+        menu.add(crearItem("Unidades de medida", e -> {
+            new FrmGestionUnidadesMedida().setVisible(true);
+        }));
+
+        menu.add(crearItem("Formas de pago", e -> {
+            new FrmGestionFormasPago().setVisible(true);
+        }));
+
+        menu.add(crearItem("Tipos de comprobante", e -> {
+            new FrmGestionTiposComprobante().setVisible(true);
         }));
 
         return menu;
