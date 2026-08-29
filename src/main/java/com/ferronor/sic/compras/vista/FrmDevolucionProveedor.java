@@ -1,7 +1,6 @@
 package com.ferronor.sic.compras.vista;
 
 import com.ferronor.sic.compras.logica.CompraService;
-import com.ferronor.sic.compras.logica.DevolucionCompraService;
 import com.ferronor.sic.compras.modelo.Compra;
 import com.ferronor.sic.compras.modelo.DetalleCompra;
 import com.ferronor.sic.compras.modelo.DevolucionCompra;
@@ -16,8 +15,6 @@ import com.ferronor.sic.shared.SesionUsuario;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.SpinnerNumberModel;
@@ -73,9 +70,6 @@ public class FrmDevolucionProveedor extends javax.swing.JDialog {
         txtValEj2.setEditable(false);
         txtValEj3.setEditable(false);
 
-        btnAgregarProducto.addActionListener(e -> agregarProductoADevolucion());
-        btnRegistrarDevolucion.addActionListener(e -> registrarDevolucion());
-        btnCancelar.addActionListener(e -> dispose());
     }
 
     private void configurarTabla() {

@@ -38,6 +38,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import com.ferronor.sic.compras.modelo.DetalleOrdenCompra;
+import com.ferronor.sic.inventario.logica.InventarioService;
+import static com.ferronor.sic.shared.ServiceFactory.inventarioService;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 import javax.swing.JTable;
@@ -58,6 +60,7 @@ public class FrmCompras extends javax.swing.JFrame {
     private final OrdenCompraService ordenCompraService = ServiceFactory.ordenCompraService();
     private final TesoreriaService tesoreriaService = ServiceFactory.tesoreriaService();
     private final ProcesoCompra procesoCompra = ServiceFactory.procesoCompra();
+    private final InventarioService inventarioService = ServiceFactory.inventarioService();
 
     private final List<DetalleCompra> detalles = new ArrayList<>();
     private final DefaultTableModel modeloDetalle = new DefaultTableModel(
@@ -1244,16 +1247,22 @@ public class FrmCompras extends javax.swing.JFrame {
 
     // cmbProductos: editable + ComboAutoFiltro sobre
     // ProductoService.buscarActivosPorNombreOCodigoParcial(texto).
-    // A diferencia de Ventas, txtPrecioUnitario NO se autocompleta: es el
-    // costo de compra, que el catálogo no guarda (Producto solo tiene
-    // precioVenta), así que queda vacío y editable para que el usuario lo
-    // ingrese.
+   
+    // txtPrecioUnitario ahora se autocompleta con el último costo promedio
+    // ponderado (CPP) registrado en stock, solo como referencia — el
+    // usuario puede editarlo porque el costo real de esta compra puede
+    // variar frente al histórico.
     private void configurarComboProductos() {
         cmbProductos.setModel(new DefaultComboBoxModel<>());
         ComboAutoFiltro.mejorarCombo(cmbProductos, productoService::buscarActivosPorNombreOCodigoParcial);
         cmbProductos.addItemListener(e -> {
-            if (e.getStateChange() == ItemEvent.SELECTED && e.getItem() instanceof Producto) {
-                txtPrecioUnitario.setText("");
+            if (e.getStateChange() == ItemEvent.SELECTED && e.getItem() instanceof Producto producto) {
+
+                BigDecimal cpp = inventarioService.obtenerCostoPromedioActual(producto.getIdProducto());
+
+                txtPrecioUnitario.setText(
+                        cpp.signum() == 0 ? "" : cpp.toPlainString()
+                );
             }
         });
     }

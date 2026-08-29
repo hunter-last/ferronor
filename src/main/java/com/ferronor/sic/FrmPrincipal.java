@@ -5,13 +5,13 @@ import com.ferronor.sic.compras.vista.FrmDevolucionProveedor;
 import com.ferronor.sic.compras.vista.FrmOrdenCompra;
 import com.ferronor.sic.compras.vista.FrmPagoProveedor;
 import com.ferronor.sic.contabilidad.vista.FrmBalanceGeneral;
+import com.ferronor.sic.contabilidad.vista.FrmBalanzaComprobacion;
 import com.ferronor.sic.contabilidad.vista.FrmEstadoDeResultados;
 import com.ferronor.sic.contabilidad.vista.FrmLibroDiario;
 import com.ferronor.sic.contabilidad.vista.FrmLibroMayor;
 import com.ferronor.sic.inventario.vista.FrmAjusteInventario;
 import com.ferronor.sic.inventario.vista.FrmConsultarStock;
 import com.ferronor.sic.inventario.vista.FrmKardex;
-import com.ferronor.sic.maestros.vista.FrmGestionCategorias;
 import com.ferronor.sic.maestros.vista.FrmGestionClientes;
 import com.ferronor.sic.maestros.vista.FrmGestionProductos;
 import com.ferronor.sic.maestros.vista.FrmGestionProveedores;
@@ -227,6 +227,10 @@ public class FrmPrincipal extends JFrame {
 
         menu.add(crearItem("Libro Mayor", e -> {
             new FrmLibroMayor(this, true).setVisible(true);
+        }));
+        
+        menu.add(crearItem("Balanza de comprobacion", e -> {
+            new FrmBalanzaComprobacion(this, true).setVisible(true);
         }));
 
         menu.add(crearItem("Estado de Resultados", e -> {

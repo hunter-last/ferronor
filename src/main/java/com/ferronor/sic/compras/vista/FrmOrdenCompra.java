@@ -66,6 +66,10 @@ public class FrmOrdenCompra extends javax.swing.JDialog {
         actualizarResumen();
     }
 
+    private void configurarSpinnerCantidad() {
+        spnCantidad.setModel(new SpinnerNumberModel(1, 1, 99999, 1));
+    }
+
     private void configurarSesion() {
         if (!SesionUsuario.haySesion()) {
             JOptionPane.showMessageDialog(this, "No existe una sesión de usuario activa.", "Sesión", JOptionPane.WARNING_MESSAGE);
@@ -126,10 +130,6 @@ public class FrmOrdenCompra extends javax.swing.JDialog {
         });
     }
 
-    private void configurarSpinnerCantidad() {
-        SpinnerNumberModel modeloCantidad = new SpinnerNumberModel(BigDecimal.ONE, new BigDecimal("0.01"), null, BigDecimal.ONE);
-        spnCantidad.setModel(modeloCantidad);
-    }
 
     /**
      * * Configuración de JTable.
@@ -167,9 +167,7 @@ public class FrmOrdenCompra extends javax.swing.JDialog {
     private void configurarListeners() {
         cmbProveedores.addActionListener(e -> proveedorSeleccionado());
         cmbProductos.addActionListener(e -> productoSeleccionado());
-        btnAgregarProducto.addActionListener(e -> agregarProducto());
-        btnRegistrarSolicitud.addActionListener(e -> registrarSolicitud());
-        btnCancelar.addActionListener(e -> cancelar());
+
         tblDetalleSolicitud.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -530,7 +528,7 @@ public class FrmOrdenCompra extends javax.swing.JDialog {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        pblDatosProveedor.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "01. DATOS DEL PROVEEDOR", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pblDatosProveedor.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "01. DATOS DEL PROVEEDOR", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         lblBuscarProveedor.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         lblBuscarProveedor.setText("BUSCAR PROVEEDOR");
@@ -603,10 +601,8 @@ public class FrmOrdenCompra extends javax.swing.JDialog {
                                 .addComponent(txtRuc, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(26, 26, 26)
                         .addGroup(pblDatosProveedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(pblDatosProveedorLayout.createSequentialGroup()
-                                .addComponent(lblContacto)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addComponent(txtContacto)))
+                            .addComponent(lblContacto)
+                            .addComponent(txtContacto, javax.swing.GroupLayout.DEFAULT_SIZE, 342, Short.MAX_VALUE)))
                     .addComponent(pnlProveedorEncontrado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(22, 22, 22))
         );
@@ -629,7 +625,7 @@ public class FrmOrdenCompra extends javax.swing.JDialog {
                 .addContainerGap(12, Short.MAX_VALUE))
         );
 
-        pnlProductos.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "02. PRODUCTOS", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlProductos.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "02. PRODUCTOS", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         lblBuscarProducto.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         lblBuscarProducto.setText("BUSCAR PRODUCTO");
@@ -693,7 +689,7 @@ public class FrmOrdenCompra extends javax.swing.JDialog {
                 .addContainerGap(10, Short.MAX_VALUE))
         );
 
-        pnlDetalleSolicitud.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "03. DETALLE DE SOLICITUD", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlDetalleSolicitud.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "03. DETALLE DE SOLICITUD", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         tblDetalleSolicitud.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -744,7 +740,7 @@ public class FrmOrdenCompra extends javax.swing.JDialog {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        pnlResumen.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "04. RESUMEN", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlResumen.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "04. RESUMEN", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         lblProductosDistintos.setText("Productos Distintos");
 
