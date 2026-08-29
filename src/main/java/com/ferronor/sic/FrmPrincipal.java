@@ -4,6 +4,7 @@ import com.ferronor.sic.compras.vista.FrmCompras;
 import com.ferronor.sic.compras.vista.FrmDevolucionProveedor;
 import com.ferronor.sic.compras.vista.FrmOrdenCompra;
 import com.ferronor.sic.compras.vista.FrmPagoProveedor;
+import com.ferronor.sic.compras.vista.FrmAprobacionOrdenCompra;
 import com.ferronor.sic.contabilidad.vista.FrmBalanceGeneral;
 import com.ferronor.sic.contabilidad.vista.FrmEstadoDeResultados;
 import com.ferronor.sic.contabilidad.vista.FrmLibroDiario;
@@ -177,14 +178,15 @@ public class FrmPrincipal extends JFrame {
                 new FrmOrdenCompra(this, true).setVisible(true);
             }));
 
+            menu.add(crearItem("Aprobación de Orden de Compra", e -> {
+                new FrmAprobacionOrdenCompra(this, true).setVisible(true);
+            }));
+
             menu.add(crearItem("Devolución a Proveedor", e -> {
                 new FrmDevolucionProveedor(this, true).setVisible(true);
             }));
         }
 
-        // Cuentas por Pagar y Pago a Proveedor viven en el menú
-        // Tesorería (ver crearMenuTesoreria), no aquí — mismo criterio
-        // de paquetes ya definido en el informe (Compras→Tesorería).
         return menu;
     }
 
