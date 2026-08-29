@@ -1119,6 +1119,14 @@ public class FrmLibroDiario extends javax.swing.JDialog {
                 )
         );
 
+        rendererCuenta.setForeground(
+                Color.BLACK
+        );
+
+        rendererCuenta.setBackground(
+                Color.WHITE
+        );
+
         /*
          * Debe/Haber
          */
@@ -1135,6 +1143,14 @@ public class FrmLibroDiario extends javax.swing.JDialog {
                         Font.PLAIN,
                         11
                 )
+        );
+
+        rendererMonto.setForeground(
+                Color.BLACK
+        );
+
+        rendererMonto.setBackground(
+                Color.WHITE
         );
 
         tabla.getColumnModel()
@@ -1271,14 +1287,19 @@ public class FrmLibroDiario extends javax.swing.JDialog {
                         )
                 );
 
-                label.setOpaque(
-                        true
+                label.setOpaque(true);
+
+                // ==========================================
+                // COLOR DEL TEXTO
+                // ==========================================
+                label.setForeground(
+                        Color.BLACK
                 );
 
                 if (row == filaTotal) {
 
                     label.setBackground(
-                            COLOR_FONDO_DETALLE
+                            COLOR_FONDO_DETALLE 
                     );
 
                     label.setFont(
@@ -1287,12 +1308,6 @@ public class FrmLibroDiario extends javax.swing.JDialog {
                                     Font.BOLD,
                                     11
                             )
-                    );
-
-                    label.setHorizontalAlignment(
-                            column == 0
-                                    ? SwingConstants.LEFT
-                                    : SwingConstants.RIGHT
                     );
 
                 } else {
@@ -1308,11 +1323,18 @@ public class FrmLibroDiario extends javax.swing.JDialog {
                                     11
                             )
                     );
+                }
+
+                if (column == 0) {
 
                     label.setHorizontalAlignment(
-                            column == 0
-                                    ? SwingConstants.LEFT
-                                    : SwingConstants.RIGHT
+                            SwingConstants.LEFT
+                    );
+
+                } else {
+
+                    label.setHorizontalAlignment(
+                            SwingConstants.RIGHT
                     );
                 }
 

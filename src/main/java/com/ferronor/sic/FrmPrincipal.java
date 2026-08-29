@@ -12,6 +12,9 @@ import com.ferronor.sic.inventario.vista.FrmAjusteInventario;
 import com.ferronor.sic.inventario.vista.FrmConsultarStock;
 import com.ferronor.sic.inventario.vista.FrmKardex;
 import com.ferronor.sic.maestros.vista.FrmGestionCategorias;
+import com.ferronor.sic.maestros.vista.FrmGestionClientes;
+import com.ferronor.sic.maestros.vista.FrmGestionProductos;
+import com.ferronor.sic.maestros.vista.FrmGestionProveedores;
 import com.ferronor.sic.seguridad.vista.FrmLogin;
 import com.ferronor.sic.shared.SesionUsuario;
 import com.ferronor.sic.tesoreria.vista.FrmAbrirCaja;
@@ -84,6 +87,15 @@ public class FrmPrincipal extends JFrame {
         JMenu menu = new JMenu("Maestros");
         menu.add(crearItem("Categorías", e -> {
             new FrmGestionCategorias().setVisible(true);
+        }));
+        menu.add(crearItem("Clientes", e -> {
+            new FrmGestionClientes().setVisible(true);
+        }));
+        menu.add(crearItem("Productos", e -> {
+            new FrmGestionProductos().setVisible(true);
+        }));
+        menu.add(crearItem("Proveedores", e -> {
+            new FrmGestionProveedores().setVisible(true);
         }));
         return menu;
     }
