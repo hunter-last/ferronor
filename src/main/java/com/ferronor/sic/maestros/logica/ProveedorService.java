@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.ferronor.sic.maestros.logica;
 
 import com.ferronor.sic.maestros.modelo.Proveedor;
@@ -25,4 +21,7 @@ public interface ProveedorService {
     Proveedor buscarPorId(int idProveedor);
 
     Proveedor buscarPorRuc(String ruc);
+
+    List<Proveedor> buscarActivosPorRazonSocialORucParcial(String texto);
 }
+

@@ -5,6 +5,7 @@
 package com.ferronor.sic.inventario.dao;
 
 import com.ferronor.sic.inventario.modelo.MovimientoInventario;
+import com.ferronor.sic.inventario.modelo.OrigenMovimiento;
 import com.ferronor.sic.shared.IHistoricoDAO;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,5 +19,7 @@ public interface MovimientoInventarioDAO extends IHistoricoDAO<MovimientoInventa
     void vincularDocumentoOrigen(int idMovimiento, int idDocumentoOrigen);
 
     List<MovimientoInventario> listarHastaFecha(int idProducto, LocalDateTime hasta);
+
+    MovimientoInventario buscarPorOrigenYDocumento(int idProducto, OrigenMovimiento origen, int idDocumentoOrigen);
 
 }

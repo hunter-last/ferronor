@@ -15,7 +15,8 @@ public class ProductoDAOImpl extends AbstractDAO implements ProductoDAO {
     private static final String TABLA = "producto";
     private static final String COLUMNAS
             = "id_producto, codigo, nombre, id_categoria, id_unidad_medida, stock_minimo, precio_venta, activo";
-
+    private static final int LIMITE_BUSQUEDA = 20;
+    
     @Override
     public void insertar(Producto p) {
         String sql = "INSERT INTO " + TABLA
@@ -105,6 +106,32 @@ public class ProductoDAOImpl extends AbstractDAO implements ProductoDAO {
     @Override
     public Producto buscarPorCodigo(String codigo) {
         return buscarPorCampo("codigo = ?", codigo);
+    }
+    
+    @Override
+    public List<Producto> buscarActivosPorNombreOCodigoParcial(String texto) {
+        String sql = "SELECT " + COLUMNAS + " FROM " + TABLA
+                + " WHERE activo = TRUE AND (nombre ILIKE '%' || ? || '%' "
+                + "OR codigo ILIKE '%' || ? || '%') "
+                + "ORDER BY nombre LIMIT ?";
+        Connection cn = obtenerConexion();
+        List<Producto> resultado = new ArrayList<>();
+        try (PreparedStatement ps = cn.prepareStatement(sql)) {
+            String valor = texto == null ? "" : texto.trim();
+            ps.setString(1, valor);
+            ps.setString(2, valor);
+            ps.setInt(3, LIMITE_BUSQUEDA);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    resultado.add(mapear(rs));
+                }
+            }
+            return resultado;
+        } catch (SQLException e) {
+            throw error("Error al buscar productos por nombre o código parcial", e);
+        } finally {
+            cerrar(cn);
+        }
     }
 
     private Producto buscarPorCampo(String condicion, Object valor) {

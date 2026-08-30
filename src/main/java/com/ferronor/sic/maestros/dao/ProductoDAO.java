@@ -10,6 +10,8 @@ public interface ProductoDAO extends IGeneralDAO<Producto, Integer> {
 
     List<Producto> listarActivos();
 
+    List<Producto> buscarActivosPorNombreOCodigoParcial(String texto);
+
     void desactivar(int idProducto);
 
     void activar(int idProducto);

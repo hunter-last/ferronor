@@ -38,4 +38,11 @@ public class TipoComprobante {
     public void setSerie(String serie) {
         this.serie = serie;
     }
+
+    @Override
+    public String toString() {
+        return nombre;
+    }
+    
+    
 }

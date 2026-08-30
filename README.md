@@ -1,176 +1,121 @@
-\# Sistema de Gestión Comercial y Contable — Decor Home Ferronor
-
-
+# Sistema de Gestión Comercial y Contable — Decor Home Ferronor
 
 Sistema de escritorio (Java Swing + JDBC + PostgreSQL) desarrollado para Decor Home
-
 Ferronor S.A.C., como proyecto conjunto de los cursos de Ingeniería de Software y
-
 Sistemas de Información Contable — UNPRG, semestre 2026-I.
 
+## Stack técnico
 
+- **Lenguaje:** Java 23
+- **UI:** Java Swing
+- **Base de datos:** PostgreSQL 15+
+- **Acceso a datos:** JDBC puro (sin ORM), patrón DAO
+- **Build:** Maven
+- **Reportes:** Apache PDFBox (exportación a PDF), exportación CSV propia
 
-\## Stack técnico
+## Requisitos previos
 
+- JDK 23
+- PostgreSQL instalado y corriendo localmente
+- Maven (o usar el wrapper de NetBeans)
 
+## Instalación de la base de datos
 
-\- \*\*Lenguaje:\*\* Java 23
+**Base de datos:** `dbferronor` · **Motor:** PostgreSQL
 
-\- \*\*UI:\*\* Java Swing
+### Paso 1 — Crear la base de datos vacía
 
-\- \*\*Base de datos:\*\* PostgreSQL 15+
+- **pgAdmin:** clic derecho en *Databases* → *Create* → *Database* → nombre `dbferronor`
+- **Consola:** `createdb -U postgres dbferronor` (agrega `-p 5433` si tu servidor no usa el puerto por defecto)
 
-\- \*\*Acceso a datos:\*\* JDBC puro (sin ORM), patrón DAO
+### Paso 2 — Conectarte a la base de datos
 
-\- \*\*Build:\*\* Maven
+- **pgAdmin:** selecciona `dbferronor` → *Query Tool*
+- **Consola:** `psql -U postgres -d dbferronor`
 
+### Paso 3 — Ejecutar los scripts de `sql/`, en este orden exacto
 
+| # | Archivo | Contenido |
+|---|---|---|
+| 1 | `01_seguridad.sql` | Roles, permisos, usuarios |
+| 2 | `02_maestros.sql` | Categorías, productos, clientes, proveedores |
+| 3 | `03_inventario.sql` | Stock, movimientos |
+| 4 | `04_compras.sql` | Órdenes de compra, compras |
+| 5 | `05_ventas.sql` | Ventas, comprobantes |
+| 6 | `06_tesoreria.sql` | Caja, cuentas bancarias |
+| 7 | `07_contabilidad.sql` | Plan de cuentas, asientos |
+| 8 | `08_auditoria.sql` | Registro de eventos |
+| 9 | `09_indices.sql` | Índices y restricciones adicionales |
+| 10 | `10_datos_iniciales.sql` | Roles/usuarios de prueba, catálogos base y datos de ejemplo |
 
-\## Requisitos previos
+**Importante:** el orden es obligatorio — cada script depende de las tablas creadas por el anterior (llaves foráneas entre módulos).
 
+Ejecuta cada archivo, uno por uno, y **verifica que no haya errores** antes de pasar al siguiente. Si usas pgAdmin: abre el archivo `.sql` en el *Query Tool* de `dbferronor` y ejecútalo (F5) antes de abrir el siguiente.
 
+### Usuarios de prueba
 
-\- JDK 23
+`10_datos_iniciales.sql` crea un usuario por rol para poder probar el control de acceso del sistema:
 
-\- PostgreSQL instalado y corriendo localmente
+| Usuario | Contraseña | Rol |
+|---|---|---|
+| `admin` | `12345678` | Administrador (acceso total) |
+| `cajero1` | `Ferronor123` | Cajero |
+| `tesoreria1` | `Ferronor123` | Tesorería |
+| `contador1` | `Ferronor123` | Contador |
+| `logistica1` | `Ferronor123` | Logística |
 
-\- Maven (o usar el wrapper de NetBeans)
+Cada uno ve un menú distinto en `FrmPrincipal` según sus permisos — es la forma más rápida de comprobar que el control de acceso por rol funciona.
 
+## Configuración de credenciales
 
+**Nunca subas tus credenciales reales al repositorio.**
 
-\## Cómo levantar la base de datos
+1. Copia `src/main/resources/config.properties.example` a `src/main/resources/config.properties`.
+2. Completa `config.properties` con tu usuario y contraseña reales de PostgreSQL, apuntando a la base `dbferronor`.
+3. Este archivo está en `.gitignore` — no se sube nunca.
 
+## Cómo correr el proyecto
 
-
-1\. Crea la base ejecutando los scripts en `database/` \*\*en este orden exacto\*\*:
-
-
-
-01\_seguridad.sql
-
-02\_maestros.sql
-
-03\_inventario.sql
-
-04\_compras.sql
-
-05\_ventas.sql
-
-06\_tesoreria.sql
-
-07\_contabilidad.sql
-
-08\_auditoria.sql
-
-09\_indices.sql
-
-10\_datos\_iniciales.sql
-
-
-
-2\. Verifica que la base `dbferronor` quedó creada con las tablas de los 8 módulos.
-
-
-
-\## Configuración de credenciales
-
-
-
-\*\*Nunca subas tus credenciales reales al repositorio.\*\*
-
-
-
-1\. Copia `src/main/resources/config.properties.example` a
-
-&#x20;  `src/main/resources/config.properties`.
-
-2\. Completa `config.properties` con tu usuario y contraseña reales de PostgreSQL.
-
-3\. Este archivo está en `.gitignore` — no se sube nunca.
-
-
-
-\## Cómo correr el proyecto
-
-
-
-Desde NetBeans: abre el proyecto Maven y ejecuta `Main.java`.
-
-
+Desde NetBeans: abre el proyecto Maven y ejecuta `Main.java`
+(`src/main/java/com/ferronor/sic/Main.java`), el punto de entrada de la aplicación.
 
 Desde línea de comandos:
 
+```bash
+mvn compile
+mvn exec:java -Dexec.mainClass="com.ferronor.sic.Main"
+```
 
 
+## Estructura del proyecto
 
-
-\## Smoke test
-
-
-
-`src/main/java/com/ferronor/sic/pruebas/Main.java` contiene una prueba de humo que
-
-ejercita el flujo completo (Seguridad → Maestros → Inventario) sin dejar datos
-
-persistidos (usa una transacción con rollback automático al final). Ejecútalo
-
-después de levantar la base para confirmar que todo está conectado correctamente:
-
-
-
-\## Estructura del proyecto
-
-
-
-
-
+```
 com.ferronor.sic/
+├── config/        — configuración y constantes del sistema
+├── conexion/      — conexión a PostgreSQL y manejo de transacciones
+├── shared/        — clases transversales (RespuestaOperacion, SesionUsuario, ServiceFactory, FrmBase, etc.)
+├── util/          — utilidades (cálculos de IGV, CPP, validaciones, exportadores CSV/PDF)
+├── exception/     — excepciones propias del sistema
+├── seguridad/     — usuarios, roles, permisos, login
+├── auditoria/     — registro de acciones del sistema
+├── maestros/      — catálogos base (productos, clientes, proveedores, categorías, formas de pago, etc.)
+├── inventario/    — control de stock, movimientos, Kardex
+├── compras/       — órdenes de compra, aprobación, compras, devoluciones
+├── ventas/        — ventas, comprobantes, cobros, devoluciones
+├── tesoreria/     — caja, bancos, cuentas por pagar/cobrar
+├── contabilidad/  — asientos contables y reportes financieros
+└── procesos/      — coordinadores de operaciones que cruzan varios módulos
+```
 
-├── config/ — configuración y constantes del sistema
-
-├── conexion/ — conexión a PostgreSQL y manejo de transacciones
-
-├── shared/  — clases transversales (RespuestaOperacion, SesionUsuario, ServiceFactory, FrmBase, etc.)
-
-├── util/ — utilidades (cálculos de IGV, CPP, validaciones)
-
-├── exception/ — excepciones propias del sistema
-
-├── seguridad/ — usuarios, roles, permisos, login
-
-├── auditoria/ — registro de acciones del sistema
-
-├── maestros/ — catálogos base (productos, clientes, proveedores, etc.)
-
-├── inventario/ — control de stock, movimientos, Kardex
-
-├── compras/ — gestión de compras a proveedores
-
-├── ventas/ — gestión de ventas a clientes
-
-├── tesoreria/ — caja y bancos
-
-├── contabilidad/ — asientos contables y reportes financieros
-
-└── procesos/ — coordinadores de operaciones que cruzan varios módulos
-
-
-
-
-
-Cada módulo de negocio se organiza por \*\*dominio primero\*\*, no por capa global:
-
+Cada módulo de negocio se organiza por **dominio primero**, no por capa global:
+```
 modulo/
-
 ├── modelo/
-
 │ └── dto/ (solo si el módulo tiene datos derivados, ej. inventario/modelo/dto/KardexItem)
-
 ├── dao/
-
 ├── logica/
-
 └── vista/
+<<<<<<< HEAD
 
 
 
@@ -549,95 +494,31 @@ public RespuestaOperacion<Void> registrar(Categoria categoria) {
 
 }
 
+=======
+>>>>>>> develop
 ```
 
 
+Nunca crear un paquete `modelo/`, `dao/`, `dto/` global a nivel de toda la aplicación — eso rompe la cohesión que permite entender un módulo completo mirando una sola carpeta.
 
-\## 5. Operación transaccional multi-módulo — ejemplo de referencia
+## Estado actual del proyecto
 
+**Backend (modelo + DAO + lógica) cerrado en los 8 módulos:** Seguridad, Auditoría, Maestros, Inventario, Compras, Ventas, Tesorería y Contabilidad, más los coordinadores de `procesos/` (ProcesoVenta, ProcesoCompra, ProcesoCobroCliente, ProcesoPagoProveedor).
 
+**Capa de vista (Swing):**
 
-```java
+| Módulo | Pantallas |
+|---|---|
+| Seguridad | Login |
+| Maestros | Categorías, Productos, Clientes, Proveedores, Formas de Pago, Tipos de Comprobante, Unidades de Medida |
+| Inventario | Consultar Stock, Kardex, Ajuste de Inventario |
+| Compras | Solicitar Orden de Compra, Aprobación de Orden de Compra, Registrar Compra, Devolución a Proveedor, Historial de Compras |
+| Ventas | Registrar Venta (con generación de comprobante en PDF), Cobro a Cliente, Devolución de Cliente, Historial de Ventas |
+| Tesorería | Abrir Caja, Cierre de Caja, Movimientos de Caja, Movimientos Bancarios, Cuentas por Pagar, Cuentas por Cobrar, Pago a Proveedor |
+| Contabilidad | Libro Diario, Libro Mayor, Balanza de Comprobación, Balance General, Estado de Resultados |
 
-public class ProcesoVenta {
+Libro Mayor, Balanza de Comprobación y Balance General incluyen exportación de reportes a CSV y PDF.
 
-\&#x20;   public RespuestaOperacion<Void> ejecutar(...) {
+**Pendiente:** gestión de Usuarios y Roles desde la interfaz (Seguridad).
 
-\&#x20;       try (TransactionContext tx = TransactionManager.iniciar()) {
-
-\&#x20;           RespuestaOperacion<Void> rVenta = ventaService.registrarVenta(...);
-
-\&#x20;           if (!rVenta.isExito()) return rVenta;
-
-
-
-\&#x20;           RespuestaOperacion<Void> rInventario = inventarioService.registrarSalida(...);
-
-\&#x20;           if (!rInventario.isExito()) return rInventario;
-
-
-
-\&#x20;           RespuestaOperacion<Void> rContabilidad = contabilidadService.generarAsientoVenta(...);
-
-\&#x20;           if (!rContabilidad.isExito()) return rContabilidad;
-
-
-
-\&#x20;           tx.commit();
-
-\&#x20;           return RespuestaOperacion.ok();
-
-\&#x20;       }
-
-\&#x20;   }
-
-}
-
-```
-
-
-
-Ningún `catch` es necesario — si cualquier paso lanza una excepción técnica, el
-
-`close()` automático de `TransactionContext` revierte la transacción.
-
-
-
-\## 6. Decisiones de alcance del proyecto
-
-
-
-\- Una sola sucursal (sin `InventarioSucursal` ni soporte multi-almacén).
-
-\- IGV fijo al 18%, `precio\\\_venta` de producto ya incluye IGV.
-
-\- Balance de Comprobación (RF07) y Balance General (RF13, prioridad baja)
-
-&#x20; ambos implementados como reportes derivados, no como tablas.
-
-\- El diagrama de estados de Venta usa 5 estados (`INICIADA`, `PAGO\\\_PENDIENTE`,
-
-&#x20; `PAGADA`, `DESPACHADA`, `CANCELADA`), sin `COMPROBANTE\\\_EMITIDO` — revisión
-
-&#x20; respecto a la Figura 2 del PA1 original, pendiente de documentar formalmente
-
-&#x20; en el próximo entregable académico.
-
-\- Sin auditoría de intentos de login fallidos con usuario inexistente (la FK
-
-&#x20; `auditoria.id\\\_usuario` es `NOT NULL`, no hay a qué usuario asociar el intento).
-
-
-
-\## 7. Módulo de referencia
-
-
-
-El módulo \*\*Inventario\*\* (`inventario/`) es la plantilla oficial para
-
-implementar Compras, Ventas, Tesorería y Contabilidad. Ante cualquier duda de
-
-"¿cómo se supone que se ve un DAO/Service en este proyecto?", mirar primero
-
-`StockDAOImpl`, `MovimientoInventarioDAOImpl` e `InventarioServiceImpl`.
-
+Ver `ARQUITECTURA.md` para el detalle de diseño y las reglas de arquitectura del proyecto, y `CONTRIBUTING.md` para las reglas de ramas y PR del equipo.

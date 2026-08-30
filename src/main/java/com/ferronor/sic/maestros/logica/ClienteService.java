@@ -25,4 +25,7 @@ public interface ClienteService {
     Cliente buscarPorId(int idCliente);
 
     Cliente buscarPorNumeroDocumento(String numeroDocumento);
+
+    List<Cliente> buscarActivosPorNombreODocumentoParcial(String texto);
 }
+

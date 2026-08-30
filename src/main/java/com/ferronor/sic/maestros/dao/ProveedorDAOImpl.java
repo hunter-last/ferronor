@@ -19,6 +19,7 @@ public class ProveedorDAOImpl extends AbstractDAO implements ProveedorDAO {
     private static final String TABLA = "proveedor";
     private static final String COLUMNAS
             = "id_proveedor, razon_social, ruc, direccion, telefono, contacto, activo";
+    private static final int LIMITE_BUSQUEDA = 20;
 
     @Override
     public void insertar(Proveedor p) {
@@ -78,6 +79,32 @@ public class ProveedorDAOImpl extends AbstractDAO implements ProveedorDAO {
     @Override
     public void desactivar(int idProveedor) {
         cambiarEstado(idProveedor, false);
+    }
+    
+        @Override
+    public List<Proveedor> buscarActivosPorRazonSocialORucParcial(String texto) {
+        String sql = "SELECT " + COLUMNAS + " FROM " + TABLA
+                + " WHERE activo = TRUE AND (razon_social ILIKE '%' || ? || '%' "
+                + "OR ruc ILIKE '%' || ? || '%') "
+                + "ORDER BY razon_social LIMIT ?";
+        Connection cn = obtenerConexion();
+        List<Proveedor> resultado = new ArrayList<>();
+        try (PreparedStatement ps = cn.prepareStatement(sql)) {
+            String valor = texto == null ? "" : texto.trim();
+            ps.setString(1, valor);
+            ps.setString(2, valor);
+            ps.setInt(3, LIMITE_BUSQUEDA);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    resultado.add(mapear(rs));
+                }
+            }
+            return resultado;
+        } catch (SQLException e) {
+            throw error("Error al buscar proveedores por razón social o RUC parcial", e);
+        } finally {
+            cerrar(cn);
+        }
     }
 
     private void cambiarEstado(int idProveedor, boolean activo) {

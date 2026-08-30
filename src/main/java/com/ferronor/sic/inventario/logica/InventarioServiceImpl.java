@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.ferronor.sic.inventario.logica;
 
 import com.ferronor.sic.conexion.TransactionContext;
@@ -18,6 +14,7 @@ import com.ferronor.sic.util.CalculadoraCPP;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import com.ferronor.sic.inventario.modelo.dto.StockConsulta;
 
 public class InventarioServiceImpl implements InventarioService {
 
@@ -83,7 +80,7 @@ public class InventarioServiceImpl implements InventarioService {
     }
 
     @Override
-    public RespuestaOperacion<Void> registrarSalida(int idProducto, BigDecimal cantidad,
+    public RespuestaOperacion<BigDecimal> registrarSalida(int idProducto, BigDecimal cantidad,
             OrigenMovimiento origen, int idDocumentoOrigen, int idUsuario) {
 
         if (origen == null) {
@@ -116,7 +113,7 @@ public class InventarioServiceImpl implements InventarioService {
             movimientoDAO.insertar(movimiento);
 
             tx.commit();
-            return RespuestaOperacion.ok();
+            return RespuestaOperacion.ok(costoUnitarioSalida.multiply(cantidad));
         }
     }
 
@@ -133,7 +130,22 @@ public class InventarioServiceImpl implements InventarioService {
     }
 
     @Override
+    public List<StockConsulta> consultarStock() {
+        return stockDAO.consultarTodos();
+    }
+
+    @Override
+    public StockConsulta consultarStockPorProducto(int idProducto) {
+        return stockDAO.consultarPorProducto(idProducto);
+    }
+
+    @Override
     public List<MovimientoInventario> listarMovimientos(int idProducto, LocalDate desde, LocalDate hasta) {
         return movimientoDAO.listarPorProductoYFecha(idProducto, desde.atStartOfDay(), hasta.plusDays(1).atStartOfDay());
+    }
+
+    @Override
+    public MovimientoInventario buscarMovimientoOrigen(int idProducto, OrigenMovimiento origen, int idDocumentoOrigen) {
+        return movimientoDAO.buscarPorOrigenYDocumento(idProducto, origen, idDocumentoOrigen);
     }
 }

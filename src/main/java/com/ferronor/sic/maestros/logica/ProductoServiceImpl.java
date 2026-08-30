@@ -71,6 +71,11 @@ public class ProductoServiceImpl implements ProductoService {
     }
 
     @Override
+    public List<Producto> listar() {
+        return productoDAO.listar();
+    }
+
+    @Override
     public RespuestaOperacion<Void> desactivar(int idProducto) {
         if (idProducto <= 0) {
             return RespuestaOperacion.error("El producto es inválido");
@@ -169,6 +174,11 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     public Producto buscarPorCodigo(String codigo) {
         return productoDAO.buscarPorCodigo(codigo);
+    }
+
+    @Override
+    public List<Producto> buscarActivosPorNombreOCodigoParcial(String texto) {
+        return productoDAO.buscarActivosPorNombreOCodigoParcial(texto);
     }
 
 }

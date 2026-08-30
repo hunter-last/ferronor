@@ -1,66 +1,191 @@
-
 package com.ferronor.sic.seguridad.vista;
 
 import com.ferronor.sic.FrmPrincipal;
-import com.ferronor.sic.seguridad.logica.*;
+import com.ferronor.sic.seguridad.logica.LoginService;
 import com.ferronor.sic.shared.RespuestaOperacion;
 import com.ferronor.sic.shared.ServiceFactory;
+import com.formdev.flatlaf.FlatDarkLaf;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class FrmLogin extends JFrame {
 
     private final JTextField txtUsuario = new JTextField(18);
     private final JPasswordField txtPassword = new JPasswordField(18);
+
     private final LoginService loginService;
 
     public FrmLogin() {
         this.loginService = ServiceFactory.loginService();
+
+        configurarTema();
         construirInterfaz();
     }
 
+    private void configurarTema() {
+        /*
+         * FlatLaf ya está incluido en pom.xml.
+         * Estas propiedades complementan el tema oscuro para
+         * darle una apariencia más moderna.
+         */
+        UIManager.put("Component.arc", 10);
+        UIManager.put("TextComponent.arc", 10);
+        UIManager.put("Button.arc", 10);
+        UIManager.put("ScrollBar.width", 12);
+        UIManager.put("ScrollBar.thumbArc", 999);
+    }
+
     private void construirInterfaz() {
+
         setTitle("Decor Home Ferronor — Iniciar Sesión");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridBagLayout());
-        setSize(360, 220);
-        setLocationRelativeTo(null);
         setResizable(false);
 
+        JPanel fondo = new JPanel(new GridBagLayout());
+        fondo.setBorder(new EmptyBorder(25, 25, 25, 25));
+
+        JPanel panelPrincipal = new JPanel();
+        panelPrincipal.setLayout(new BoxLayout(panelPrincipal, BoxLayout.Y_AXIS));
+        panelPrincipal.setBorder(new EmptyBorder(25, 30, 25, 30));
+
+        // =========================================================
+        // ENCABEZADO
+        // =========================================================
+        JLabel lblTitulo = new JLabel("DECOR HOME FERRONOR");
+        lblTitulo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        lblTitulo.setFont(lblTitulo.getFont().deriveFont(Font.BOLD, 22f));
+
+        JLabel lblSubtitulo = new JLabel("Sistema de Gestión Comercial y Contable");
+        lblSubtitulo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        lblSubtitulo.setFont(lblSubtitulo.getFont().deriveFont(Font.PLAIN, 12f));
+
+        panelPrincipal.add(lblTitulo);
+        panelPrincipal.add(Box.createVerticalStrut(5));
+        panelPrincipal.add(lblSubtitulo);
+        panelPrincipal.add(Box.createVerticalStrut(28));
+
+        // =========================================================
+        // USUARIO
+        // =========================================================
+        JLabel lblUsuario = new JLabel("Usuario");
+        lblUsuario.setAlignmentX(Component.CENTER_ALIGNMENT);
+        lblUsuario.setHorizontalAlignment(SwingConstants.CENTER);
+        txtUsuario.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
+        txtUsuario.setPreferredSize(new Dimension(280, 38));
+
+        panelPrincipal.add(lblUsuario);
+        panelPrincipal.add(Box.createVerticalStrut(6));
+        panelPrincipal.add(txtUsuario);
+
+        panelPrincipal.add(Box.createVerticalStrut(16));
+
+        // =========================================================
+        // CONTRASEÑA
+        // =========================================================
+        JLabel lblPassword = new JLabel("Contraseña");
+        lblPassword.setAlignmentX(Component.CENTER_ALIGNMENT);
+        lblPassword.setHorizontalAlignment(SwingConstants.CENTER);
+
+        txtPassword.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
+        txtPassword.setPreferredSize(new Dimension(280, 38));
+
+        panelPrincipal.add(lblPassword);
+        panelPrincipal.add(Box.createVerticalStrut(6));
+        panelPrincipal.add(txtPassword);
+
+        panelPrincipal.add(Box.createVerticalStrut(24));
+
+        // =========================================================
+        // BOTÓN
+        // =========================================================
+        JButton btnIngresar = new JButton("INGRESAR");
+        btnIngresar.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnIngresar.setPreferredSize(new Dimension(180, 42));
+        btnIngresar.setMaximumSize(new Dimension(180, 42));
+        btnIngresar.setFont(
+                btnIngresar.getFont().deriveFont(Font.BOLD, 13f)
+        );
+
+        panelPrincipal.add(btnIngresar);
+
+        panelPrincipal.add(Box.createVerticalStrut(12));
+
+        JLabel lblPie = new JLabel("© Ferronor");
+        lblPie.setAlignmentX(Component.CENTER_ALIGNMENT);
+        lblPie.setFont(lblPie.getFont().deriveFont(Font.PLAIN, 10f));
+
+        panelPrincipal.add(lblPie);
+
+        // =========================================================
+        // AGREGAR AL FONDO
+        // =========================================================
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 8, 8, 8);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.NONE;
 
-        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
-        JLabel lblTitulo = new JLabel("Decor Home Ferronor", SwingConstants.CENTER);
-        lblTitulo.setFont(lblTitulo.getFont().deriveFont(Font.BOLD, 16f));
-        add(lblTitulo, gbc);
+        fondo.add(panelPrincipal, gbc);
 
-        gbc.gridwidth = 1;
-        gbc.gridy = 1; gbc.gridx = 0; add(new JLabel("Usuario:"), gbc);
-        gbc.gridx = 1; add(txtUsuario, gbc);
+        setContentPane(fondo);
 
-        gbc.gridy = 2; gbc.gridx = 0; add(new JLabel("Contraseña:"), gbc);
-        gbc.gridx = 1; add(txtPassword, gbc);
-
-        JButton btnIngresar = new JButton("Ingresar");
-        gbc.gridy = 3; gbc.gridx = 0; gbc.gridwidth = 2;
-        add(btnIngresar, gbc);
-
+        // =========================================================
+        // EVENTOS
+        // =========================================================
         btnIngresar.addActionListener(e -> intentarLogin());
-        txtPassword.addActionListener(e -> intentarLogin()); // Enter también dispara el login
+
+        txtPassword.addActionListener(e -> intentarLogin());
+
+        SwingUtilities.invokeLater(() -> {
+            txtUsuario.requestFocusInWindow();
+        });
+
+        pack();
+        setLocationRelativeTo(null);
     }
 
     private void intentarLogin() {
-        String usuario = txtUsuario.getText();
+
+        String usuario = txtUsuario.getText().trim();
         String password = new String(txtPassword.getPassword());
 
-        RespuestaOperacion<Void> r = loginService.iniciarSesion(usuario, password);
+        if (usuario.isBlank()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Ingrese su usuario.",
+                    "Datos incompletos",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            txtUsuario.requestFocusInWindow();
+            return;
+        }
 
-        if (!r.isExito()) {
-            JOptionPane.showMessageDialog(this, r.getMensaje(), "Error de acceso", JOptionPane.ERROR_MESSAGE);
+        if (password.isBlank()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Ingrese su contraseña.",
+                    "Datos incompletos",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            txtPassword.requestFocusInWindow();
+            return;
+        }
+
+        RespuestaOperacion<Void> resultado
+                = loginService.iniciarSesion(usuario, password);
+
+        if (!resultado.isExito()) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    resultado.getMensaje(),
+                    "Error de acceso",
+                    JOptionPane.ERROR_MESSAGE
+            );
+
             txtPassword.setText("");
+            txtPassword.requestFocusInWindow();
             return;
         }
 
@@ -69,6 +194,11 @@ public class FrmLogin extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new FrmLogin().setVisible(true));
+
+        FlatDarkLaf.setup();
+
+        SwingUtilities.invokeLater(() -> {
+            new FrmLogin().setVisible(true);
+        });
     }
 }

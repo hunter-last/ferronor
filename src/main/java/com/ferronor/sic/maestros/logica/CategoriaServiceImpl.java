@@ -59,15 +59,12 @@ public class CategoriaServiceImpl implements CategoriaService {
         return categoriaDAO.buscarPorNombre(nombre);
     }
 
-    // CategoriaServiceImpl — agregar
+// CategoriaServiceImpl — agregar
     @Override
     public List<Categoria> buscarPorNombreParcial(String textoParcial) {
         if (textoParcial == null || textoParcial.isBlank()) {
             return categoriaDAO.listar();
         }
-        String texto = textoParcial.trim().toLowerCase();
-        return categoriaDAO.listar().stream()
-                .filter(c -> c.getNombre().toLowerCase().contains(texto))
-                .toList();
+        return categoriaDAO.buscarPorNombreParcial(textoParcial.trim());
     }
 }

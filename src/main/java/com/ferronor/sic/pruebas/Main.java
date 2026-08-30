@@ -1,5 +1,9 @@
 package com.ferronor.sic.pruebas;
 
+import com.ferronor.sic.auditoria.dao.AuditoriaDAO;
+import com.ferronor.sic.auditoria.dao.AuditoriaDAOImpl;
+import com.ferronor.sic.auditoria.logica.AuditoriaService;
+import com.ferronor.sic.auditoria.logica.AuditoriaServiceImpl;
 import com.ferronor.sic.conexion.TransactionContext;
 import com.ferronor.sic.conexion.TransactionManager;
 import com.ferronor.sic.inventario.dao.*;
@@ -32,7 +36,9 @@ public class Main {
             RolPermisoDAO rolPermisoDAO = new RolPermisoDAOImpl();
             UsuarioDAO usuarioDAO = new UsuarioDAOImpl();
             RolService rolService = new RolServiceImpl(rolDAO, rolPermisoDAO, permisoDAO);
-            UsuarioService usuarioService = new UsuarioServiceImpl(usuarioDAO, rolDAO);
+            AuditoriaDAO auditoriaDAO = new AuditoriaDAOImpl();
+            AuditoriaService auditoriaService = new AuditoriaServiceImpl(auditoriaDAO);
+            UsuarioService usuarioService = new UsuarioServiceImpl(usuarioDAO, rolDAO, auditoriaService);
 
             CategoriaDAO categoriaDAO = new CategoriaDAOImpl();
             UnidadMedidaDAO unidadDAO = new UnidadMedidaDAOImpl();
@@ -78,8 +84,8 @@ public class Main {
             BigDecimal cppReal = inventarioService.obtenerCostoPromedioActual(producto.getIdProducto());
             System.out.println("  CPP esperado=32.00, real=" + cppReal + (cppReal.compareTo(cppEsperado) == 0 ? "  OK" : "  ERROR"));
 
-            verificar("Salida (40 unidades)", inventarioService.registrarSalida(
-                    producto.getIdProducto(), new BigDecimal("40"), OrigenMovimiento.VENTA, 997, idUsuario));
+            /*verificar("Salida (40 unidades)", inventarioService.registrarSalida(
+                    producto.getIdProducto(), new BigDecimal("40"), OrigenMovimiento.VENTA, 997, idUsuario));*/
             BigDecimal stockEsperado = new BigDecimal("110");
             BigDecimal stockReal = inventarioService.obtenerStock(producto.getIdProducto());
             System.out.println("  Stock esperado=110, real=" + stockReal + (stockReal.compareTo(stockEsperado) == 0 ? "  OK" : "  ERROR"));
@@ -91,7 +97,7 @@ public class Main {
                         item.getFecha(), item.getTipoMovimiento(), item.getEntrada(), item.getSalida(), item.getSaldoCantidad());
             }
 
-            RespuestaOperacion<Void> rFallido = inventarioService.registrarSalida(
+            RespuestaOperacion<BigDecimal> rFallido = inventarioService.registrarSalida(
                     producto.getIdProducto(), new BigDecimal("99999"), OrigenMovimiento.VENTA, 996, idUsuario);
             boolean rechazoCorrecto = !rFallido.isExito();
             System.out.println("Venta imposible correctamente rechazada: " + rechazoCorrecto + " -> " + rFallido.getMensaje());

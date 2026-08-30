@@ -189,4 +189,24 @@ public class MovimientoInventarioDAOImpl extends AbstractDAO implements Movimien
                 rs.getInt("id_usuario")
         );
     }
+
+    @Override
+    public MovimientoInventario buscarPorOrigenYDocumento(int idProducto, OrigenMovimiento origen, int idDocumentoOrigen) {
+        Connection cn = obtenerConexion();
+        String sql = "SELECT " + COLUMNAS + " FROM " + TABLA
+                + " WHERE id_producto = ? AND origen = ? AND id_documento_origen = ? ORDER BY fecha ASC LIMIT 1";
+        try (PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setInt(1, idProducto);
+            ps.setString(2, origen.name());
+            ps.setInt(3, idDocumentoOrigen);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? mapear(rs) : null;
+            }
+        } catch (SQLException e) {
+            throw error("Error al buscar movimiento del producto " + idProducto
+                    + " por origen " + origen + " y documento " + idDocumentoOrigen, e);
+        } finally {
+            cerrar(cn);
+        }
+    }
 }

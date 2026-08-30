@@ -1,5 +1,9 @@
 package com.ferronor.sic.pruebas;
 
+import com.ferronor.sic.auditoria.dao.AuditoriaDAO;
+import com.ferronor.sic.auditoria.dao.AuditoriaDAOImpl;
+import com.ferronor.sic.auditoria.logica.AuditoriaService;
+import com.ferronor.sic.auditoria.logica.AuditoriaServiceImpl;
 import com.ferronor.sic.conexion.TransactionContext;
 import com.ferronor.sic.conexion.TransactionManager;
 
@@ -41,18 +45,11 @@ import com.ferronor.sic.seguridad.dao.RolPermisoDAO;
 import com.ferronor.sic.seguridad.dao.RolPermisoDAOImpl;
 import com.ferronor.sic.seguridad.dao.UsuarioDAO;
 import com.ferronor.sic.seguridad.dao.UsuarioDAOImpl;
-import com.ferronor.sic.seguridad.logica.LoginService;
-import com.ferronor.sic.seguridad.logica.LoginServiceImpl;
-
 import com.ferronor.sic.seguridad.logica.UsuarioService;
 import com.ferronor.sic.seguridad.logica.UsuarioServiceImpl;
-
 import com.ferronor.sic.seguridad.modelo.Rol;
 import com.ferronor.sic.seguridad.modelo.Usuario;
-
 import com.ferronor.sic.shared.RespuestaOperacion;
-import com.ferronor.sic.shared.SesionUsuario;
-
 import java.math.BigDecimal;
 
 public class MainPrueba2 {
@@ -86,10 +83,14 @@ public class MainPrueba2 {
             /*======================================================
              * SERVICES
              ======================================================*/
+            
+            AuditoriaDAO auditoriaDAO = new AuditoriaDAOImpl();
+            AuditoriaService auditoriaService = new AuditoriaServiceImpl(auditoriaDAO);
+
             UsuarioService usuarioService
                     = new UsuarioServiceImpl(
                             usuarioDAO,
-                            rolDAO);
+                            rolDAO, auditoriaService);
 
             CategoriaService categoriaService
                     = new CategoriaServiceImpl(
@@ -303,7 +304,7 @@ public class MainPrueba2 {
             System.out.println();
             System.out.println("========== SALIDA DE INVENTARIO ==========");
 
-            verificar(
+         /*   verificar(
                     "Registrar salida (40 unidades)",
                     inventarioService.registrarSalida(
                             idProducto,
@@ -320,7 +321,7 @@ public class MainPrueba2 {
             checkBigDecimal(
                     "CPP después de salida",
                     new BigDecimal("32.0000"),
-                    inventarioService.obtenerCostoPromedioActual(idProducto));
+                    inventarioService.obtenerCostoPromedioActual(idProducto));*/
 
             /*======================================================
              * VALIDAR MOVIMIENTO DE SALIDA

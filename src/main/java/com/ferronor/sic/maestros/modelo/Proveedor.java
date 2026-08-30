@@ -1,4 +1,3 @@
-
 package com.ferronor.sic.maestros.modelo;
 
 public class Proveedor {
@@ -77,5 +76,10 @@ public class Proveedor {
 
     public void setActivo(boolean activo) {
         this.activo = activo;
+    }
+    
+    @Override
+    public String toString() {
+        return razonSocial;
     }
 }

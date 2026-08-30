@@ -4,6 +4,7 @@
  */
 package com.ferronor.sic.seguridad.logica;
 
+import com.ferronor.sic.auditoria.logica.AuditoriaService;
 import com.ferronor.sic.exception.ServiceException;
 import com.ferronor.sic.seguridad.dao.PermisoDAO;
 import com.ferronor.sic.seguridad.dao.RolDAO;
@@ -23,11 +24,13 @@ public class LoginServiceImpl implements LoginService {
     private final UsuarioDAO usuarioDAO;
     private final RolDAO rolDAO;
     private final PermisoDAO permisoDAO; // ya no depende de RolPermisoDAO
+    private final AuditoriaService auditoriaService;
 
-    public LoginServiceImpl(UsuarioDAO usuarioDAO, RolDAO rolDAO, PermisoDAO permisoDAO) {
+    public LoginServiceImpl(UsuarioDAO usuarioDAO, RolDAO rolDAO, PermisoDAO permisoDAO, AuditoriaService auditoriaService) {
         this.usuarioDAO = usuarioDAO;
         this.rolDAO = rolDAO;
         this.permisoDAO = permisoDAO;
+        this.auditoriaService = auditoriaService;
     }
 
     @Override
@@ -54,16 +57,20 @@ public class LoginServiceImpl implements LoginService {
         if (rol == null) {
             throw new ServiceException("El rol asociado al usuario no existe");
         }
-        
-        List<Permiso> permisos = permisoDAO.listarPorRol(rol.getIdRol());        
+
+        List<Permiso> permisos = permisoDAO.listarPorRol(rol.getIdRol());
         Set<String> codigosPermiso = permisos.stream().map(Permiso::getCodigo).collect(java.util.stream.Collectors.toSet());
 
         SesionUsuario.iniciar(usuario.getIdUsuario(), usuario.getNombreCompleto(), rol.getNombre(), codigosPermiso);
+        auditoriaService.registrarLogin(usuario.getIdUsuario());
         return RespuestaOperacion.ok();
     }
 
     @Override
     public void cerrarSesion() {
+        if (SesionUsuario.haySesion()) {
+            auditoriaService.registrarLogout(SesionUsuario.actual().getIdUsuario());
+        }
         SesionUsuario.cerrar();
     }
 }
