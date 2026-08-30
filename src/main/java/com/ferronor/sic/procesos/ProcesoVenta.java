@@ -1,4 +1,3 @@
-
 package com.ferronor.sic.procesos;
 
 import com.ferronor.sic.conexion.TransactionContext;
@@ -18,6 +17,7 @@ import com.ferronor.sic.tesoreria.modelo.TipoMovimientoBanco;
 import com.ferronor.sic.ventas.logica.VentaService;
 import com.ferronor.sic.ventas.modelo.DetalleVenta;
 import com.ferronor.sic.ventas.modelo.Venta;
+import java.math.BigDecimal;
 
 // Orquestador de la venta: es el único componente que conoce a la vez Ventas,
 // Inventario, Tesorería y Contabilidad. Ninguno de esos 4 Services se llama
@@ -84,14 +84,17 @@ public class ProcesoVenta {
             }
             int idVenta = resultadoVenta.getResultado();
 
+            BigDecimal costoVentaTotal = BigDecimal.ZERO;
+
             for (DetalleVenta detalle : venta.getDetalles()) {
-                RespuestaOperacion<Void> resultadoStock = inventarioService.registrarSalida(
+                RespuestaOperacion<BigDecimal> resultadoStock = inventarioService.registrarSalida(
                         detalle.getIdProducto(), detalle.getCantidad(), OrigenMovimiento.VENTA,
                         idVenta, venta.getIdUsuario());
                 if (!resultadoStock.isExito()) {
                     tx.rollback();
                     return RespuestaOperacion.error(resultadoStock.getMensaje());
                 }
+                costoVentaTotal = costoVentaTotal.add(resultadoStock.getResultado());
             }
 
             RespuestaOperacion<Void> resultadoTesoreria = accionTesoreria.ejecutar(idVenta);
@@ -101,7 +104,7 @@ public class ProcesoVenta {
             }
 
             DatosVentaParaAsiento datosAsiento = new DatosVentaParaAsiento(idVenta, venta.getSubtotal(),
-                    venta.getIgv(), venta.getTotal(), codigoCuentaContrapartida);
+                    venta.getIgv(), venta.getTotal(), costoVentaTotal, codigoCuentaContrapartida);
             RespuestaOperacion<Integer> resultadoAsiento = contabilidadService.generarAsientoVenta(
                     datosAsiento, venta.getIdUsuario());
             if (!resultadoAsiento.isExito()) {

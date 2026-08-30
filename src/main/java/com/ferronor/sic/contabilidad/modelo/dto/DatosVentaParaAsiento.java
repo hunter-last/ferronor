@@ -7,6 +7,6 @@ package com.ferronor.sic.contabilidad.modelo.dto;
 import java.math.BigDecimal;
 
 public record DatosVentaParaAsiento(int idVenta, BigDecimal subtotal, BigDecimal igv,
-        BigDecimal total, String codigoCuentaContrapartida) {
+        BigDecimal total, BigDecimal costoVenta, String codigoCuentaContrapartida) {
 
 }

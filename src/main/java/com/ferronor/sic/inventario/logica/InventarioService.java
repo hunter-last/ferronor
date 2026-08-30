@@ -13,7 +13,7 @@ public interface InventarioService {
     RespuestaOperacion<Void> registrarEntrada(int idProducto, BigDecimal cantidad, BigDecimal costoUnitario,
             OrigenMovimiento origen, int idDocumentoOrigen, int idUsuario);
 
-    RespuestaOperacion<Void> registrarSalida(int idProducto, BigDecimal cantidad,
+    RespuestaOperacion<BigDecimal> registrarSalida(int idProducto, BigDecimal cantidad,
             OrigenMovimiento origen, int idDocumentoOrigen, int idUsuario);
 
     BigDecimal obtenerStock(int idProducto);

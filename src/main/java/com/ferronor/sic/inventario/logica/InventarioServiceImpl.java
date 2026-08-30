@@ -80,7 +80,7 @@ public class InventarioServiceImpl implements InventarioService {
     }
 
     @Override
-    public RespuestaOperacion<Void> registrarSalida(int idProducto, BigDecimal cantidad,
+    public RespuestaOperacion<BigDecimal> registrarSalida(int idProducto, BigDecimal cantidad,
             OrigenMovimiento origen, int idDocumentoOrigen, int idUsuario) {
 
         if (origen == null) {
@@ -113,7 +113,7 @@ public class InventarioServiceImpl implements InventarioService {
             movimientoDAO.insertar(movimiento);
 
             tx.commit();
-            return RespuestaOperacion.ok();
+            return RespuestaOperacion.ok(costoUnitarioSalida.multiply(cantidad));
         }
     }
 

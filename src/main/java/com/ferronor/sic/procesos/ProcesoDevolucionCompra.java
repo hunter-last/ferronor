@@ -7,6 +7,7 @@ import com.ferronor.sic.conexion.TransactionManager;
 import com.ferronor.sic.inventario.logica.InventarioService;
 import com.ferronor.sic.inventario.modelo.OrigenMovimiento;
 import com.ferronor.sic.shared.RespuestaOperacion;
+import java.math.BigDecimal;
 
 // Orquestador de la devolución de compra: coordina DevolucionCompraService + InventarioService.
 // Alcance deliberadamente limitado a stock — devolucion_compra no tiene columna de monto/valor
@@ -35,12 +36,12 @@ public class ProcesoDevolucionCompra {
                 return resultadoDevolucion;
             }
 
-            RespuestaOperacion<Void> resultadoStock = inventarioService.registrarSalida(
+            RespuestaOperacion<BigDecimal> resultadoStock = inventarioService.registrarSalida(
                     devolucion.getIdProducto(), devolucion.getCantidad(), OrigenMovimiento.DEVOLUCION_COMPRA,
                     devolucion.getIdCompra(), devolucion.getIdUsuario());
             if (!resultadoStock.isExito()) {
                 tx.rollback();
-                return resultadoStock;
+                return RespuestaOperacion.error(resultadoStock.getMensaje());
             }
 
             tx.commit();

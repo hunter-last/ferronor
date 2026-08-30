@@ -1186,7 +1186,7 @@ public class FrmConsultarStock extends javax.swing.JDialog {
                 .addContainerGap(7, Short.MAX_VALUE))
         );
 
-        pnlConsultaProducto.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "01. CONSULTA DE PRODUCTO", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlConsultaProducto.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "01. CONSULTA DE PRODUCTO", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         lblBuscarProducto.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         lblBuscarProducto.setText("BUSCAR PRODUCTO");
@@ -1244,7 +1244,7 @@ public class FrmConsultarStock extends javax.swing.JDialog {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        pnlProductoSeleccionado.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "  PRODUCTO SELECCIONADO", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlProductoSeleccionado.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "  PRODUCTO SELECCIONADO", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         pnlEstadisticasProdSeleccionado.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
 
@@ -1399,10 +1399,11 @@ public class FrmConsultarStock extends javax.swing.JDialog {
             pnlResumenProdSeleccionadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlResumenProdSeleccionadoLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(pnlResumenProdSeleccionadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblStockActual)
-                    .addComponent(lblCostoPromedioActual)
-                    .addComponent(lblUltimaActualizacion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(pnlResumenProdSeleccionadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblUltimaActualizacion, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(pnlResumenProdSeleccionadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(lblStockActual)
+                        .addComponent(lblCostoPromedioActual)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(pnlResumenProdSeleccionadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblCantStockActual, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1433,7 +1434,7 @@ public class FrmConsultarStock extends javax.swing.JDialog {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        pnlExistencias.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "02. EXISTENCIAS", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlExistencias.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "02. EXISTENCIAS", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         tblExistencias.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         tblExistencias.setModel(new javax.swing.table.DefaultTableModel(

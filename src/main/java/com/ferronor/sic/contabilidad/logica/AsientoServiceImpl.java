@@ -113,6 +113,8 @@ public class AsientoServiceImpl implements AsientoService {
         PlanCuenta ventas = planCuentaService.buscarPorCodigo("70");
         PlanCuenta igvPorPagar = planCuentaService.buscarPorCodigo("40");
         PlanCuenta contrapartida = planCuentaService.buscarPorCodigo(datos.codigoCuentaContrapartida());
+        PlanCuenta costoVentas = planCuentaService.buscarPorCodigo("69");
+        PlanCuenta mercaderias = planCuentaService.buscarPorCodigo("20");
 
         if (contrapartida == null) {
             return RespuestaOperacion.error("Cuenta contable no encontrada: " + datos.codigoCuentaContrapartida());
@@ -124,6 +126,11 @@ public class AsientoServiceImpl implements AsientoService {
         asiento.agregarDetalle(DetalleAsiento.debe(contrapartida.getIdCuenta(), datos.total()));
         asiento.agregarDetalle(DetalleAsiento.haber(ventas.getIdCuenta(), datos.subtotal()));
         asiento.agregarDetalle(DetalleAsiento.haber(igvPorPagar.getIdCuenta(), datos.igv()));
+
+        if (datos.costoVenta().compareTo(BigDecimal.ZERO) > 0) {
+            asiento.agregarDetalle(DetalleAsiento.debe(costoVentas.getIdCuenta(), datos.costoVenta()));
+            asiento.agregarDetalle(DetalleAsiento.haber(mercaderias.getIdCuenta(), datos.costoVenta()));
+        }
 
         return registrar(asiento);
     }

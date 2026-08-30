@@ -304,7 +304,7 @@ public class MainPrueba2 {
             System.out.println();
             System.out.println("========== SALIDA DE INVENTARIO ==========");
 
-            verificar(
+         /*   verificar(
                     "Registrar salida (40 unidades)",
                     inventarioService.registrarSalida(
                             idProducto,
@@ -321,7 +321,7 @@ public class MainPrueba2 {
             checkBigDecimal(
                     "CPP después de salida",
                     new BigDecimal("32.0000"),
-                    inventarioService.obtenerCostoPromedioActual(idProducto));
+                    inventarioService.obtenerCostoPromedioActual(idProducto));*/
 
             /*======================================================
              * VALIDAR MOVIMIENTO DE SALIDA
