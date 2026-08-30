@@ -134,6 +134,8 @@ public class FrmLibroMayor extends javax.swing.JDialog {
         configurarTablaMovimientos();
 
         configurarEstadoInicial();
+
+        setLocationRelativeTo(getParent());
     }
 
     // ============================================================

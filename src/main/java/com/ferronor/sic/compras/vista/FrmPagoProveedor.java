@@ -121,6 +121,8 @@ public class FrmPagoProveedor extends javax.swing.JDialog {
         initComponents();
 
         configurarFormulario();
+
+        setLocationRelativeTo(getParent());
     }
 
     // ============================================================

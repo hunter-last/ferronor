@@ -130,6 +130,8 @@ public class FrmHistorialCompras extends javax.swing.JDialog {
         cargarFormasPago();
 
         consultarHistorial();
+
+        setLocationRelativeTo(getParent());
     }
 
     // ============================================================

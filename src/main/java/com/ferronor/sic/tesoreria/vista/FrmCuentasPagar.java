@@ -83,6 +83,7 @@ public class FrmCuentasPagar extends javax.swing.JDialog {
         configurarListeners();
 
         consultarCuentasPorPagar();
+        setLocationRelativeTo(getParent());
     }
 
     private void configurarInformacionSuperior() {
