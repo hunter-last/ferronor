@@ -214,18 +214,7 @@ public class FrmCuentasCobrar extends javax.swing.JDialog {
     }
 
     private void configurarListeners() {
-
-        btnConsultar.addActionListener(
-                e -> consultarCuentasPorCobrar()
-        );
-
-        btnLimpiar.addActionListener(
-                e -> limpiarFiltros()
-        );
-
-        btnVerDetalle.addActionListener(
-                e -> verDetalle()
-        );
+   
     }
 
     private LocalDate convertirFecha(
