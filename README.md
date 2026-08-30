@@ -85,7 +85,7 @@ Desde línea de comandos:
 mvn compile
 mvn exec:java -Dexec.mainClass="com.ferronor.sic.Main"
 ```
-```
+
 
 ## Estructura del proyecto
 
