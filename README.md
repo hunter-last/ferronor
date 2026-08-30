@@ -89,7 +89,7 @@ mvn exec:java -Dexec.mainClass="com.ferronor.sic.Main"
 
 ## Estructura del proyecto
 
-
+```
 com.ferronor.sic/
 ├── config/        — configuración y constantes del sistema
 ├── conexion/      — conexión a PostgreSQL y manejo de transacciones
@@ -105,7 +105,7 @@ com.ferronor.sic/
 ├── tesoreria/     — caja, bancos, cuentas por pagar/cobrar
 ├── contabilidad/  — asientos contables y reportes financieros
 └── procesos/      — coordinadores de operaciones que cruzan varios módulos
-
+```
 
 Cada módulo de negocio se organiza por **dominio primero**, no por capa global:
 
