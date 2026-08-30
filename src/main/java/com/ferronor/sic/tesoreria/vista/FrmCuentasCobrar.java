@@ -84,6 +84,8 @@ public class FrmCuentasCobrar extends javax.swing.JDialog {
         configurarListeners();
 
         consultarCuentasPorCobrar();
+
+        setLocationRelativeTo(getParent());
     }
 
     private void configurarInformacionSuperior() {
@@ -214,7 +216,7 @@ public class FrmCuentasCobrar extends javax.swing.JDialog {
     }
 
     private void configurarListeners() {
-   
+
     }
 
     private LocalDate convertirFecha(

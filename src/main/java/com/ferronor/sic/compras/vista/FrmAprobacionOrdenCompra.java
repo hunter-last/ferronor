@@ -1,6 +1,5 @@
 package com.ferronor.sic.compras.vista;
 
-
 import com.ferronor.sic.compras.logica.OrdenCompraService;
 import com.ferronor.sic.compras.modelo.DetalleOrdenCompra;
 import com.ferronor.sic.compras.modelo.EstadoOrdenCompra;
@@ -68,6 +67,7 @@ public class FrmAprobacionOrdenCompra extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
         configurarComponentes();
+        setLocationRelativeTo(getParent());
     }
 
     private void configurarComponentes() {
@@ -348,10 +348,10 @@ public class FrmAprobacionOrdenCompra extends javax.swing.JDialog {
 
                 String nombreSolicitante
                         = solicitante != null
-                        ? valorSeguro(
-                                solicitante.getNombreCompleto()
-                        )
-                        : "Usuario no disponible";
+                                ? valorSeguro(
+                                        solicitante.getNombreCompleto()
+                                )
+                                : "Usuario no disponible";
 
                 int cantidadProductos
                         = orden.getDetalles() != null
@@ -372,7 +372,7 @@ public class FrmAprobacionOrdenCompra extends javax.swing.JDialog {
                             cantidadProductos,
                             valorSeguro(
                                     orden.getEstado()
-                                            != null
+                                    != null
                                             ? orden.getEstado().name()
                                             : ""
                             )
@@ -488,10 +488,10 @@ public class FrmAprobacionOrdenCompra extends javax.swing.JDialog {
 
         txtEstado.setText(
                 ordenSeleccionada.getEstado() != null
-                        ? ordenSeleccionada
-                                .getEstado()
-                                .name()
-                        : ""
+                ? ordenSeleccionada
+                        .getEstado()
+                        .name()
+                : ""
         );
 
         Usuario solicitante
@@ -703,8 +703,8 @@ public class FrmAprobacionOrdenCompra extends javax.swing.JDialog {
 
                 String mensaje
                         = respuesta != null
-                        ? respuesta.getMensaje()
-                        : "No se recibió respuesta del servicio.";
+                                ? respuesta.getMensaje()
+                                : "No se recibió respuesta del servicio.";
 
                 mostrarMensajeError(
                         mensaje,
@@ -794,8 +794,8 @@ public class FrmAprobacionOrdenCompra extends javax.swing.JDialog {
 
                 String mensaje
                         = respuesta != null
-                        ? respuesta.getMensaje()
-                        : "No se recibió respuesta del servicio.";
+                                ? respuesta.getMensaje()
+                                : "No se recibió respuesta del servicio.";
 
                 mostrarMensajeError(
                         mensaje,

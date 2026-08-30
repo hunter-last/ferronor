@@ -37,7 +37,7 @@
                           <Component id="lblNCuentasPagarFiltrosSeleccionados" min="-2" pref="257" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="32767" attributes="0"/>
-                      <Component id="spnlAcomodador" min="-2" max="-2" attributes="0"/>
+                      <Component id="spnlAcomodador" min="-2" pref="353" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -380,48 +380,43 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="pnlRegistrarPago" max="32767" attributes="0"/>
+                          <Component id="pnlSaldosCuentaPagar" alignment="0" max="32767" attributes="0"/>
                           <Group type="102" alignment="1" attributes="0">
-                              <EmptySpace min="0" pref="18" max="32767" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Group type="103" alignment="1" groupAlignment="0" attributes="0">
-                                      <Group type="102" alignment="0" attributes="0">
-                                          <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                                              <Component id="lblCompra" alignment="0" min="-2" pref="70" max="-2" attributes="0"/>
-                                              <Component id="lblVencimiento" alignment="0" min="-2" pref="70" max="-2" attributes="0"/>
-                                              <Component id="lblFechaCompra" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          </Group>
-                                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                              <Group type="102" attributes="0">
-                                                  <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
-                                                  <Component id="lblValorFechaCompra" min="-2" pref="190" max="-2" attributes="0"/>
-                                              </Group>
-                                              <Group type="102" attributes="0">
-                                                  <EmptySpace max="-2" attributes="0"/>
-                                                  <Component id="lblValorCodigoCompra" max="32767" attributes="0"/>
-                                              </Group>
-                                          </Group>
-                                          <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
-                                      </Group>
-                                      <Group type="102" alignment="1" attributes="0">
-                                          <Component id="lblNombreEmpresaYTipoEmpresa" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace max="-2" attributes="0"/>
-                                          <Component id="txtEstadoCuentaPagar" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
-                                      </Group>
+                                  <Group type="102" alignment="1" attributes="0">
+                                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                                      <Component id="lblValorFechaVencimiento" min="-2" pref="190" max="-2" attributes="0"/>
                                   </Group>
                                   <Group type="102" alignment="0" attributes="0">
                                       <Group type="103" groupAlignment="1" attributes="0">
-                                          <Component id="lblValorFechaVencimiento" alignment="1" min="-2" pref="196" max="-2" attributes="0"/>
-                                          <Group type="103" groupAlignment="0" attributes="0">
-                                              <Component id="lblRucNroRuc" min="-2" max="-2" attributes="0"/>
-                                              <Component id="pnlSaldosCuentaPagar" min="-2" max="-2" attributes="0"/>
+                                          <Group type="102" attributes="0">
+                                              <Component id="lblCompra" max="32767" attributes="0"/>
+                                              <EmptySpace min="-2" pref="11" max="-2" attributes="0"/>
+                                          </Group>
+                                          <Component id="lblFechaCompra" max="32767" attributes="0"/>
+                                          <Component id="lblVencimiento" alignment="1" max="32767" attributes="0"/>
+                                      </Group>
+                                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                          <Group type="102" attributes="0">
+                                              <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
+                                              <Component id="lblValorFechaCompra" min="-2" pref="190" max="-2" attributes="0"/>
+                                          </Group>
+                                          <Group type="102" attributes="0">
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Component id="lblValorCodigoCompra" max="32767" attributes="0"/>
                                           </Group>
                                       </Group>
+                                  </Group>
+                                  <Component id="lblRucNroRuc" alignment="0" max="32767" attributes="0"/>
+                                  <Group type="102" alignment="1" attributes="0">
+                                      <Component id="lblNombreEmpresaYTipoEmpresa" max="32767" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="txtEstadoCuentaPagar" min="-2" pref="72" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
+                              <EmptySpace max="-2" attributes="0"/>
                           </Group>
-                          <Component id="pnlRegistrarPago" max="32767" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
@@ -438,12 +433,12 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="lblRucNroRuc" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="lblCompra" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="lblValorCodigoCompra" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="lblValorCodigoCompra" min="-2" max="-2" attributes="0"/>
+                                  <Component id="lblCompra" min="-2" pref="14" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="lblFechaCompra" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblFechaCompra" min="-2" pref="14" max="-2" attributes="0"/>
                           </Group>
                           <Component id="lblValorFechaCompra" min="-2" pref="14" max="-2" attributes="0"/>
                       </Group>
@@ -575,7 +570,7 @@
                                                       <Component id="lblCaracter1erPnlSNro3" min="-2" pref="59" max="-2" attributes="0"/>
                                                       <Component id="lblValorSaldoPend" min="-2" pref="59" max="-2" attributes="0"/>
                                                   </Group>
-                                                  <EmptySpace min="0" pref="3" max="32767" attributes="0"/>
+                                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                                               </Group>
                                               <Group type="102" alignment="1" attributes="0">
                                                   <EmptySpace max="32767" attributes="0"/>
@@ -759,7 +754,7 @@
                                   <Component id="jSeparator6" max="32767" attributes="0"/>
                               </Group>
                           </Group>
-                          <EmptySpace max="32767" attributes="0"/>
+                          <EmptySpace pref="15" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>

@@ -64,6 +64,7 @@ public class FrmOrdenCompra extends javax.swing.JDialog {
         configurarCamposSoloLectura();
         iniciarReloj();
         actualizarResumen();
+        setLocationRelativeTo(getParent());
     }
 
     private void configurarSpinnerCantidad() {
@@ -129,7 +130,6 @@ public class FrmOrdenCompra extends javax.swing.JDialog {
             return productoService.buscarActivosPorNombreOCodigoParcial(texto);
         });
     }
-
 
     /**
      * * Configuración de JTable.

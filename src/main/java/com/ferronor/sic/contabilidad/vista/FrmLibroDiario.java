@@ -143,6 +143,8 @@ public class FrmLibroDiario extends javax.swing.JDialog {
         initComponents();
 
         configurarFormulario();
+
+        setLocationRelativeTo(getParent());
     }
 
     // ============================================================

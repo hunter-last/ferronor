@@ -94,6 +94,8 @@ public class FrmMovsCaja extends javax.swing.JDialog {
         configurarEstadoInicial();
 
         cargarDatosIniciales();
+
+        setLocationRelativeTo(getParent());
     }
 
     // ============================================================
