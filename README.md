@@ -108,14 +108,14 @@ com.ferronor.sic/
 ```
 
 Cada módulo de negocio se organiza por **dominio primero**, no por capa global:
-
+```
 modulo/
 ├── modelo/
 │ └── dto/ (solo si el módulo tiene datos derivados, ej. inventario/modelo/dto/KardexItem)
 ├── dao/
 ├── logica/
 └── vista/
-
+```
 
 
 Nunca crear un paquete `modelo/`, `dao/`, `dto/` global a nivel de toda la aplicación — eso rompe la cohesión que permite entender un módulo completo mirando una sola carpeta.
