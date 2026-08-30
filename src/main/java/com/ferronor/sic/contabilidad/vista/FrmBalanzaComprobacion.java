@@ -4,13 +4,12 @@ import com.ferronor.sic.contabilidad.logica.ContabilidadService;
 import com.ferronor.sic.contabilidad.modelo.dto.BalanceComprobacionItem;
 import com.ferronor.sic.shared.ServiceFactory;
 import com.ferronor.sic.shared.SesionUsuario;
-
-import com.toedter.calendar.JDateChooser;
-
+import com.ferronor.sic.util.ExportadorCSV;
+import com.ferronor.sic.util.ExportadorPDF;
+import com.ferronor.sic.util.TablaExportUtil;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Component;
-import java.awt.event.ActionEvent;
+import java.io.File;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -20,11 +19,8 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
-
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JLabel;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -119,6 +115,7 @@ public class FrmBalanzaComprobacion extends javax.swing.JDialog {
         initComponents();
 
         configurarFormulario();
+        rbtnPDF.setSelected(true);
     }
 
     // ============================================================
@@ -1032,6 +1029,7 @@ public class FrmBalanzaComprobacion extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        buttonGroup1 = new javax.swing.ButtonGroup();
         pnlSuperior = new javax.swing.JPanel();
         lblBalanzaComprobacion = new javax.swing.JLabel();
         lblSistemaGestionComercialYContable = new javax.swing.JLabel();
@@ -1048,6 +1046,10 @@ public class FrmBalanzaComprobacion extends javax.swing.JDialog {
         lblMensajeFechaCorteInvalida = new javax.swing.JLabel();
         pnlMensajeFechaCorte = new javax.swing.JPanel();
         lblMensajeFechaCorte = new javax.swing.JLabel();
+        pnlExportarReporte = new javax.swing.JPanel();
+        rbtnCSV = new javax.swing.JRadioButton();
+        rbtnPDF = new javax.swing.JRadioButton();
+        btnExportarReporte = new javax.swing.JButton();
         pnlBalanzaComprobacion = new javax.swing.JScrollPane();
         tblBalanzaComprobacion = new javax.swing.JTable();
         pnlResumen = new javax.swing.JPanel();
@@ -1153,7 +1155,7 @@ public class FrmBalanzaComprobacion extends javax.swing.JDialog {
         pnlAdvertenciaFechaCorteInvalida.setLayout(pnlAdvertenciaFechaCorteInvalidaLayout);
         pnlAdvertenciaFechaCorteInvalidaLayout.setHorizontalGroup(
             pnlAdvertenciaFechaCorteInvalidaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(lblMensajeFechaCorteInvalida, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(lblMensajeFechaCorteInvalida, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 707, Short.MAX_VALUE)
         );
         pnlAdvertenciaFechaCorteInvalidaLayout.setVerticalGroup(
             pnlAdvertenciaFechaCorteInvalidaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1175,7 +1177,7 @@ public class FrmBalanzaComprobacion extends javax.swing.JDialog {
             .addGroup(pnlMensajeFechaCorteLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(lblMensajeFechaCorte)
-                .addContainerGap(447, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         pnlMensajeFechaCorteLayout.setVerticalGroup(
             pnlMensajeFechaCorteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1185,24 +1187,78 @@ public class FrmBalanzaComprobacion extends javax.swing.JDialog {
                 .addContainerGap())
         );
 
+        pnlExportarReporte.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "Exportar:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 14))); // NOI18N
+        pnlExportarReporte.setFont(new java.awt.Font("Consolas", 0, 14)); // NOI18N
+
+        buttonGroup1.add(rbtnCSV);
+        rbtnCSV.setFont(new java.awt.Font("Consolas", 0, 12)); // NOI18N
+        rbtnCSV.setText("CSV");
+
+        buttonGroup1.add(rbtnPDF);
+        rbtnPDF.setFont(new java.awt.Font("Consolas", 0, 12)); // NOI18N
+        rbtnPDF.setText("PDF");
+        rbtnPDF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rbtnPDFActionPerformed(evt);
+            }
+        });
+
+        btnExportarReporte.setBackground(new java.awt.Color(255, 153, 51));
+        btnExportarReporte.setForeground(new java.awt.Color(255, 255, 255));
+        btnExportarReporte.setText("Generar Reporte");
+        btnExportarReporte.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExportarReporteActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout pnlExportarReporteLayout = new javax.swing.GroupLayout(pnlExportarReporte);
+        pnlExportarReporte.setLayout(pnlExportarReporteLayout);
+        pnlExportarReporteLayout.setHorizontalGroup(
+            pnlExportarReporteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlExportarReporteLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(pnlExportarReporteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnExportarReporte, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(pnlExportarReporteLayout.createSequentialGroup()
+                        .addGroup(pnlExportarReporteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(rbtnPDF, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(rbtnCSV, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 45, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        pnlExportarReporteLayout.setVerticalGroup(
+            pnlExportarReporteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlExportarReporteLayout.createSequentialGroup()
+                .addGap(12, 12, 12)
+                .addComponent(rbtnCSV)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(rbtnPDF)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnExportarReporte)
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout pnlConsultaFechaBalanzaComprobacionLayout = new javax.swing.GroupLayout(pnlConsultaFechaBalanzaComprobacion);
         pnlConsultaFechaBalanzaComprobacion.setLayout(pnlConsultaFechaBalanzaComprobacionLayout);
         pnlConsultaFechaBalanzaComprobacionLayout.setHorizontalGroup(
             pnlConsultaFechaBalanzaComprobacionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlConsultaFechaBalanzaComprobacionLayout.createSequentialGroup()
                 .addGap(28, 28, 28)
-                .addGroup(pnlConsultaFechaBalanzaComprobacionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                .addGroup(pnlConsultaFechaBalanzaComprobacionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(pnlAdvertenciaFechaCorteInvalida, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(pnlConsultaFechaBalanzaComprobacionLayout.createSequentialGroup()
-                        .addGroup(pnlConsultaFechaBalanzaComprobacionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jdcFechaCorte, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE)
-                            .addComponent(lblFechaDeCorte, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnLimpiar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(pnlConsultaFechaBalanzaComprobacionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblFechaDeCorte, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(pnlConsultaFechaBalanzaComprobacionLayout.createSequentialGroup()
+                                .addComponent(jdcFechaCorte, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnLimpiar)))
+                        .addGap(18, 18, 18)
                         .addComponent(btnConsultar))
-                    .addComponent(pnlMensajeFechaCorte, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(pnlAdvertenciaFechaCorteInvalida, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(28, Short.MAX_VALUE))
+                    .addComponent(pnlMensajeFechaCorte, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(pnlExportarReporte, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         pnlConsultaFechaBalanzaComprobacionLayout.setVerticalGroup(
             pnlConsultaFechaBalanzaComprobacionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1210,19 +1266,24 @@ public class FrmBalanzaComprobacion extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(pnlConsultaFechaBalanzaComprobacionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(pnlConsultaFechaBalanzaComprobacionLayout.createSequentialGroup()
-                        .addComponent(lblFechaDeCorte)
-                        .addGap(7, 7, 7)
-                        .addComponent(jdcFechaCorte, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(3, 3, 3))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlConsultaFechaBalanzaComprobacionLayout.createSequentialGroup()
-                        .addGroup(pnlConsultaFechaBalanzaComprobacionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btnConsultar)
-                            .addComponent(btnLimpiar))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
-                .addComponent(pnlMensajeFechaCorte, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(pnlAdvertenciaFechaCorteInvalida, javax.swing.GroupLayout.PREFERRED_SIZE, 0, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(pnlConsultaFechaBalanzaComprobacionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(pnlConsultaFechaBalanzaComprobacionLayout.createSequentialGroup()
+                                .addComponent(lblFechaDeCorte)
+                                .addGap(7, 7, 7)
+                                .addComponent(jdcFechaCorte, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlConsultaFechaBalanzaComprobacionLayout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addGroup(pnlConsultaFechaBalanzaComprobacionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(btnConsultar)
+                                    .addComponent(btnLimpiar))))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(pnlMensajeFechaCorte, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(56, 56, 56)
+                        .addComponent(pnlAdvertenciaFechaCorteInvalida, javax.swing.GroupLayout.PREFERRED_SIZE, 0, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(pnlExportarReporte, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         pnlBalanzaComprobacion.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "02. BALANZA DE COMPROBACIÓN", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
@@ -1309,7 +1370,7 @@ public class FrmBalanzaComprobacion extends javax.swing.JDialog {
                 .addGroup(pnlResumenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(lblValorSaldoAcreedor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(lblSaldoAcreedor, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(89, Short.MAX_VALUE))
         );
         pnlResumenLayout.setVerticalGroup(
             pnlResumenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1380,6 +1441,67 @@ public class FrmBalanzaComprobacion extends javax.swing.JDialog {
         limpiarFiltros();
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
+    private void rbtnPDFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbtnPDFActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_rbtnPDFActionPerformed
+
+    private void btnExportarReporteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportarReporteActionPerformed
+        // TODO add your handling code here:
+        if (balanceConsultado == null || balanceConsultado.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Realiza una consulta con movimientos antes de exportar.",
+                    "Exportar Balanza de Comprobación",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        LocalDate fechaCorte = obtenerFechaCorte();
+
+        List<String> encabezados = TablaExportUtil.obtenerEncabezados(tblBalanzaComprobacion);
+        List<List<String>> filas = TablaExportUtil.obtenerFilas(tblBalanzaComprobacion);
+
+        String nombreBase = "balanza_comprobacion"
+                + (fechaCorte != null ? "_" + fechaCorte : "");
+
+        JFileChooser selector = new JFileChooser();
+        boolean exportarComoCsv = rbtnCSV.isSelected();
+
+        selector.setSelectedFile(new File(nombreBase + (exportarComoCsv ? ".csv" : ".pdf")));
+
+        if (selector.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        String ruta = selector.getSelectedFile().getAbsolutePath();
+        String titulo = "BALANZA DE COMPROBACIÓN"
+                + (fechaCorte != null ? " — al " + fechaCorte : "");
+
+        try {
+            if (exportarComoCsv) {
+                ExportadorCSV.exportar(ruta, encabezados, filas);
+            } else {
+                ExportadorPDF.exportarTabla(ruta, titulo, encabezados, filas);
+            }
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Reporte exportado correctamente.",
+                    "Exportar Balanza de Comprobación",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Falló la exportación: " + ex.getMessage(),
+                    "Exportar Balanza de Comprobación",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }//GEN-LAST:event_btnExportarReporteActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1424,7 +1546,9 @@ public class FrmBalanzaComprobacion extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnConsultar;
+    private javax.swing.JButton btnExportarReporte;
     private javax.swing.JButton btnLimpiar;
+    private javax.swing.ButtonGroup buttonGroup1;
     private com.toedter.calendar.JDateChooser jdcFechaCorte;
     private javax.swing.JLabel lblBalanzaComprobacion;
     private javax.swing.JLabel lblCantMovimientos;
@@ -1448,9 +1572,12 @@ public class FrmBalanzaComprobacion extends javax.swing.JDialog {
     private javax.swing.JPanel pnlAdvertenciaFechaCorteInvalida;
     private javax.swing.JScrollPane pnlBalanzaComprobacion;
     private javax.swing.JPanel pnlConsultaFechaBalanzaComprobacion;
+    private javax.swing.JPanel pnlExportarReporte;
     private javax.swing.JPanel pnlMensajeFechaCorte;
     private javax.swing.JPanel pnlResumen;
     private javax.swing.JPanel pnlSuperior;
+    private javax.swing.JRadioButton rbtnCSV;
+    private javax.swing.JRadioButton rbtnPDF;
     private javax.swing.JTable tblBalanzaComprobacion;
     // End of variables declaration//GEN-END:variables
 }

@@ -5,9 +5,13 @@ import com.ferronor.sic.contabilidad.modelo.dto.BalanceGeneralDTO;
 import com.ferronor.sic.contabilidad.modelo.dto.BalanceGeneralItem;
 import com.ferronor.sic.shared.ServiceFactory;
 import com.ferronor.sic.shared.SesionUsuario;
+import com.ferronor.sic.util.ExportadorCSV;
+import com.ferronor.sic.util.ExportadorPDF;
+import com.ferronor.sic.util.TablaExportUtil;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.io.File;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -15,8 +19,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import javax.swing.JFileChooser;
 
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -67,11 +73,9 @@ public class FrmBalanceGeneral extends javax.swing.JDialog {
     // ============================================================
     // COLORES
     // ============================================================
-    
-    
     private static final Color COLOR_BLANCO
             = new Color(245, 246, 245);
-    
+
     private static final Color COLOR_TEXTO
             = new Color(43, 47, 46);
 
@@ -108,6 +112,8 @@ public class FrmBalanceGeneral extends javax.swing.JDialog {
         initComponents();
 
         configurarFormulario();
+
+        rbtnPDF.setSelected(true);
     }
 
     // ============================================================
@@ -1042,6 +1048,7 @@ public class FrmBalanceGeneral extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        buttonGroup1 = new javax.swing.ButtonGroup();
         pnlSuperior = new javax.swing.JPanel();
         lblBalanceGeneral = new javax.swing.JLabel();
         lblSistemaGestionComercialYContable = new javax.swing.JLabel();
@@ -1060,6 +1067,10 @@ public class FrmBalanceGeneral extends javax.swing.JDialog {
         lblMensajeFechaCorte = new javax.swing.JLabel();
         pnlAdvertenciaFechaCorteInvalida = new javax.swing.JPanel();
         lblMensajeFechaCorteInvalida = new javax.swing.JLabel();
+        pnlExportarReporte = new javax.swing.JPanel();
+        rbtnCSV = new javax.swing.JRadioButton();
+        rbtnPDF = new javax.swing.JRadioButton();
+        btnExportarReporte = new javax.swing.JButton();
         spnlBalanceGeneral = new javax.swing.JScrollPane();
         pnlAcomodador = new javax.swing.JPanel();
         pnlActivos = new javax.swing.JPanel();
@@ -1128,7 +1139,7 @@ public class FrmBalanceGeneral extends javax.swing.JDialog {
                 .addGroup(pnlSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(lblHora, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(lblFecha, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(lblUsuario, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 43, Short.MAX_VALUE))
+                    .addComponent(lblUsuario, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(pnlSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(lblNombreApellidoUsuario, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1159,7 +1170,7 @@ public class FrmBalanceGeneral extends javax.swing.JDialog {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        pnlConsultaBalanceGeneral.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "01. CONSULTA DEL BALANCE GENERAL", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlConsultaBalanceGeneral.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "01. CONSULTA DEL BALANCE GENERAL", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         lblFechaDeCorte.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         lblFechaDeCorte.setText("FECHA DE CORTE");
@@ -1216,11 +1227,63 @@ public class FrmBalanceGeneral extends javax.swing.JDialog {
             .addGroup(pnlAdvertenciaFechaCorteInvalidaLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(lblMensajeFechaCorteInvalida, javax.swing.GroupLayout.PREFERRED_SIZE, 388, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(415, Short.MAX_VALUE))
         );
         pnlAdvertenciaFechaCorteInvalidaLayout.setVerticalGroup(
             pnlAdvertenciaFechaCorteInvalidaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(lblMensajeFechaCorteInvalida, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
+        pnlExportarReporte.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "Exportar:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 14))); // NOI18N
+        pnlExportarReporte.setFont(new java.awt.Font("Consolas", 0, 14)); // NOI18N
+
+        buttonGroup1.add(rbtnCSV);
+        rbtnCSV.setFont(new java.awt.Font("Consolas", 0, 12)); // NOI18N
+        rbtnCSV.setText("CSV");
+
+        buttonGroup1.add(rbtnPDF);
+        rbtnPDF.setFont(new java.awt.Font("Consolas", 0, 12)); // NOI18N
+        rbtnPDF.setText("PDF");
+        rbtnPDF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rbtnPDFActionPerformed(evt);
+            }
+        });
+
+        btnExportarReporte.setBackground(new java.awt.Color(255, 153, 51));
+        btnExportarReporte.setForeground(new java.awt.Color(255, 255, 255));
+        btnExportarReporte.setText("Generar Reporte");
+        btnExportarReporte.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExportarReporteActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout pnlExportarReporteLayout = new javax.swing.GroupLayout(pnlExportarReporte);
+        pnlExportarReporte.setLayout(pnlExportarReporteLayout);
+        pnlExportarReporteLayout.setHorizontalGroup(
+            pnlExportarReporteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlExportarReporteLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(pnlExportarReporteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnExportarReporte, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(pnlExportarReporteLayout.createSequentialGroup()
+                        .addGroup(pnlExportarReporteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(rbtnPDF, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(rbtnCSV, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 45, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        pnlExportarReporteLayout.setVerticalGroup(
+            pnlExportarReporteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlExportarReporteLayout.createSequentialGroup()
+                .addGap(12, 12, 12)
+                .addComponent(rbtnCSV)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(rbtnPDF)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnExportarReporte)
+                .addGap(0, 12, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout pnlConsultaBalanceGeneralLayout = new javax.swing.GroupLayout(pnlConsultaBalanceGeneral);
@@ -1232,39 +1295,47 @@ public class FrmBalanceGeneral extends javax.swing.JDialog {
                 .addGroup(pnlConsultaBalanceGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(pnlConsultaBalanceGeneralLayout.createSequentialGroup()
                         .addComponent(lblFechaDeCorte, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(pnlExportarReporte, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlConsultaBalanceGeneralLayout.createSequentialGroup()
                         .addGroup(pnlConsultaBalanceGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(pnlAdvertenciaFechaCorteInvalida, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(pnlMensajeFechaCorte, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, pnlConsultaBalanceGeneralLayout.createSequentialGroup()
-                                .addComponent(jdcFechaCorte, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(btnLimpiar)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(btnConsultar)))
+                            .addGroup(pnlConsultaBalanceGeneralLayout.createSequentialGroup()
+                                .addGroup(pnlConsultaBalanceGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(pnlMensajeFechaCorte, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addGroup(pnlConsultaBalanceGeneralLayout.createSequentialGroup()
+                                        .addComponent(jdcFechaCorte, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(btnLimpiar)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(btnConsultar)))
+                                .addGap(174, 174, 174)))
                         .addGap(20, 20, 20))))
         );
         pnlConsultaBalanceGeneralLayout.setVerticalGroup(
             pnlConsultaBalanceGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlConsultaBalanceGeneralLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(pnlConsultaBalanceGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(pnlConsultaBalanceGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(btnConsultar)
-                        .addComponent(btnLimpiar))
+                .addGroup(pnlConsultaBalanceGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(pnlConsultaBalanceGeneralLayout.createSequentialGroup()
-                        .addComponent(lblFechaDeCorte)
+                        .addContainerGap()
+                        .addGroup(pnlConsultaBalanceGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(pnlConsultaBalanceGeneralLayout.createSequentialGroup()
+                                .addComponent(lblFechaDeCorte)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jdcFechaCorte, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(pnlConsultaBalanceGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(btnLimpiar)
+                                .addComponent(btnConsultar)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jdcFechaCorte, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(pnlMensajeFechaCorte, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(pnlExportarReporte, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(pnlMensajeFechaCorte, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(pnlAdvertenciaFechaCorteInvalida, javax.swing.GroupLayout.PREFERRED_SIZE, 0, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        spnlBalanceGeneral.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "02. BALANCE GENERAL", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        spnlBalanceGeneral.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "02. BALANCE GENERAL", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         pnlActivos.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
 
@@ -1299,7 +1370,6 @@ public class FrmBalanceGeneral extends javax.swing.JDialog {
         pnlActivos.setLayout(pnlActivosLayout);
         pnlActivosLayout.setHorizontalGroup(
             pnlActivosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(spnlTblActivo, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 809, Short.MAX_VALUE)
             .addGroup(pnlActivosLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(pnlActivosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1309,8 +1379,11 @@ public class FrmBalanceGeneral extends javax.swing.JDialog {
                         .addComponent(lblActivo)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(lblNroCuentasActivo)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 691, Short.MAX_VALUE)))
                 .addContainerGap())
+            .addGroup(pnlActivosLayout.createSequentialGroup()
+                .addComponent(spnlTblActivo, javax.swing.GroupLayout.PREFERRED_SIZE, 818, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         pnlActivosLayout.setVerticalGroup(
             pnlActivosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1478,7 +1551,7 @@ public class FrmBalanceGeneral extends javax.swing.JDialog {
 
         spnlBalanceGeneral.setViewportView(pnlAcomodador);
 
-        pnlResumen.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "03. RESUMEN", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlResumen.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "03. RESUMEN", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         lblTotalActivo.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         lblTotalActivo.setText("TOTAL ACTIVO");
@@ -1533,7 +1606,7 @@ public class FrmBalanceGeneral extends javax.swing.JDialog {
                     .addComponent(lblTotalPasivoMasPatrimonio, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(lblValorPasivoMasPatrimonio, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(txtEstadoBalance, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)
+                .addComponent(txtEstadoBalance, javax.swing.GroupLayout.DEFAULT_SIZE, 149, Short.MAX_VALUE)
                 .addContainerGap())
         );
         pnlResumenLayout.setVerticalGroup(
@@ -1606,6 +1679,84 @@ public class FrmBalanceGeneral extends javax.swing.JDialog {
         consultarBalanceGeneral();
     }//GEN-LAST:event_btnConsultarActionPerformed
 
+    private void rbtnPDFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbtnPDFActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_rbtnPDFActionPerformed
+
+    private void btnExportarReporteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportarReporteActionPerformed
+        // TODO add your handling code here:
+        if (balanceActual == null) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Realiza una consulta antes de exportar.",
+                    "Exportar Balance General",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        LocalDate fechaCorte = obtenerFechaCorte();
+
+        List<String> encabezados = TablaExportUtil.obtenerEncabezados(tblActivo);
+
+        List<List<String>> filas = new ArrayList<>();
+
+        filas.add(List.of("ACTIVO", "", ""));
+        filas.addAll(TablaExportUtil.obtenerFilas(tblActivo));
+        filas.add(List.of("TOTAL", "", lblValorTotalActivo.getText()));
+
+        filas.add(List.of("", "", ""));
+
+        filas.add(List.of("PASIVO", "", ""));
+        filas.addAll(TablaExportUtil.obtenerFilas(tblPasivo));
+        filas.add(List.of("TOTAL", "", lblValorTotalPasivo.getText()));
+
+        filas.add(List.of("", "", ""));
+
+        filas.add(List.of("PATRIMONIO", "", ""));
+        filas.addAll(TablaExportUtil.obtenerFilas(tblPatrimonio));
+        filas.add(List.of("TOTAL", "", lblValorTotalPatrimonio.getText()));
+
+        String nombreBase = "balance_general"
+                + (fechaCorte != null ? "_" + fechaCorte : "");
+
+        JFileChooser selector = new JFileChooser();
+        boolean exportarComoCsv = rbtnCSV.isSelected();
+
+        selector.setSelectedFile(new File(nombreBase + (exportarComoCsv ? ".csv" : ".pdf")));
+
+        if (selector.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        String ruta = selector.getSelectedFile().getAbsolutePath();
+        String titulo = "BALANCE GENERAL"
+                + (fechaCorte != null ? " — al " + fechaCorte : "");
+
+        try {
+            if (exportarComoCsv) {
+                ExportadorCSV.exportar(ruta, encabezados, filas);
+            } else {
+                ExportadorPDF.exportarTabla(ruta, titulo, encabezados, filas);
+            }
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Reporte exportado correctamente.",
+                    "Exportar Balance General",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Falló la exportación: " + ex.getMessage(),
+                    "Exportar Balance General",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }//GEN-LAST:event_btnExportarReporteActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1651,7 +1802,9 @@ public class FrmBalanceGeneral extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnConsultar;
+    private javax.swing.JButton btnExportarReporte;
     private javax.swing.JButton btnLimpiar;
+    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
@@ -1685,11 +1838,14 @@ public class FrmBalanceGeneral extends javax.swing.JDialog {
     private javax.swing.JPanel pnlActivos;
     private javax.swing.JPanel pnlAdvertenciaFechaCorteInvalida;
     private javax.swing.JPanel pnlConsultaBalanceGeneral;
+    private javax.swing.JPanel pnlExportarReporte;
     private javax.swing.JPanel pnlMensajeFechaCorte;
     private javax.swing.JPanel pnlPasivos;
     private javax.swing.JPanel pnlPatrimonio;
     private javax.swing.JPanel pnlResumen;
     private javax.swing.JPanel pnlSuperior;
+    private javax.swing.JRadioButton rbtnCSV;
+    private javax.swing.JRadioButton rbtnPDF;
     private javax.swing.JScrollPane spnlBalanceGeneral;
     private javax.swing.JScrollPane spnlTblActivo;
     private javax.swing.JScrollPane spnlTblPasivo;

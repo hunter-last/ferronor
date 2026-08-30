@@ -438,6 +438,13 @@ public class FrmVentas extends FrmBase {
                     ventaUltimaRegistrada.getIgv(),
                     ventaUltimaRegistrada.getTotal()
             );
+
+            btnGenerarPdf.setEnabled(false);
+            idUltimaVentaRegistrada = null;
+            clienteUltimaVenta = null;
+            tipoComprobanteUltimaVenta = null;
+            ventaUltimaRegistrada = null;
+            itemsUltimaVenta = null;
         } catch (Exception ex) {
             mostrarValidacion("Falló la generación del PDF: " + ex.getMessage());
         }
@@ -1005,13 +1012,6 @@ public class FrmVentas extends FrmBase {
     private void btnGenerarPdfActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerarPdfActionPerformed
         // TODO add your handling code here:
         generarComprobantePdf();
-
-        btnGenerarPdf.setEnabled(false);
-        idUltimaVentaRegistrada = null;
-        clienteUltimaVenta = null;
-        tipoComprobanteUltimaVenta = null;
-        ventaUltimaRegistrada = null;
-        itemsUltimaVenta = null;
 
     }//GEN-LAST:event_btnGenerarPdfActionPerformed
 
