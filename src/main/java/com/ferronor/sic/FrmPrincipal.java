@@ -5,6 +5,7 @@ import com.ferronor.sic.compras.vista.FrmDevolucionProveedor;
 import com.ferronor.sic.compras.vista.FrmOrdenCompra;
 import com.ferronor.sic.compras.vista.FrmPagoProveedor;
 import com.ferronor.sic.compras.vista.FrmAprobacionOrdenCompra;
+import com.ferronor.sic.compras.vista.FrmHistorialCompras;
 import com.ferronor.sic.contabilidad.vista.FrmBalanceGeneral;
 import com.ferronor.sic.contabilidad.vista.FrmBalanzaComprobacion;
 import com.ferronor.sic.contabilidad.vista.FrmEstadoDeResultados;
@@ -30,6 +31,7 @@ import com.ferronor.sic.tesoreria.vista.FrmMovsBancarios;
 import com.ferronor.sic.tesoreria.vista.FrmMovsCaja;
 import com.ferronor.sic.ventas.vista.FrmCobroCliente;
 import com.ferronor.sic.ventas.vista.FrmDevolucionCliente;
+import com.ferronor.sic.ventas.vista.FrmHistorialVentas;
 import com.ferronor.sic.ventas.vista.FrmVentas;
 
 import javax.swing.*;
@@ -154,14 +156,17 @@ public class FrmPrincipal extends JFrame {
         }
 
         if (SesionUsuario.puedeAcceder("VENTAS")) {
+
+            menu.add(crearItem("Historial de Ventas", e -> {
+                new FrmHistorialVentas(this, true).setVisible(true);
+            }));
+
             menu.add(crearItem("Devolución de Cliente", e -> {
                 new FrmDevolucionCliente(this, true).setVisible(true);
             }));
         }
 
-        // Cuentas por Cobrar vive en el menú Tesorería (ver
-        // crearMenuTesoreria), no aquí — mismo criterio de paquetes
-        // ya definido en el informe (Ventas→Tesorería).
+        // Cuentas por Cobrar vive en Tesorería.
         return menu;
     }
 
@@ -175,6 +180,11 @@ public class FrmPrincipal extends JFrame {
         }
 
         if (SesionUsuario.puedeAcceder("COMPRAS")) {
+
+            menu.add(crearItem("Historial de Compras", e -> {
+                new FrmHistorialCompras(this, true).setVisible(true);
+            }));
+
             menu.add(crearItem("Solicitar Orden de Compra", e -> {
                 new FrmOrdenCompra(this, true).setVisible(true);
             }));
@@ -261,7 +271,7 @@ public class FrmPrincipal extends JFrame {
         menu.add(crearItem("Balance General", e -> {
             new FrmBalanceGeneral(this, true).setVisible(true);
         }));
-        
+
         return menu;
     }
 

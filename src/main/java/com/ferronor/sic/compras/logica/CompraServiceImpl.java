@@ -11,6 +11,7 @@ import com.ferronor.sic.compras.modelo.EstadoCuenta;
 import com.ferronor.sic.compras.modelo.EstadoOrdenCompra;
 import com.ferronor.sic.compras.modelo.OrdenCompra;
 import com.ferronor.sic.compras.modelo.PagoProveedor;
+import com.ferronor.sic.compras.modelo.dto.CompraConsulta;
 import com.ferronor.sic.compras.modelo.dto.CuentaPagarConsulta;
 import com.ferronor.sic.conexion.TransactionContext;
 import com.ferronor.sic.conexion.TransactionManager;
@@ -204,6 +205,33 @@ public class CompraServiceImpl implements CompraService {
         for (DetalleCompra detalle : detalleCompraDAO.listarPorCompra(compra.getIdCompra())) {
             compra.agregarDetalle(detalle);
         }
+    }
+
+    @Override
+    public List<CompraConsulta> consultarHistorial(
+            LocalDate fechaDesde,
+            LocalDate fechaHasta,
+            Integer idProveedor,
+            Integer idFormaPago,
+            Boolean conOrdenCompra) {
+
+        if (fechaDesde != null
+                && fechaHasta != null
+                && fechaDesde.isAfter(fechaHasta)) {
+
+            throw new IllegalArgumentException(
+                    "La fecha desde no puede ser posterior "
+                    + "a la fecha hasta"
+            );
+        }
+
+        return compraDAO.consultarHistorial(
+                fechaDesde,
+                fechaHasta,
+                idProveedor,
+                idFormaPago,
+                conOrdenCompra
+        );
     }
 
     @Override
