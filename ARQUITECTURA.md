@@ -7,12 +7,15 @@ entre los módulos ya construidos.
 ## 1. Estructura de paquetes
 
 com.ferronor.sic/
+├── Main.java — punto de entrada de la aplicación (arranca FlatDarkLaf y abre FrmLogin)
 ├── config/ — Configuracion (properties externos), Constantes (IGV, escala, redondeo)
 ├── conexion/ — ConexionPostgres, TransactionManager, TransactionContext
 ├── shared/ — RespuestaOperacion<T>, SesionUsuario, ServiceFactory, FrmBase,
 │ IGeneralDAO, IHistoricoDAO
-│ └── dao/ — AbstractDAO
-├── util/ — Validaciones, CalculadoraImpuestos, CalculadoraCPP
+│ ├── dao/ — AbstractDAO
+│ └── ui/ — ComboAutoFiltro (combo editable con búsqueda dinámica, ver sección 3.1)
+├── util/ — Validaciones, CalculadoraImpuestos, CalculadoraCPP,
+│ ExportadorCSV, ExportadorPDF, TablaExportUtil (exportación de reportes)
 ├── exception/ — DaoException, ServiceException
 ├── seguridad/ — usuario, rol, permiso, login
 ├── auditoria/ — registro transversal de acciones
@@ -26,10 +29,10 @@ com.ferronor.sic/
 └── procesos/ — coordinadores multi-módulo (ProcesoVenta, ProcesoCompra,
 ProcesoCobroCliente, ProcesoPagoProveedor)
 
-**Estado actual (backend):** los 8 módulos y los 4 coordinadores de `procesos/`
-están cerrados (modelo + DAO + logica). **Pendiente en todos los módulos excepto
-Seguridad y Maestros: la capa `vista/`** — ver sección 3.1 y el estado detallado
-al final de este documento.
+**Estado actual:** backend (modelo + DAO + logica) y capa `vista/` cerrados en
+los 8 módulos, más los 4 coordinadores de `procesos/`. **Pendiente: gestión de
+Usuarios y Roles desde la interfaz** (Seguridad) — el resto de módulos tiene
+sus pantallas principales terminadas. Ver el detalle completo en `README.md`.
 
 Cada módulo de negocio se organiza por **dominio primero**, no por capa global:
 
@@ -104,28 +107,54 @@ consulta del DAO debe tener su espejo en el Service).
 
 ## 3.1 Patrón de formularios (capa `vista/`)
 
-Todo formulario CRUD sigue estas 9 reglas. Usar `maestros/vista/FrmCategoria.java`
-como plantilla de referencia antes de crear un `Frm` nuevo.
+Hay **dos familias** de formulario, según su rol en la navegación — no una
+sola plantilla universal:
 
-1. **Heredar de `FrmBase`**, pasando el permiso de módulo en el constructor
-   (`super("MAESTROS")`, `super("INVENTARIO")`, etc.) — valida sesión activa
-   y permiso automáticamente.
-2. **Obtener el `Service` desde `ServiceFactory`**, nunca instanciando DAO ni
+**A) Pantallas principales de módulo (`JFrame`)** — hoy: los 7 CRUD de
+Maestros (`FrmGestionCategorias`, `FrmGestionClientes`, etc.) y `FrmVentas`.
+Estas **heredan de `FrmBase`**, pasando el permiso de módulo en el
+constructor (`super("MAESTROS")`, `super("VENTAS")`, etc.) — `FrmBase` valida
+sesión activa y permiso automáticamente al abrirse.
+
+**B) Pantallas secundarias / diálogos (`JDialog`)** — la mayoría del sistema:
+todo Tesorería, Contabilidad, Inventario, y el resto de Compras/Ventas
+(`FrmCompras`, `FrmKardex`, `FrmLibroMayor`, `FrmCierreCaja`, etc.). Estas
+**no heredan de `FrmBase`** — usan el constructor estándar de NetBeans
+`FrmX(java.awt.Frame parent, boolean modal)` y llaman a `super(parent, modal)`.
+El control de acceso no vive en el constructor del formulario: vive en
+`FrmPrincipal`, que decide qué ítems de menú mostrar según
+`SesionUsuario.puedeAcceder(...)` (ver sección 4) — si el ítem de menú no
+aparece, el diálogo nunca se abre. Se instancian siempre como
+`new FrmX(this, true).setVisible(true)` desde `FrmPrincipal` u otro
+formulario padre, nunca con `parent = null`.
+
+Reglas comunes a ambas familias:
+
+1. **Obtener el `Service` desde `ServiceFactory`**, nunca instanciando DAO ni
    Service manualmente en el formulario.
-3. **La vista nunca accede al DAO directamente.**
-4. **Las consultas usan los métodos de lectura del `Service`.** Si falta uno,
+2. **La vista nunca accede al DAO directamente.**
+3. **Las consultas usan los métodos de lectura del `Service`.** Si falta uno,
    se agrega ahí, nunca se resuelve accediendo al DAO desde la vista.
-5. **Las escrituras siempre devuelven `RespuestaOperacion<T>`**; el
+4. **Las escrituras siempre devuelven `RespuestaOperacion<T>`**; el
    formulario revisa `isExito()` y muestra `getMensaje()` en `JOptionPane`
    cuando falla.
-6. **No modificar el `DefaultTableModel` con datos parciales** — la tabla se
-   recarga completa desde el `Service`.
-7. **Recargar la tabla después de cualquier operación exitosa.**
-8. **Crear/editar en un diálogo separado**, nunca editando celdas de la tabla
-   directamente.
-9. **Nunca borrado físico.** Si la entidad tiene `activo`, el botón
+5. **No modificar el `DefaultTableModel` con datos parciales** — la tabla se
+   recarga completa desde el `Service`. **Excepción:** columnas de referencia
+   editable en tablas de detalle transaccional (ej. costo unitario en
+   `FrmCompras` cuando la compra viene de una Orden de Compra) — ahí el
+   usuario confirma o corrige el valor línea por línea antes de registrar;
+   el resto de la fila (producto, cantidad) sigue sin ser editable.
+6. **Recargar la tabla después de cualquier operación exitosa.**
+7. **Crear/editar en un diálogo separado**, salvo la excepción del punto 5.
+8. **Nunca borrado físico.** Si la entidad tiene `activo`, el botón
    "Eliminar" se reemplaza por "Activar"/"Desactivar". Si no tiene `activo`
    (`Categoria`, `UnidadMedida`, `FormaPago`), no se ofrece ninguna baja.
+9. **Combos con búsqueda dinámica usan `ComboAutoFiltro.mejorarCombo(combo,
+   servicio::metodoBusqueda)`** (`shared/ui/`) — nunca una implementación
+   propia de filtro en la vista. La entidad mostrada en el combo debe tener
+   `toString()` propio (ej. `Cliente`, `Producto`, `Proveedor`, `OrdenCompra`)
+   o el combo necesita un `ListCellRenderer` explícito — de lo contrario se
+   muestra el `hashCode` del objeto en vez de un texto legible.
 
 **Búsqueda con filtro parcial:** se resuelve en el `Service`
 (`buscarPorNombreParcial(texto)`), nunca con `.stream().filter(...)` en la
@@ -138,8 +167,8 @@ cambie.
 Dos niveles:
 
 - **Permisos de módulo** (controlan si el menú aparece):
-  `MAESTROS`, `INVENTARIO`, `COMPRAS`, `VENTAS`, `TESORERIA`, `CONTABILIDAD`,
-  `SEGURIDAD`.
+  `MAESTROS`, `INVENTARIO`, `COMPRAS`, `VENTAS`, `CAJA`, `TESORERIA`,
+  `CONTABILIDAD`, `SEGURIDAD`.
 - **Permisos de operación** (controlan una acción sensible dentro del módulo):
   `ADMIN_USUARIOS`, `AJUSTAR_STOCK`, `REGISTRAR_COMPRA`, `REGISTRAR_VENTA`,
   `ANULAR_VENTA`, `VER_BALANCE`, `GENERAR_REPORTES`.
@@ -150,6 +179,25 @@ de operación en las acciones realmente sensibles (hoy: `AjusteInventarioService
 valida `AJUSTAR_STOCK`; `UsuarioService` valida `ADMIN_USUARIOS` en
 `registrar`/`actualizar`/`activar`/`desactivar`, pero no en `cambiarPassword`,
 que cualquier usuario autenticado puede usar sobre sí mismo).
+
+**Caso especial — Tesorería, gate por ítem de menú:** el menú "Tesorería" en
+`FrmPrincipal` mezcla dos audiencias distintas bajo un mismo módulo, así que
+no basta un único permiso para todo el menú. Se separa en dos bloques dentro
+de `crearMenuTesoreria()`:
+
+- **`CAJA`** — operación diaria del rol Cajero: Abrir Caja, Cobro a Cliente,
+  Movimientos de Caja, Cierre de Caja.
+- **`TESORERIA`** — control del rol Tesorería: Cuentas por Pagar, Cuentas por
+  Cobrar, Pago a Proveedor, Movimientos Bancarios.
+
+El gate de nivel superior que decide si el menú "Tesorería" aparece siquiera
+es `CAJA || TESORERIA` — cualquiera de los dos roles necesita verlo, pero
+cada uno ve solo su bloque.
+
+**Caso especial — segregación de funciones en Compras:** "Aprobación de
+Orden de Compra" no usa el permiso de módulo `COMPRAS` (que tiene Logística,
+quien también *solicita* las órdenes) — usa `ADMIN_USUARIOS`, para que quien
+solicita una orden nunca pueda autoaprobarla.
 
 ## 5. Manejo de errores — ejemplo de referencia
 
@@ -211,5 +259,12 @@ transacción. No es necesario (ni el estilo de este proyecto) llamar a
 ## 8. Módulo de referencia
 
 **Inventario** (`inventario/`) es la plantilla oficial de backend.
-**`FrmCategoria`** (`maestros/vista/`) es la plantilla oficial de formularios.
-Ante cualquier duda, copiar su forma, no inventar un patrón distinto.
+
+Para la capa de vista no hay una sola plantilla — depende de la familia
+(sección 3.1): **`FrmGestionCategorias`** (`maestros/vista/`) es la
+referencia para pantallas principales tipo `JFrame`/`FrmBase`;
+**`FrmCuentasCobrar`** (`tesoreria/vista/`) es la referencia para un diálogo
+de solo consulta simple, y **`FrmCompras`** (`compras/vista/`) para un
+diálogo maestro-detalle transaccional con tabla editable. Ante cualquier
+duda, copiar la forma del ejemplo más cercano al caso, no inventar un patrón
+distinto.
