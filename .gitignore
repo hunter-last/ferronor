@@ -32,10 +32,12 @@ out/
 .settings/
 bin/
 
+
 # Compilados Java
 *.class
 *.jar
 !.mvn/wrapper/maven-wrapper.jar
+repomix-output.xml
 
 # Credenciales y configuración local — NUNCA subir
 src/main/resources/config.properties
