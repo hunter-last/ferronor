@@ -5,7 +5,7 @@ nuevo. Las reglas aquí descritas no son sugerencias: mantienen la consistencia
 entre los módulos ya construidos.
 
 ## 1. Estructura de paquetes
-
+```
 com.ferronor.sic/
 ├── Main.java — punto de entrada de la aplicación (arranca FlatDarkLaf y abre FrmLogin)
 ├── config/ — Configuracion (properties externos), Constantes (IGV, escala, redondeo)
@@ -28,21 +28,21 @@ com.ferronor.sic/
 ├── contabilidad/ — asientocontable, detalleasiento, libros y balances (derivados)
 └── procesos/ — coordinadores multi-módulo (ProcesoVenta, ProcesoCompra,
 ProcesoCobroCliente, ProcesoPagoProveedor)
-
+```
 **Estado actual:** backend (modelo + DAO + logica) y capa `vista/` cerrados en
 los 8 módulos, más los 4 coordinadores de `procesos/`. **Pendiente: gestión de
 Usuarios y Roles desde la interfaz** (Seguridad) — el resto de módulos tiene
 sus pantallas principales terminadas. Ver el detalle completo en `README.md`.
 
 Cada módulo de negocio se organiza por **dominio primero**, no por capa global:
-
+```
 modulo/
 ├── modelo/
 │ └── dto/ (solo si el módulo tiene datos derivados, ej. inventario/modelo/dto/KardexItem)
 ├── dao/
 ├── logica/
 └── vista/
-
+```
 Nunca crear un paquete `modelo/`, `dao/`, `dto/` global a nivel de toda la
 aplicación — eso rompe la cohesión que permite entender un módulo completo
 mirando una sola carpeta.
