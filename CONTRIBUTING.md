@@ -1,4 +1,4 @@
-\# Guía de contribución — Sistema Decor Home Ferronor
+# Guía de contribución — Sistema Decor Home Ferronor
 
 
 
@@ -8,11 +8,11 @@ completo antes de tu primer commit.
 
 
 
-\## Flujo de trabajo con Git
+## Flujo de trabajo con Git
 
 
 
-1\. \*\*Nunca trabajar directamente sobre `main`.\*\* `main` siempre debe reflejar
+1\. *\*Nunca trabajar directamente sobre `main`.\*\* `main` siempre debe reflejar
 
 &#x20;  código que compila y pasa el smoke test.
 
@@ -58,7 +58,7 @@ a un solo commit gigante de "avance del día".
 
 
 
-\## Antes de escribir código nuevo
+## Antes de escribir código nuevo
 
 
 
@@ -88,25 +88,25 @@ a un solo commit gigante de "avance del día".
 
 
 
-\- Nunca `Vista → DAO` directo. Siempre `Vista → Service → DAO → BD`.
+- Nunca `Vista → DAO` directo. Siempre `Vista → Service → DAO → BD`.
 
-\- Nunca excepciones para errores de negocio — usa `RespuestaOperacion<T>`.
+- Nunca excepciones para errores de negocio — usa `RespuestaOperacion<T>`.
 
-\- Nunca `Statement.RETURN\_GENERATED\_KEYS` — usa `RETURNING` en el SQL.
+- Nunca `Statement.RETURN\_GENERATED\_KEYS` — usa `RETURNING` en el SQL.
 
-\- Nunca abrir/cerrar `Connection` manualmente en un `Service` — usa
+- Nunca abrir/cerrar `Connection` manualmente en un `Service` — usa
 
 &#x20; `TransactionManager.iniciar()` con `try-with-resources`.
 
-\- Nunca credenciales de base de datos en el código — usa `Configuracion`.
+- Nunca credenciales de base de datos en el código — usa `Configuracion`.
 
 
 
-\## Seguridad y datos sensibles
+## Seguridad y datos sensibles
 
 
 
-\- \*\*Nunca\*\* subas `config.properties` (tiene tu contraseña real de
+- **Nunca\*\* subas `config.properties` (tiene tu contraseña real de
 
 &#x20; PostgreSQL). Ya está en `.gitignore`, pero verifícalo si `git status` te lo
 
@@ -138,7 +138,7 @@ a un solo commit gigante de "avance del día".
 
 
 
-\## Preguntas
+## Preguntas
 
 
 
