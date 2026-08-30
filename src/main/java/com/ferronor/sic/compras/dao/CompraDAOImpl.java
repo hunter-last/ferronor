@@ -1,13 +1,16 @@
 package com.ferronor.sic.compras.dao;
 
 import com.ferronor.sic.compras.modelo.Compra;
+import com.ferronor.sic.compras.modelo.dto.CompraConsulta;
 import com.ferronor.sic.exception.DaoException;
 import com.ferronor.sic.shared.dao.AbstractDAO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -135,6 +138,141 @@ public class CompraDAOImpl extends AbstractDAO implements CompraDAO {
         }
     }
 
+    @Override
+    public List<CompraConsulta> consultarHistorial(
+            LocalDate fechaDesde,
+            LocalDate fechaHasta,
+            Integer idProveedor,
+            Integer idFormaPago,
+            Boolean conOrdenCompra) {
+
+        StringBuilder sql = new StringBuilder(
+                "SELECT "
+                + "c.id_compra, "
+                + "c.id_orden_compra, "
+                + "c.fecha, "
+                + "c.id_proveedor, "
+                + "p.razon_social, "
+                + "p.ruc, "
+                + "c.id_forma_pago, "
+                + "fp.nombre AS nombre_forma_pago, "
+                + "c.plazo_dias, "
+                + "c.numero_factura, "
+                + "c.subtotal, "
+                + "c.igv, "
+                + "c.total, "
+                + "c.id_usuario, "
+                + "u.nombres || ' ' || u.apellidos AS nombre_usuario "
+                + "FROM compra c "
+                + "JOIN proveedor p "
+                + "ON p.id_proveedor = c.id_proveedor "
+                + "JOIN forma_pago fp "
+                + "ON fp.id_forma_pago = c.id_forma_pago "
+                + "JOIN usuario u "
+                + "ON u.id_usuario = c.id_usuario "
+                + "WHERE 1 = 1 "
+        );
+
+        if (fechaDesde != null) {
+            sql.append("AND c.fecha >= ? ");
+        }
+
+        if (fechaHasta != null) {
+            sql.append("AND c.fecha < ? ");
+        }
+
+        if (idProveedor != null) {
+            sql.append("AND c.id_proveedor = ? ");
+        }
+
+        if (idFormaPago != null) {
+            sql.append("AND c.id_forma_pago = ? ");
+        }
+
+        if (conOrdenCompra != null) {
+
+            if (conOrdenCompra) {
+                sql.append("AND c.id_orden_compra IS NOT NULL ");
+            } else {
+                sql.append("AND c.id_orden_compra IS NULL ");
+            }
+        }
+
+        sql.append(
+                "ORDER BY c.fecha DESC, c.id_compra DESC"
+        );
+
+        Connection cn = obtenerConexion();
+
+        List<CompraConsulta> resultado
+                = new ArrayList<>();
+
+        try (PreparedStatement ps
+                = cn.prepareStatement(sql.toString())) {
+
+            int i = 1;
+
+            if (fechaDesde != null) {
+
+                ps.setTimestamp(
+                        i++,
+                        Timestamp.valueOf(
+                                fechaDesde.atStartOfDay()
+                        )
+                );
+            }
+
+            if (fechaHasta != null) {
+
+                ps.setTimestamp(
+                        i++,
+                        Timestamp.valueOf(
+                                fechaHasta
+                                        .plusDays(1)
+                                        .atStartOfDay()
+                        )
+                );
+            }
+
+            if (idProveedor != null) {
+                ps.setInt(
+                        i++,
+                        idProveedor
+                );
+            }
+
+            if (idFormaPago != null) {
+                ps.setInt(
+                        i++,
+                        idFormaPago
+                );
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                while (rs.next()) {
+
+                    resultado.add(
+                            mapearConsulta(rs)
+                    );
+                }
+            }
+
+            return resultado;
+
+        } catch (SQLException e) {
+
+            throw error(
+                    "Error al consultar historial de compras",
+                    e
+            );
+
+        } finally {
+
+            cerrar(cn);
+        }
+    }
+
     private Compra mapear(ResultSet rs) throws SQLException {
         Compra compra = new Compra();
         compra.setIdCompra(rs.getInt("id_compra"));
@@ -155,5 +293,44 @@ public class CompraDAOImpl extends AbstractDAO implements CompraDAO {
         compra.setTotal(rs.getBigDecimal("total"));
         compra.setIdUsuario(rs.getInt("id_usuario"));
         return compra;
+    }
+
+    private CompraConsulta mapearConsulta(
+            ResultSet rs) throws SQLException {
+
+        int idOrdenCompra
+                = rs.getInt("id_orden_compra");
+
+        Integer ordenCompra
+                = rs.wasNull()
+                ? null
+                : idOrdenCompra;
+
+        int plazoDias
+                = rs.getInt("plazo_dias");
+
+        Integer plazo
+                = rs.wasNull()
+                ? null
+                : plazoDias;
+
+        return new CompraConsulta(
+                rs.getInt("id_compra"),
+                ordenCompra,
+                rs.getTimestamp("fecha")
+                        .toLocalDateTime(),
+                rs.getInt("id_proveedor"),
+                rs.getString("razon_social"),
+                rs.getString("ruc"),
+                rs.getInt("id_forma_pago"),
+                rs.getString("nombre_forma_pago"),
+                plazo,
+                rs.getString("numero_factura"),
+                rs.getBigDecimal("subtotal"),
+                rs.getBigDecimal("igv"),
+                rs.getBigDecimal("total"),
+                rs.getInt("id_usuario"),
+                rs.getString("nombre_usuario")
+        );
     }
 }

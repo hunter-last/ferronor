@@ -494,6 +494,7 @@ public class FrmVentas extends FrmBase {
         lblFecha = new javax.swing.JLabel();
         lblFechaHora = new javax.swing.JLabel();
         lblCaja = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
         pnlCliente = new javax.swing.JPanel();
         pnlClienteBuscado = new javax.swing.JPanel();
         lblDocumento = new javax.swing.JLabel();
@@ -551,43 +552,52 @@ public class FrmVentas extends FrmBase {
 
         lblCaja.setText("Caja Principal - Abierta");
 
+        jLabel1.setFont(new java.awt.Font("Lucida Sans Typewriter", 0, 24)); // NOI18N
+        jLabel1.setText("REGISTRAR UNA VENTA");
+
         javax.swing.GroupLayout pnlSuperiorLayout = new javax.swing.GroupLayout(pnlSuperior);
         pnlSuperior.setLayout(pnlSuperiorLayout);
         pnlSuperiorLayout.setHorizontalGroup(
             pnlSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlSuperiorLayout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(15, 15, 15)
+                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(pnlSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblVendedor)
-                    .addComponent(lblNombreVend))
-                .addGap(23, 23, 23)
-                .addGroup(pnlSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblFecha)
-                    .addComponent(lblFechaHora))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblNombreVend)
+                    .addComponent(lblVendedor, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(pnlSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(lblFechaHora, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblFecha, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
                 .addComponent(lblCaja)
-                .addGap(15, 15, 15))
+                .addGap(9, 9, 9))
         );
         pnlSuperiorLayout.setVerticalGroup(
             pnlSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlSuperiorLayout.createSequentialGroup()
-                .addGroup(pnlSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(pnlSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(pnlSuperiorLayout.createSequentialGroup()
                         .addContainerGap()
-                        .addGroup(pnlSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(lblVendedor)
-                            .addComponent(lblFecha))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(pnlSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(lblNombreVend)
-                            .addComponent(lblFechaHora)))
-                    .addGroup(pnlSuperiorLayout.createSequentialGroup()
-                        .addGap(14, 14, 14)
-                        .addComponent(lblCaja)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(pnlSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(pnlSuperiorLayout.createSequentialGroup()
+                                .addGap(2, 2, 2)
+                                .addComponent(lblCaja, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE))
+                            .addGroup(pnlSuperiorLayout.createSequentialGroup()
+                                .addGroup(pnlSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(lblVendedor)
+                                    .addComponent(lblFecha))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(pnlSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(lblNombreVend)
+                                    .addComponent(lblFechaHora))))
+                        .addGap(2, 2, 2)))
+                .addContainerGap())
         );
 
-        pnlCliente.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "01. CLIENTE", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlCliente.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "01. CLIENTE", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         pnlClienteBuscado.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
 
@@ -653,7 +663,7 @@ public class FrmVentas extends FrmBase {
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
-        pnlDetalleProducto.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "02. DETALLE DEL PRODUCTO", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlDetalleProducto.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "02. DETALLE DEL PRODUCTO", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         tblDetProducto.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         tblDetProducto.setModel(new javax.swing.table.DefaultTableModel(
@@ -683,7 +693,7 @@ public class FrmVentas extends FrmBase {
             pnlDetalleProductoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlDetalleProductoLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 531, Short.MAX_VALUE)
                 .addContainerGap())
         );
         pnlDetalleProductoLayout.setVerticalGroup(
@@ -730,7 +740,7 @@ public class FrmVentas extends FrmBase {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        pnlValidaciones.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "03. VALIDACIONES", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlValidaciones.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "03. VALIDACIONES", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         javax.swing.GroupLayout pnlValidacionesLayout = new javax.swing.GroupLayout(pnlValidaciones);
         pnlValidaciones.setLayout(pnlValidacionesLayout);
@@ -756,7 +766,7 @@ public class FrmVentas extends FrmBase {
                 .addContainerGap())
         );
 
-        pnlComprobante.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "COMPROBANTE", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlComprobante.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "COMPROBANTE", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         lblTipo.setFont(new java.awt.Font("Consolas", 0, 10)); // NOI18N
         lblTipo.setText("TIPO:");
@@ -767,7 +777,7 @@ public class FrmVentas extends FrmBase {
         lblNroComprobante.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         lblNroComprobante.setText("B00-00124");
 
-        pnlFormaPago.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "FORMA DE PAGO", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlFormaPago.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "FORMA DE PAGO", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         javax.swing.GroupLayout pnlFormaPagoLayout = new javax.swing.GroupLayout(pnlFormaPago);
         pnlFormaPago.setLayout(pnlFormaPagoLayout);
@@ -801,7 +811,7 @@ public class FrmVentas extends FrmBase {
             .addGroup(pnlDestinoPagoLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(pnlDestinoPagoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(rbtnCtaBancaria, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(rbtnCtaBancaria, javax.swing.GroupLayout.DEFAULT_SIZE, 293, Short.MAX_VALUE)
                     .addGroup(pnlDestinoPagoLayout.createSequentialGroup()
                         .addComponent(rbtnCaja, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE)))
@@ -817,7 +827,7 @@ public class FrmVentas extends FrmBase {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        pnlTotales.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "TOTALES", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
+        pnlTotales.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "TOTALES", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Consolas", 0, 12))); // NOI18N
 
         lblSubtotal.setText("Subtotal:");
 
@@ -1074,6 +1084,7 @@ public class FrmVentas extends FrmBase {
     private javax.swing.JComboBox<Producto> cmbProductos;
     private javax.swing.JComboBox<TipoComprobante> cmbTipoComprobante;
     private javax.swing.ButtonGroup grpBtnFormaPago;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel lblCaja;

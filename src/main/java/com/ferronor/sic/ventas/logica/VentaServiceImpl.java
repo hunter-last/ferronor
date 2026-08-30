@@ -11,6 +11,7 @@ import com.ferronor.sic.maestros.modelo.TipoComprobante;
 import com.ferronor.sic.shared.RespuestaOperacion;
 import com.ferronor.sic.util.CalculadoraImpuestos;
 import com.ferronor.sic.config.Constantes;
+import com.ferronor.sic.exception.ServiceException;
 import com.ferronor.sic.ventas.dao.ComprobanteDAO;
 import com.ferronor.sic.ventas.dao.CorrelativoComprobanteDAO;
 import com.ferronor.sic.ventas.dao.CuentaCobrarDAO;
@@ -24,6 +25,7 @@ import com.ferronor.sic.ventas.modelo.EstadoCuenta;
 import com.ferronor.sic.ventas.modelo.EstadoVenta;
 import com.ferronor.sic.ventas.modelo.Venta;
 import com.ferronor.sic.ventas.modelo.dto.CuentaCobrarConsulta;
+import com.ferronor.sic.ventas.modelo.dto.VentaConsulta;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -185,6 +187,32 @@ public class VentaServiceImpl implements VentaService {
         List<Venta> ventas = ventaDAO.listar();
         ventas.forEach(this::cargarDetalles);
         return ventas;
+    }
+
+    @Override
+    public List<VentaConsulta> consultarHistorial(
+            LocalDate fechaDesde,
+            LocalDate fechaHasta,
+            Integer idCliente,
+            EstadoVenta estado,
+            Integer idTipoComprobante) {
+
+        if (fechaDesde != null
+                && fechaHasta != null
+                && fechaDesde.isAfter(fechaHasta)) {
+
+            throw new ServiceException(
+                    "La fecha desde no puede ser posterior a la fecha hasta"
+            );
+        }
+
+        return ventaDAO.consultarHistorial(
+                fechaDesde,
+                fechaHasta,
+                idCliente,
+                estado,
+                idTipoComprobante
+        );
     }
 
     @Override

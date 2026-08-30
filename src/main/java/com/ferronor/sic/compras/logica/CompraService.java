@@ -4,6 +4,7 @@ import com.ferronor.sic.compras.modelo.Compra;
 import com.ferronor.sic.compras.modelo.CuentaPagar;
 import com.ferronor.sic.compras.modelo.EstadoCuenta;
 import com.ferronor.sic.compras.modelo.PagoProveedor;
+import com.ferronor.sic.compras.modelo.dto.CompraConsulta;
 import com.ferronor.sic.compras.modelo.dto.CuentaPagarConsulta;
 import com.ferronor.sic.shared.RespuestaOperacion;
 import java.time.LocalDate;
@@ -21,6 +22,13 @@ public interface CompraService {
     Compra buscarPorId(int idCompra);
 
     List<Compra> listar();
+
+    List<CompraConsulta> consultarHistorial(
+            LocalDate fechaDesde,
+            LocalDate fechaHasta,
+            Integer idProveedor,
+            Integer idFormaPago,
+            Boolean conOrdenCompra);
 
     // CompraService es dueño de cuenta_pagar (1-1 con compra): estas consultas quedan
     // aquí en vez de crear un CuentaPagarService separado solo para no repartir una

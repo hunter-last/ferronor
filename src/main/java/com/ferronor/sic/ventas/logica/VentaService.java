@@ -5,8 +5,10 @@ import com.ferronor.sic.ventas.modelo.CobroCliente;
 import com.ferronor.sic.ventas.modelo.Comprobante;
 import com.ferronor.sic.ventas.modelo.CuentaCobrar;
 import com.ferronor.sic.ventas.modelo.EstadoCuenta;
+import com.ferronor.sic.ventas.modelo.EstadoVenta;
 import com.ferronor.sic.ventas.modelo.Venta;
 import com.ferronor.sic.ventas.modelo.dto.CuentaCobrarConsulta;
+import com.ferronor.sic.ventas.modelo.dto.VentaConsulta;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -29,6 +31,13 @@ public interface VentaService {
 
     List<Venta> listar();
 
+    List<VentaConsulta> consultarHistorial(
+            LocalDate fechaDesde,
+            LocalDate fechaHasta,
+            Integer idCliente,
+            EstadoVenta estado,
+            Integer idTipoComprobante);
+
     // VentaService es dueño de cuenta_cobrar (1-1 con venta): mismo criterio que
     // CompraService con cuenta_pagar, no se crea un CuentaCobrarService aparte.
     CuentaCobrar buscarCuentaCobrarPorVenta(int idVenta);
@@ -39,6 +48,6 @@ public interface VentaService {
 
     List<CuentaCobrarConsulta> consultarCuentasPorCobrar(EstadoCuenta estado, Integer idCliente,
             LocalDate fechaDesde, LocalDate fechaHasta);
-    
+
     Comprobante buscarComprobantePorVenta(int idVenta);
 }
