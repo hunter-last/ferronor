@@ -113,6 +113,8 @@ public class FrmCobroCliente extends javax.swing.JDialog {
         initComponents();
 
         configurarFormulario();
+        setLocationRelativeTo(getParent());
+
     }
 
     // ============================================================

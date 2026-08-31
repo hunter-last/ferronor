@@ -83,6 +83,9 @@ public class FrmAjusteInventario extends javax.swing.JDialog {
         initComponents();
 
         configurarComponentes();
+
+        setLocationRelativeTo(getParent());
+
     }
 
     // ============================================================

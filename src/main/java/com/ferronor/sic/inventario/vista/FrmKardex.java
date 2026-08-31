@@ -97,6 +97,9 @@ public class FrmKardex extends javax.swing.JDialog {
         configurarListeners();
 
         iniciarReloj();
+
+        setLocationRelativeTo(getParent());
+
     }
 
     // ============================================================
@@ -1616,10 +1619,11 @@ public class FrmKardex extends javax.swing.JDialog {
                         .addComponent(btnConsultar)
                         .addComponent(btnLimpiar))
                     .addGroup(pnlConsultaLayout.createSequentialGroup()
-                        .addGroup(pnlConsultaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(lblProducto)
-                            .addComponent(lblHasta)
-                            .addComponent(lblDesde))
+                        .addGroup(pnlConsultaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblHasta, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(pnlConsultaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(lblProducto)
+                                .addComponent(lblDesde)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(pnlConsultaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(cmbProductos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)

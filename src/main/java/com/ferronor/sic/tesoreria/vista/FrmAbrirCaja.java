@@ -1,6 +1,5 @@
 package com.ferronor.sic.tesoreria.vista;
 
-
 import com.ferronor.sic.shared.RespuestaOperacion;
 import com.ferronor.sic.shared.ServiceFactory;
 import com.ferronor.sic.shared.SesionUsuario;
@@ -30,31 +29,25 @@ import javax.swing.JOptionPane;
  *
  * Flujo:
  *
- * Vista
- *   -> ServiceFactory
- *      -> TesoreriaService
- *         -> lógica existente
+ * Vista -> ServiceFactory -> TesoreriaService -> lógica existente
  *
  * La vista no accede a DAO, SQL ni TransactionContext.
  *
- * IMPORTANTE:
- * El método tesoreriaService.listarCajas() requiere la pequeña
- * extensión del contrato público de TesoreriaService indicada
- * previamente. CajaDAO ya dispone internamente de listar().
+ * IMPORTANTE: El método tesoreriaService.listarCajas() requiere la pequeña
+ * extensión del contrato público de TesoreriaService indicada previamente.
+ * CajaDAO ya dispone internamente de listar().
  */
 public class FrmAbrirCaja extends javax.swing.JDialog {
 
     // ============================================================
     // SERVICIO
     // ============================================================
-
     private final TesoreriaService tesoreriaService
             = ServiceFactory.tesoreriaService();
 
     // ============================================================
     // ESTADO DE LA VISTA
     // ============================================================
-
     /**
      * Caja que actualmente está abierta en el sistema.
      *
@@ -76,7 +69,6 @@ public class FrmAbrirCaja extends javax.swing.JDialog {
     // ============================================================
     // FORMATOS
     // ============================================================
-
     private static final DateTimeFormatter FORMATO_FECHA
             = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -107,19 +99,20 @@ public class FrmAbrirCaja extends javax.swing.JDialog {
     // ============================================================
     // CONSTRUCTOR
     // ============================================================
-
     public FrmAbrirCaja(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
 
         initComponents();
 
         configurarFormulario();
+
+        setLocationRelativeTo(getParent());
+
     }
 
     // ============================================================
     // CONFIGURACIÓN GENERAL
     // ============================================================
-
     private void configurarFormulario() {
 
         configurarCabecera();
@@ -140,7 +133,6 @@ public class FrmAbrirCaja extends javax.swing.JDialog {
     // ============================================================
     // CABECERA
     // ============================================================
-
     private void configurarCabecera() {
 
         actualizarUsuarioCabecera();
@@ -186,14 +178,12 @@ public class FrmAbrirCaja extends javax.swing.JDialog {
     // ============================================================
     // COMPONENTES INFORMATIVOS
     // ============================================================
-
     private void configurarComponentesInformativos() {
 
         /*
          * Estos componentes son exclusivamente informativos.
          * El usuario nunca debe editarlos.
          */
-
         txtEstadoCaja.setEditable(false);
         txtEstadoCaja.setFocusable(false);
 
@@ -243,7 +233,6 @@ public class FrmAbrirCaja extends javax.swing.JDialog {
     // ============================================================
     // COMBO CAJAS
     // ============================================================
-
     private void configurarComboCajas() {
 
         cmbCajas.setRenderer(
@@ -311,14 +300,13 @@ public class FrmAbrirCaja extends javax.swing.JDialog {
     // ============================================================
     // EVENTOS
     // ============================================================
-
     private void configurarEventos() {
 
         cmbCajas.addActionListener(
                 evt -> {
 
                     if (!formularioInicializado
-                            || actualizandoCombo) {
+                    || actualizandoCombo) {
                         return;
                     }
 
@@ -338,7 +326,6 @@ public class FrmAbrirCaja extends javax.swing.JDialog {
     // ============================================================
     // ESTADO INICIAL
     // ============================================================
-
     private void configurarEstadoInicial() {
 
         actualizandoCombo = true;
@@ -368,7 +355,6 @@ public class FrmAbrirCaja extends javax.swing.JDialog {
     // ============================================================
     // CARGA DEL ESTADO ACTUAL
     // ============================================================
-
     private void cargarEstadoActual() {
 
         try {
@@ -418,7 +404,6 @@ public class FrmAbrirCaja extends javax.swing.JDialog {
     // ============================================================
     // CARGAR CAJAS
     // ============================================================
-
     private void cargarCajasDisponibles() {
 
         try {
@@ -439,9 +424,9 @@ public class FrmAbrirCaja extends javax.swing.JDialog {
             List<Caja> cajasCerradas
                     = cajas.stream()
                             .filter(caja -> caja != null)
-                            .filter(caja ->
-                                    caja.getEstado()
-                                    == EstadoCaja.CERRADA
+                            .filter(caja
+                                    -> caja.getEstado()
+                            == EstadoCaja.CERRADA
                             )
                             .sorted(
                                     Comparator.comparing(
@@ -540,7 +525,6 @@ public class FrmAbrirCaja extends javax.swing.JDialog {
     // ============================================================
     // SELECCIÓN DE CAJA
     // ============================================================
-
     private void cajaSeleccionada() {
 
         Caja caja
@@ -599,7 +583,6 @@ public class FrmAbrirCaja extends javax.swing.JDialog {
     // ============================================================
     // INFORMACIÓN DE CAJA
     // ============================================================
-
     private void mostrarInformacionCaja(
             Caja caja) {
 
@@ -680,7 +663,6 @@ public class FrmAbrirCaja extends javax.swing.JDialog {
     // ============================================================
     // CAJA YA ABIERTA
     // ============================================================
-
     private void mostrarCajaYaAbierta(
             Caja caja) {
 
@@ -777,7 +759,6 @@ public class FrmAbrirCaja extends javax.swing.JDialog {
     // ============================================================
     // APERTURA
     // ============================================================
-
     private void abrirCaja() {
 
         Caja caja
@@ -894,7 +875,6 @@ public class FrmAbrirCaja extends javax.swing.JDialog {
     // ============================================================
     // VERIFICAR APERTURA EXITOSA
     // ============================================================
-
     private void cargarCajaAbiertaDespuesDeApertura() {
 
         try {
@@ -996,7 +976,6 @@ public class FrmAbrirCaja extends javax.swing.JDialog {
     // ============================================================
     // MENSAJES
     // ============================================================
-
     private void mostrarMensaje(
             String mensaje) {
 
@@ -1010,7 +989,6 @@ public class FrmAbrirCaja extends javax.swing.JDialog {
     // ============================================================
     // RESPONSABLE
     // ============================================================
-
     private String obtenerNombreResponsable(
             Caja caja) {
 
@@ -1045,7 +1023,6 @@ public class FrmAbrirCaja extends javax.swing.JDialog {
     // ============================================================
     // FORMATEO
     // ============================================================
-
     private String formatearMoneda(
             BigDecimal valor) {
 
@@ -1077,7 +1054,6 @@ public class FrmAbrirCaja extends javax.swing.JDialog {
     // ============================================================
     // UTILIDADES
     // ============================================================
-
     private String valorTexto(
             String texto) {
 

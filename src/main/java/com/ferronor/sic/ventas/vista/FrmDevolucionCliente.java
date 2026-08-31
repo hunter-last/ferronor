@@ -57,6 +57,8 @@ public class FrmDevolucionCliente extends javax.swing.JDialog {
         initComponents();
 
         configurarComponentes();
+        setLocationRelativeTo(getParent());
+
     }
 
     private void configurarComponentes() {

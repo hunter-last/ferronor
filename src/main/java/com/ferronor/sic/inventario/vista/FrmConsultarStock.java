@@ -70,6 +70,9 @@ public class FrmConsultarStock extends javax.swing.JDialog {
         iniciarReloj();
 
         cargarExistencias();
+
+        setLocationRelativeTo(getParent());
+
     }
 
     private void configurarSesion() {

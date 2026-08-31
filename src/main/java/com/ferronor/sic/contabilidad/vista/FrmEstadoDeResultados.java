@@ -114,6 +114,9 @@ public class FrmEstadoDeResultados extends javax.swing.JDialog {
         initComponents();
 
         configurarFormulario();
+
+        setLocationRelativeTo(getParent());
+
     }
 
     // ============================================================

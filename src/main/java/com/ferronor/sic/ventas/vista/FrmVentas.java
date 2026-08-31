@@ -95,6 +95,9 @@ public class FrmVentas extends FrmBase {
 
         configurarComponentes();
         btnGenerarPdf.setEnabled(false);
+
+        setLocationRelativeTo(getParent());
+
     }
 
     // ============================================================

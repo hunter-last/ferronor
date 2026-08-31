@@ -136,6 +136,9 @@ public class FrmBalanzaComprobacion extends javax.swing.JDialog {
         configurarResumenInicial();
 
         configurarEstadoInicial();
+
+        setLocationRelativeTo(getParent());
+
     }
 
     // ============================================================

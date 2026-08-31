@@ -79,6 +79,9 @@ public class FrmMovsBancarios extends javax.swing.JDialog {
         initComponents();
 
         configurarFormulario();
+
+        setLocationRelativeTo(getParent());
+
     }
 
     // ============================================================
@@ -1105,10 +1108,11 @@ public class FrmMovsBancarios extends javax.swing.JDialog {
             pnlResumenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlResumenLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(pnlResumenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblMovimientos, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblTotalDepositos)
-                    .addComponent(lblTotalRetiros, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(pnlResumenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblTotalRetiros, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(pnlResumenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(lblMovimientos, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblTotalDepositos)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(pnlResumenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblCantMovimientos)

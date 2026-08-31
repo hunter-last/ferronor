@@ -25,14 +25,12 @@ public class FrmCierreCaja extends javax.swing.JDialog {
     // ============================================================
     // SERVICIO
     // ============================================================
-
     private final TesoreriaService tesoreriaService
             = ServiceFactory.tesoreriaService();
 
     // ============================================================
     // ESTADO DE LA VISTA
     // ============================================================
-
     private Caja cajaAbierta;
 
     private BigDecimal saldoSistema = BigDecimal.ZERO;
@@ -40,7 +38,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
     // ============================================================
     // FORMATOS
     // ============================================================
-
     private static final DateTimeFormatter FORMATO_FECHA
             = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -70,18 +67,19 @@ public class FrmCierreCaja extends javax.swing.JDialog {
     // ============================================================
     // CONSTRUCTOR
     // ============================================================
-
     public FrmCierreCaja(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
 
         configurarFormulario();
+
+        setLocationRelativeTo(getParent());
+
     }
 
     // ============================================================
     // CONFIGURACIÓN GENERAL
     // ============================================================
-
     private void configurarFormulario() {
 
         configurarCabecera();
@@ -98,7 +96,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
     // ============================================================
     // CABECERA
     // ============================================================
-
     private void configurarCabecera() {
 
         actualizarUsuarioCabecera();
@@ -144,7 +141,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
     // ============================================================
     // CONFIGURACIÓN DE CAMPOS
     // ============================================================
-
     private void configurarCampos() {
 
         txtUnidadMoneda.setEditable(false);
@@ -181,20 +177,17 @@ public class FrmCierreCaja extends javax.swing.JDialog {
     // ============================================================
     // EVENTOS
     // ============================================================
-
     private void configurarEventos() {
 
         /*
          * Estos listeners complementan los eventos generados
          * por NetBeans.
          */
-
     }
 
     // ============================================================
     // LISTENER DEL SALDO FINAL REAL
     // ============================================================
-
     private void configurarListenerSaldoFinalReal() {
 
         txtSaldoFinalReal.getDocument().addDocumentListener(
@@ -220,7 +213,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
     // ============================================================
     // CARGAR CAJA ABIERTA
     // ============================================================
-
     private void cargarCajaAbierta() {
 
         try {
@@ -248,7 +240,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
     // ============================================================
     // MOSTRAR CAJA ABIERTA
     // ============================================================
-
     private void mostrarCajaAbierta() {
 
         if (cajaAbierta == null) {
@@ -261,7 +252,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
         // --------------------------------------------------------
         // Caja
         // --------------------------------------------------------
-
         lblNombreCaja.setText(
                 valorTexto(
                         cajaAbierta.getNombre()
@@ -271,17 +261,15 @@ public class FrmCierreCaja extends javax.swing.JDialog {
         // --------------------------------------------------------
         // Estado
         // --------------------------------------------------------
-
         lblEstadoCaja.setText(
                 cajaAbierta.getEstado() == null
-                        ? "ABIERTA"
-                        : cajaAbierta.getEstado().name()
+                ? "ABIERTA"
+                : cajaAbierta.getEstado().name()
         );
 
         // --------------------------------------------------------
         // Usuario actual
         // --------------------------------------------------------
-
         try {
 
             SesionUsuario sesion
@@ -303,7 +291,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
         // --------------------------------------------------------
         // Fecha y hora de apertura
         // --------------------------------------------------------
-
         if (cajaAbierta.getFechaApertura() != null) {
 
             lblFechaHoraApertura.setText(
@@ -320,7 +307,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
         // --------------------------------------------------------
         // Saldo del sistema
         // --------------------------------------------------------
-
         saldoSistema = normalizarMonto(
                 cajaAbierta.getSaldoActual()
         );
@@ -340,7 +326,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
         // --------------------------------------------------------
         // Mostrar paneles
         // --------------------------------------------------------
-
         pnlCajaAbierta.setVisible(true);
         pnlArqueoCaja.setVisible(true);
         pnlBotones.setVisible(true);
@@ -368,7 +353,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
     // ============================================================
     // SIN CAJA ABIERTA
     // ============================================================
-
     private void manejarSinCajaAbierta() {
 
         cajaAbierta = null;
@@ -383,7 +367,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
          *
          * Se informa el estado mediante los componentes existentes.
          */
-
         lblNombreCaja.setText(
                 "No hay una caja abierta"
         );
@@ -446,7 +429,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
     // ============================================================
     // ERROR AL CARGAR CAJA
     // ============================================================
-
     private void manejarErrorCargaCaja(
             RuntimeException ex) {
 
@@ -472,7 +454,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
     // ============================================================
     // ACTUALIZAR ARQUEO
     // ============================================================
-
     private void actualizarArqueo() {
 
         BigDecimal saldoFinalReal
@@ -486,7 +467,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
         // --------------------------------------------------------
         // Saldo del sistema
         // --------------------------------------------------------
-
         txtResumenValorSaldoDelSistema.setText(
                 formatearMoneda(
                         saldoSistema
@@ -496,7 +476,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
         // --------------------------------------------------------
         // Saldo final real
         // --------------------------------------------------------
-
         txtResumenValorSaldoFinalReal.setText(
                 formatearMoneda(
                         saldoFinalReal
@@ -506,7 +485,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
         // --------------------------------------------------------
         // Diferencia
         // --------------------------------------------------------
-
         txtResumenValorDiferencia.setText(
                 formatearDiferencia(
                         diferencia
@@ -557,7 +535,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
     // ============================================================
     // OBTENER SALDO FINAL REAL
     // ============================================================
-
     private BigDecimal obtenerSaldoFinalReal() {
 
         String texto
@@ -597,7 +574,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
     // ============================================================
     // CERRAR CAJA
     // ============================================================
-
     private void cerrarCaja() {
 
         if (cajaAbierta == null) {
@@ -704,7 +680,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
         // --------------------------------------------------------
         // Confirmación
         // --------------------------------------------------------
-
         int confirmacion
                 = JOptionPane.showConfirmDialog(
                         this,
@@ -726,7 +701,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
         // --------------------------------------------------------
         // Deshabilitar mientras se ejecuta la operación
         // --------------------------------------------------------
-
         btnCerrarCaja.setEnabled(false);
         btnCancelar.setEnabled(false);
 
@@ -774,7 +748,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
             // ----------------------------------------------------
             // ÉXITO
             // ----------------------------------------------------
-
             JOptionPane.showMessageDialog(
                     this,
                     construirMensajeExito(
@@ -812,7 +785,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
     // ============================================================
     // CANCELAR
     // ============================================================
-
     private void cancelar() {
 
         dispose();
@@ -821,7 +793,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
     // ============================================================
     // MENSAJE DE CONFIRMACIÓN
     // ============================================================
-
     private String construirMensajeConfirmacion(
             BigDecimal saldoFinalReal,
             BigDecimal diferencia) {
@@ -873,7 +844,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
     // ============================================================
     // MENSAJE DE ÉXITO
     // ============================================================
-
     private String construirMensajeExito(
             BigDecimal saldoFinalReal,
             BigDecimal diferencia) {
@@ -925,7 +895,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
     // ============================================================
     // FORMATO MONETARIO
     // ============================================================
-
     private String formatearMoneda(
             BigDecimal valor) {
 
@@ -984,7 +953,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
     // ============================================================
     // USUARIO
     // ============================================================
-
     private String obtenerNombreUsuarioActual() {
 
         try {
@@ -1003,7 +971,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
     // ============================================================
     // TEXTO
     // ============================================================
-
     private String valorTexto(
             String texto) {
 
@@ -1019,7 +986,6 @@ public class FrmCierreCaja extends javax.swing.JDialog {
     // ============================================================
     // ERROR
     // ============================================================
-
     private String obtenerMensajeError(
             RuntimeException ex) {
 

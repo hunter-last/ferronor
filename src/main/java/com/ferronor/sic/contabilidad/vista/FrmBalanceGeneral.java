@@ -114,6 +114,9 @@ public class FrmBalanceGeneral extends javax.swing.JDialog {
         configurarFormulario();
 
         rbtnPDF.setSelected(true);
+
+        setLocationRelativeTo(getParent());
+
     }
 
     // ============================================================

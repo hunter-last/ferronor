@@ -380,29 +380,27 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="pnlSaldosCuentaCobrar" alignment="1" max="32767" attributes="0"/>
                           <Component id="pnlRegistrarCobro" alignment="1" max="32767" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                                          <Component id="lblVenta" alignment="0" min="-2" pref="70" max="-2" attributes="0"/>
-                                          <Component id="lblVencimiento" alignment="0" min="-2" pref="70" max="-2" attributes="0"/>
-                                          <Component id="lblFechaVenta" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      </Group>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                          <Component id="lblValorFechaVenta" alignment="0" pref="259" max="32767" attributes="0"/>
-                                          <Component id="lblValorFechaVencimiento" alignment="0" max="32767" attributes="0"/>
-                                          <Component id="lblValorCodigoVenta" alignment="0" max="32767" attributes="0"/>
-                                      </Group>
+                          <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                                      <Component id="lblVenta" alignment="0" min="-2" pref="70" max="-2" attributes="0"/>
+                                      <Component id="lblVencimiento" alignment="0" min="-2" pref="70" max="-2" attributes="0"/>
+                                      <Component id="lblFechaVenta" alignment="0" min="-2" max="-2" attributes="0"/>
                                   </Group>
-                                  <Group type="102" alignment="1" attributes="0">
-                                      <Component id="lblNombreEmpresaYTipoEmpresa" pref="257" max="32767" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="txtEstadoCuentaCobrar" min="-2" pref="72" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                      <Component id="lblValorFechaVenta" alignment="0" pref="259" max="32767" attributes="0"/>
+                                      <Component id="lblValorFechaVencimiento" alignment="0" max="32767" attributes="0"/>
+                                      <Component id="lblValorCodigoVenta" alignment="0" max="32767" attributes="0"/>
                                   </Group>
                               </Group>
-                              <Component id="lblRucNroRuc" min="-2" pref="107" max="-2" attributes="0"/>
+                              <Group type="102" alignment="1" attributes="0">
+                                  <Component id="lblNombreEmpresaYTipoEmpresa" pref="257" max="32767" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="txtEstadoCuentaCobrar" min="-2" pref="72" max="-2" attributes="0"/>
+                              </Group>
                           </Group>
+                          <Component id="lblRucNroRuc" min="-2" pref="107" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
