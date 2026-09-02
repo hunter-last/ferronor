@@ -61,6 +61,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
     public FrmPrincipal() {
         initComponents();
         configurarVentana();
+        configurarEstilosYEventos();
         aplicarPermisos();
     }
 
@@ -89,6 +90,69 @@ public class FrmPrincipal extends javax.swing.JFrame {
         });
     }
 
+    private void configurarEstilosYEventos() {
+        // Estilos de contenedores laterales
+        pnlLateral.setBackground(COLOR_BARRA_LATERAL);
+        pnlHeaderLateral.setBackground(COLOR_HEADER_LATERAL);
+        pnlBotonesModulos.setBackground(COLOR_BARRA_LATERAL);
+
+        // Estilos e íconos para cada botón de módulo
+        configurarBotonModulo(btnModuloMaestros, "  •  MAESTROS", "Closed folder.png");
+        configurarBotonModulo(btnModuloInventario, "  •  INVENTARIO", "Box.png");
+        configurarBotonModulo(btnModuloVentas, "  •  VENTAS", "Basket.png");
+        configurarBotonModulo(btnModuloCompras, "  •  COMPRAS", "Brief case.png");
+        configurarBotonModulo(btnModuloTesoreria, "  •  TESORERÍA", "Safe.png");
+        configurarBotonModulo(btnModuloContabilidad, "  •  CONTABILIDAD", "Diagram.png");
+        configurarBotonModulo(btnModuloDashboard, "  •  DASHBOARD / MÉTRICAS", "Statistics.png");
+
+        // Listeners para abrir los menús emergentes y el dashboard
+        btnModuloMaestros.addActionListener(e -> mostrarMenuMaestros(btnModuloMaestros));
+        btnModuloInventario.addActionListener(e -> mostrarMenuInventario(btnModuloInventario));
+        btnModuloVentas.addActionListener(e -> mostrarMenuVentas(btnModuloVentas));
+        btnModuloCompras.addActionListener(e -> mostrarMenuCompras(btnModuloCompras));
+        btnModuloTesoreria.addActionListener(e -> mostrarMenuTesoreria(btnModuloTesoreria));
+        btnModuloContabilidad.addActionListener(e -> mostrarMenuContabilidad(btnModuloContabilidad));
+        btnModuloDashboard.addActionListener(e -> abrirDashboard());
+
+        // Botón Cerrar Sesión
+        btnCerrarSesion.setBackground(COLOR_BTN_CERRAR_SESION);
+        btnCerrarSesion.setFocusPainted(false);
+        btnCerrarSesion.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnCerrarSesion.setIcon(obtenerIcono("Log out.png"));
+        btnCerrarSesion.setPreferredSize(new Dimension(270, 48));
+        btnCerrarSesion.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                btnCerrarSesion.setBackground(COLOR_BTN_CERRAR_HOVER);
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                btnCerrarSesion.setBackground(COLOR_BTN_CERRAR_SESION);
+            }
+        });
+        btnCerrarSesion.addActionListener(e -> cerrarSesion());
+    }
+
+    private void abrirDashboard() {
+        FrmDashboard frm = new FrmDashboard();
+        frm.setVisible(true);
+    }
+
+    private ImageIcon obtenerIcono(String nombre) {
+        String[] rutas = {
+            "/com/ferronor/sic/images/" + nombre,
+            "/images/" + nombre,
+            "images/" + nombre
+        };
+        for (String r : rutas) {
+            java.net.URL url = getClass().getResource(r);
+            if (url != null) {
+                return new ImageIcon(url);
+            }
+        }
+        return null;
+    }
+
     private void aplicarPermisos() {
         SesionUsuario sesion = SesionUsuario.actual();
         if (sesion == null) return;
@@ -99,6 +163,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         btnModuloCompras.setEnabled(sesion.tienePermiso("COMPRAS") || sesion.tienePermiso("REGISTRAR_COMPRA"));
         btnModuloTesoreria.setEnabled(sesion.tienePermiso("TESORERIA") || sesion.tienePermiso("CAJA"));
         btnModuloContabilidad.setEnabled(sesion.tienePermiso("CONTABILIDAD"));
+        btnModuloDashboard.setEnabled(true);
     }
 
     private void cerrarSesion() {
@@ -122,24 +187,24 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
     private void mostrarMenuMaestros(Component invoker) {
         JPopupMenu popup = new JPopupMenu();
-        popup.add(crearMenuItem("Categorías de Productos", e -> new FrmGestionCategorias().setVisible(true)));
-        popup.add(crearMenuItem("Clientes", e -> new FrmGestionClientes().setVisible(true)));
-        popup.add(crearMenuItem("Productos y Catálogo", e -> new FrmGestionProductos().setVisible(true)));
-        popup.add(crearMenuItem("Proveedores", e -> new FrmGestionProveedores().setVisible(true)));
+        popup.add(crearMenuItem("Categorías de Productos", "Label.png", e -> new FrmGestionCategorias().setVisible(true)));
+        popup.add(crearMenuItem("Clientes", "User.png", e -> new FrmGestionClientes().setVisible(true)));
+        popup.add(crearMenuItem("Productos y Catálogo", "Box.png", e -> new FrmGestionProductos().setVisible(true)));
+        popup.add(crearMenuItem("Proveedores", "Company.png", e -> new FrmGestionProveedores().setVisible(true)));
         popup.addSeparator();
-        popup.add(crearMenuItem("Unidades de Medida", e -> new FrmGestionUnidadesMedida().setVisible(true)));
-        popup.add(crearMenuItem("Formas de Pago", e -> new FrmGestionFormasPago().setVisible(true)));
-        popup.add(crearMenuItem("Tipos de Comprobante", e -> new FrmGestionTiposComprobante().setVisible(true)));
+        popup.add(crearMenuItem("Unidades de Medida", "Calculator.png", e -> new FrmGestionUnidadesMedida().setVisible(true)));
+        popup.add(crearMenuItem("Formas de Pago", "Coin.png", e -> new FrmGestionFormasPago().setVisible(true)));
+        popup.add(crearMenuItem("Tipos de Comprobante", "Document.png", e -> new FrmGestionTiposComprobante().setVisible(true)));
         popup.show(invoker, invoker.getWidth(), 0);
     }
 
     private void mostrarMenuInventario(Component invoker) {
         JPopupMenu popup = new JPopupMenu();
-        popup.add(crearMenuItem("Consultar Stock", e -> new FrmConsultarStock(this, true).setVisible(true)));
-        popup.add(crearMenuItem("Kardex de Movimientos", e -> new FrmKardex(this, true).setVisible(true)));
+        popup.add(crearMenuItem("Consultar Stock", "Search.png", e -> new FrmConsultarStock(this, true).setVisible(true)));
+        popup.add(crearMenuItem("Kardex de Movimientos", "Report.png", e -> new FrmKardex(this, true).setVisible(true)));
         if (SesionUsuario.puedeAcceder("AJUSTAR_STOCK")) {
             popup.addSeparator();
-            popup.add(crearMenuItem("Ajustes de Inventario", e -> new FrmAjusteInventario(this, true).setVisible(true)));
+            popup.add(crearMenuItem("Ajustes de Inventario", "Properties.png", e -> new FrmAjusteInventario(this, true).setVisible(true)));
         }
         popup.show(invoker, invoker.getWidth(), 0);
     }
@@ -147,11 +212,11 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private void mostrarMenuVentas(Component invoker) {
         JPopupMenu popup = new JPopupMenu();
         if (SesionUsuario.puedeAcceder("REGISTRAR_VENTA")) {
-            popup.add(crearMenuItem("Registrar Venta", e -> new FrmVentas().setVisible(true)));
+            popup.add(crearMenuItem("Registrar Venta", "Basket.png", e -> new FrmVentas().setVisible(true)));
         }
         if (SesionUsuario.puedeAcceder("VENTAS")) {
-            popup.add(crearMenuItem("Historial de Ventas", e -> new FrmHistorialVentas(this, true).setVisible(true)));
-            popup.add(crearMenuItem("Devolución de Cliente", e -> new FrmDevolucionCliente(this, true).setVisible(true)));
+            popup.add(crearMenuItem("Historial de Ventas", "List.png", e -> new FrmHistorialVentas(this, true).setVisible(true)));
+            popup.add(crearMenuItem("Devolución de Cliente", "Remove from basket.png", e -> new FrmDevolucionCliente(this, true).setVisible(true)));
         }
         popup.show(invoker, invoker.getWidth(), 0);
     }
@@ -159,16 +224,16 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private void mostrarMenuCompras(Component invoker) {
         JPopupMenu popup = new JPopupMenu();
         if (SesionUsuario.puedeAcceder("REGISTRAR_COMPRA")) {
-            popup.add(crearMenuItem("Registrar Compra", e -> new FrmCompras().setVisible(true)));
+            popup.add(crearMenuItem("Registrar Compra", "Brief case.png", e -> new FrmCompras().setVisible(true)));
         }
         if (SesionUsuario.puedeAcceder("COMPRAS")) {
-            popup.add(crearMenuItem("Historial de Compras", e -> new FrmHistorialCompras(this, true).setVisible(true)));
-            popup.add(crearMenuItem("Solicitar Orden de Compra", e -> new FrmOrdenCompra(this, true).setVisible(true)));
-            popup.add(crearMenuItem("Devolución a Proveedor", e -> new FrmDevolucionProveedor(this, true).setVisible(true)));
+            popup.add(crearMenuItem("Historial de Compras", "List.png", e -> new FrmHistorialCompras(this, true).setVisible(true)));
+            popup.add(crearMenuItem("Solicitar Orden de Compra", "Application form.png", e -> new FrmOrdenCompra(this, true).setVisible(true)));
+            popup.add(crearMenuItem("Devolución a Proveedor", "Left.png", e -> new FrmDevolucionProveedor(this, true).setVisible(true)));
         }
         if (SesionUsuario.puedeAcceder("ADMIN_USUARIOS")) {
             popup.addSeparator();
-            popup.add(crearMenuItem("Aprobación de Órdenes de Compra", e -> new FrmAprobacionOrdenCompra(this, true).setVisible(true)));
+            popup.add(crearMenuItem("Aprobación de Órdenes", "OK.png", e -> new FrmAprobacionOrdenCompra(this, true).setVisible(true)));
         }
         popup.show(invoker, invoker.getWidth(), 0);
     }
@@ -176,38 +241,42 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private void mostrarMenuTesoreria(Component invoker) {
         JPopupMenu popup = new JPopupMenu();
         if (SesionUsuario.puedeAcceder("CAJA")) {
-            popup.add(crearMenuItem("Abrir Caja", e -> new FrmAbrirCaja(this, true).setVisible(true)));
-            popup.add(crearMenuItem("Cobro a Cliente", e -> new FrmCobroCliente(this, true).setVisible(true)));
-            popup.add(crearMenuItem("Movimientos de Caja", e -> new FrmMovsCaja(this, true).setVisible(true)));
-            popup.add(crearMenuItem("Cierre de Caja", e -> new FrmCierreCaja(this, true).setVisible(true)));
+            popup.add(crearMenuItem("Abrir Caja", "Unlock.png", e -> new FrmAbrirCaja(this, true).setVisible(true)));
+            popup.add(crearMenuItem("Cobro a Cliente", "Dollar.png", e -> new FrmCobroCliente(this, true).setVisible(true)));
+            popup.add(crearMenuItem("Movimientos de Caja", "Safe.png", e -> new FrmMovsCaja(this, true).setVisible(true)));
+            popup.add(crearMenuItem("Cierre de Caja", "Lock.png", e -> new FrmCierreCaja(this, true).setVisible(true)));
         }
         if (SesionUsuario.puedeAcceder("TESORERIA")) {
             if (popup.getComponentCount() > 0) {
                 popup.addSeparator();
             }
-            popup.add(crearMenuItem("Cuentas por Pagar (Proveedores)", e -> new FrmCuentasPagar(this, true).setVisible(true)));
-            popup.add(crearMenuItem("Cuentas por Cobrar (Clientes)", e -> new FrmCuentasCobrar(this, true).setVisible(true)));
-            popup.add(crearMenuItem("Pago a Proveedor", e -> new FrmPagoProveedor(this, true).setVisible(true)));
-            popup.add(crearMenuItem("Movimientos Bancarios", e -> new FrmMovsBancarios(this, true).setVisible(true)));
+            popup.add(crearMenuItem("Cuentas por Pagar (Proveedores)", "Alarm.png", e -> new FrmCuentasPagar(this, true).setVisible(true)));
+            popup.add(crearMenuItem("Cuentas por Cobrar (Clientes)", "Coins.png", e -> new FrmCuentasCobrar(this, true).setVisible(true)));
+            popup.add(crearMenuItem("Pago a Proveedor", "Payment.png", e -> new FrmPagoProveedor(this, true).setVisible(true)));
+            popup.add(crearMenuItem("Movimientos Bancarios", "Piggy bank.png", e -> new FrmMovsBancarios(this, true).setVisible(true)));
         }
         popup.show(invoker, invoker.getWidth(), 0);
     }
 
     private void mostrarMenuContabilidad(Component invoker) {
         JPopupMenu popup = new JPopupMenu();
-        popup.add(crearMenuItem("Libro Diario", e -> new FrmLibroDiario(this, true).setVisible(true)));
-        popup.add(crearMenuItem("Libro Mayor", e -> new FrmLibroMayor(this, true).setVisible(true)));
-        popup.add(crearMenuItem("Balanza de Comprobación", e -> new FrmBalanzaComprobacion(this, true).setVisible(true)));
+        popup.add(crearMenuItem("Libro Diario", "Book.png", e -> new FrmLibroDiario(this, true).setVisible(true)));
+        popup.add(crearMenuItem("Libro Mayor", "Card file.png", e -> new FrmLibroMayor(this, true).setVisible(true)));
+        popup.add(crearMenuItem("Balanza de Comprobación", "Calculator.png", e -> new FrmBalanzaComprobacion(this, true).setVisible(true)));
         popup.addSeparator();
-        popup.add(crearMenuItem("Estado de Resultados", e -> new FrmEstadoDeResultados(this, true).setVisible(true)));
-        popup.add(crearMenuItem("Balance General", e -> new FrmBalanceGeneral(this, true).setVisible(true)));
+        popup.add(crearMenuItem("Estado de Resultados", "Diagram.png", e -> new FrmEstadoDeResultados(this, true).setVisible(true)));
+        popup.add(crearMenuItem("Balance General", "Statistics.png", e -> new FrmBalanceGeneral(this, true).setVisible(true)));
         popup.show(invoker, invoker.getWidth(), 0);
     }
 
-    private JMenuItem crearMenuItem(String texto, java.awt.event.ActionListener accion) {
+    private JMenuItem crearMenuItem(String texto, String icono, java.awt.event.ActionListener accion) {
         JMenuItem item = new JMenuItem(texto);
         item.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        item.setPreferredSize(new Dimension(240, 30));
+        item.setPreferredSize(new Dimension(250, 32));
+        if (icono != null && !icono.isEmpty()) {
+            item.setIcon(obtenerIcono(icono));
+            item.setIconTextGap(8);
+        }
         item.addActionListener(accion);
         return item;
     }
@@ -375,12 +444,14 @@ public class FrmPrincipal extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void configurarBotonModulo(JButton btn, String texto) {
+    private void configurarBotonModulo(JButton btn, String texto, String nombreIcono) {
         btn.setText(texto);
         btn.setFont(new java.awt.Font("Segoe UI", Font.BOLD, 14));
         btn.setForeground(Color.WHITE);
         btn.setBackground(COLOR_BTN_NORMAL);
         btn.setHorizontalAlignment(SwingConstants.LEFT);
+        btn.setIcon(obtenerIcono(nombreIcono));
+        btn.setIconTextGap(10);
         btn.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0x4D, 0x54, 0x52)),
                 BorderFactory.createEmptyBorder(0, 18, 0, 10)
