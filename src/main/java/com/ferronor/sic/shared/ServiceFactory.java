@@ -37,6 +37,9 @@ import com.ferronor.sic.procesos.ProcesoPagoProveedor;
 import com.ferronor.sic.procesos.ProcesoVenta;
 import com.ferronor.sic.tesoreria.dao.*;
 import com.ferronor.sic.tesoreria.logica.*;
+import com.ferronor.sic.dashboard.dao.DashboardDAOPA;
+import com.ferronor.sic.dashboard.logica.DashboardService;
+import com.ferronor.sic.dashboard.logica.DashboardServiceImpl;
 import com.ferronor.sic.ventas.dao.*;
 import com.ferronor.sic.ventas.logica.*;
 
@@ -189,5 +192,10 @@ public final class ServiceFactory {
 
     public static ProcesoDevolucionVenta procesoDevolucionVenta() {
         return new ProcesoDevolucionVenta(devolucionVentaService(), inventarioService());
+    }
+
+    // Dashboard con Procedimientos Almacenados
+    public static DashboardService dashboardService() {
+        return new DashboardServiceImpl(new DashboardDAOPA());
     }
 }

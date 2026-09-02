@@ -47,6 +47,7 @@ Sistemas de Información Contable — UNPRG, semestre 2026-I.
 | 8 | `08_auditoria.sql` | Registro de eventos |
 | 9 | `09_indices.sql` | Índices y restricciones adicionales |
 | 10 | `10_datos_iniciales.sql` | Roles/usuarios de prueba, catálogos base y datos de ejemplo |
+| 11 | `11_procedimientos_almacenados.sql` | Procedimientos y funciones PL/pgSQL para Dashboard y recálculo de estados |
 
 **Importante:** el orden es obligatorio — cada script depende de las tablas creadas por el anterior (llaves foráneas entre módulos).
 
@@ -128,6 +129,7 @@ Nunca crear un paquete `modelo/`, `dao/`, `dto/` global a nivel de toda la aplic
 
 | Módulo | Pantallas |
 |---|---|
+| Dashboard | Tablero Principal (`FrmPrincipal`) con KPIs, ranking de productos, alertas de stock, transacciones recientes y accesos rápidos por rol alimentado con PL/pgSQL |
 | Seguridad | Login |
 | Maestros | Categorías, Productos, Clientes, Proveedores, Formas de Pago, Tipos de Comprobante, Unidades de Medida |
 | Inventario | Consultar Stock, Kardex, Ajuste de Inventario |
