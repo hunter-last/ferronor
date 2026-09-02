@@ -172,25 +172,35 @@ public class FrmLogin extends JFrame {
             return;
         }
 
-        RespuestaOperacion<Void> resultado
-                = loginService.iniciarSesion(usuario, password);
+        try {
+            RespuestaOperacion<Void> resultado
+                    = loginService.iniciarSesion(usuario, password);
 
-        if (!resultado.isExito()) {
+            if (!resultado.isExito()) {
 
+                JOptionPane.showMessageDialog(
+                        this,
+                        resultado.getMensaje(),
+                        "Error de acceso",
+                        JOptionPane.ERROR_MESSAGE
+                );
+
+                txtPassword.setText("");
+                txtPassword.requestFocusInWindow();
+                return;
+            }
+
+            new FrmPrincipal().setVisible(true);
+            dispose();
+        } catch (Exception ex) {
             JOptionPane.showMessageDialog(
                     this,
-                    resultado.getMensaje(),
-                    "Error de acceso",
+                    "Error al conectar con la base de datos:\n" + ex.getMessage(),
+                    "Error del Sistema",
                     JOptionPane.ERROR_MESSAGE
             );
-
-            txtPassword.setText("");
-            txtPassword.requestFocusInWindow();
-            return;
+            ex.printStackTrace();
         }
-
-        new FrmPrincipal().setVisible(true);
-        dispose();
     }
 
     public static void main(String[] args) {

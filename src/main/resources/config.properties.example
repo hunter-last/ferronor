@@ -1,6 +1,7 @@
 
 
 db.url=jdbc:postgresql://localhost:5432/bdferronor
+db.usuario=postgres
 db.user=postgres
 db.password=
 

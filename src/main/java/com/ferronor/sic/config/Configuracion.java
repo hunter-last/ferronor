@@ -39,10 +39,18 @@ public final class Configuracion {
     }
 
     public static String dbUsuario() {
-        return requerida("db.usuario");
+        String valor = props.getProperty("db.usuario");
+        if (valor != null && !valor.isBlank()) {
+            return valor.trim();
+        }
+        return requerida("db.user");
     }
 
     public static String dbPassword() {
-        return requerida("db.password");
+        String valor = props.getProperty("db.password");
+        if (valor != null) {
+            return valor;
+        }
+        return requerida("db.pass");
     }
 }
